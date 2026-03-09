@@ -1,0 +1,32 @@
+# Go
+/terraform-provider-dagsterplus
+*.test
+*.out
+vendor/
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfvars
+!examples/**/*.tfvars
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Release
+dist/
+
+# Local dev workspace
+.env
+dev.tfrc
+local/.terraform/
+local/.terraform.lock.hcl
