@@ -1,0 +1,129 @@
+fragment AlertPolicyFields on AlertPolicy {
+  id
+  name
+  description
+  enabled
+  eventTypes
+  policyOptions {
+    consecutiveFailureThreshold
+  }
+  alertTargets {
+    __typename
+    ... on AssetSelectionTarget {
+      assetSelectionString
+    }
+    ... on AssetKeyTarget {
+      assetKey {
+        path
+      }
+    }
+    ... on RunResultTarget {
+      jobs {
+        jobName
+      }
+      tags {
+        key
+        value
+      }
+      codeLocationNames
+    }
+    ... on LongRunningJobThresholdTarget {
+      thresholdSeconds
+      jobs {
+        jobName
+      }
+      tags {
+        key
+        value
+      }
+      codeLocationNames
+    }
+    ... on CodeLocationTarget {
+      codeLocationNames
+    }
+    ... on ScheduleSensorTarget {
+      types
+      codeLocationNames
+      schedulesSensors {
+        name
+      }
+    }
+    ... on InsightsDeploymentThresholdTarget {
+      metricName
+      operator
+      threshold
+      selectionPeriodDays
+    }
+    ... on InsightsAssetGroupThresholdTarget {
+      assetGroup
+      metricName
+      operator
+      threshold
+      selectionPeriodDays
+    }
+    ... on InsightsAssetThresholdTarget {
+      assetKey {
+        path
+      }
+      metricName
+      operator
+      threshold
+      selectionPeriodDays
+    }
+    ... on InsightsJobThresholdTarget {
+      jobName
+      metricName
+      operator
+      threshold
+      selectionPeriodDays
+    }
+  }
+  notificationService {
+    __typename
+    ... on EmailAlertPolicyNotification {
+      emailAddresses
+    }
+    ... on EmailOwnersAlertPolicyNotification {
+      defaultEmailAddresses
+    }
+    ... on SlackAlertPolicyNotification {
+      slackWorkspaceName
+      slackChannelName
+    }
+    ... on MicrosoftTeamsAlertPolicyNotification {
+      webhookUrl
+    }
+    ... on PagerdutyAlertPolicyNotification {
+      integrationKey
+    }
+  }
+}
+
+query ListAlertPolicies {
+  alertPolicies {
+    ...AlertPolicyFields
+  }
+}
+
+mutation CreateOrUpdateAlertPolicy($document: GenericScalar!) {
+  createOrUpdateAlertPolicyFromDocument(document: $document) {
+    __typename
+    ... on AlertPolicy {
+      id
+      name
+    }
+    ... on InvalidAlertPolicyError {
+      message
+      errors
+    }
+  }
+}
+
+mutation DeleteAlertPolicy($name: String!) {
+  deleteAlertPolicy(alertPolicyName: $name) {
+    __typename
+    ... on DeleteAlertPolicySuccess {
+      alertPolicyName
+    }
+  }
+}

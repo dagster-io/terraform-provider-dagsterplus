@@ -3,79 +3,45 @@ package client
 import (
 	"context"
 	"fmt"
+
+	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
 )
 
 // User represents a Dagster+ organization member.
 type User struct {
-	ID    string `json:"userId"`
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	ID    string
+	Email string
+	Name  string
 	Role  string // populated from organizationPermissionGrant.grant
 }
 
-// userWithGrants is the raw shape returned by the API.
-type userWithGrants struct {
-	User struct {
-		ID    int64  `json:"userId"`
-		Email string `json:"email"`
-		Name  string `json:"name"`
-	} `json:"user"`
-	OrgGrant *struct {
-		Grant string `json:"grant"`
-	} `json:"organizationPermissionGrant"`
-}
-
-func (u *userWithGrants) toUser() User {
+func userFromFields(f schema.UserWithGrantsFields) User {
 	role := ""
-	if u.OrgGrant != nil {
-		role = u.OrgGrant.Grant
+	if f.OrganizationPermissionGrant.ScopedGrantFields.Grant != "" {
+		role = string(f.OrganizationPermissionGrant.ScopedGrantFields.Grant)
 	}
 	return User{
-		ID:    fmt.Sprintf("%d", u.User.ID),
-		Email: u.User.Email,
-		Name:  u.User.Name,
+		ID:    fmt.Sprintf("%d", f.User.UserId),
+		Email: f.User.Email,
+		Name:  f.User.Name,
 		Role:  role,
 	}
 }
 
 // AddUser adds a user to the organization by email.
 func (c *Client) AddUser(ctx context.Context, email string) (*User, error) {
-	const mutation = `
-mutation AddUser($email: String!) {
-  addUserToOrganization(email: $email) {
-    __typename
-    ... on AddUserToOrganizationSuccess {
-      userWithGrants {
-        user {
-          userId
-          email
-          name
-        }
-        organizationPermissionGrant {
-          grant
-        }
-      }
-    }
-  }
-}`
-
-	var result struct {
-		AddUserToOrganization struct {
-			Typename       string          `json:"__typename"`
-			UserWithGrants *userWithGrants `json:"userWithGrants"`
-		} `json:"addUserToOrganization"`
-	}
-
-	if err := c.doGraphQL(ctx, "", mutation, map[string]any{"email": email}, &result); err != nil {
+	resp, err := schema.AddUser(ctx, c.gqlClient(""), email)
+	if err != nil {
 		return nil, fmt.Errorf("AddUser: %w", err)
 	}
 
-	if result.AddUserToOrganization.UserWithGrants == nil {
-		return nil, fmt.Errorf("AddUser: unexpected result type %q", result.AddUserToOrganization.Typename)
+	switch r := resp.AddUserToOrganization.(type) {
+	case *schema.AddUserAddUserToOrganizationAddUserToOrganizationSuccess:
+		u := userFromFields(r.UserWithGrants.UserWithGrantsFields)
+		return &u, nil
+	default:
+		return nil, fmt.Errorf("AddUser: unexpected result type %T", resp.AddUserToOrganization)
 	}
-
-	u := result.AddUserToOrganization.UserWithGrants.toUser()
-	return &u, nil
 }
 
 // GetUser retrieves a user by ID.
@@ -89,70 +55,47 @@ func (c *Client) GetUser(ctx context.Context, id string) (*User, error) {
 			return &users[i], nil
 		}
 	}
-	ids := make([]string, len(users))
-	for i, u := range users {
-		ids[i] = u.ID
-	}
-	return nil, fmt.Errorf("GetUser: user %q not found (known IDs: %v)", id, ids)
+	return nil, fmt.Errorf("GetUser: user %q not found", id)
 }
 
 // ListUsers returns all members of the organization.
 func (c *Client) ListUsers(ctx context.Context) ([]User, error) {
-	const query = `
-query GetUsers {
-  usersOrError {
-    __typename
-    ... on DagsterCloudUsersWithScopedPermissionGrants {
-      users {
-        user {
-          userId
-          email
-          name
-        }
-        organizationPermissionGrant {
-          grant
-        }
-      }
-    }
-  }
-}`
-
-	var result struct {
-		UsersOrError struct {
-			Typename string           `json:"__typename"`
-			Users    []userWithGrants `json:"users"`
-		} `json:"usersOrError"`
-	}
-
-	if err := c.doGraphQL(ctx, "", query, nil, &result); err != nil {
+	resp, err := schema.ListUsers(ctx, c.gqlClient(""))
+	if err != nil {
 		return nil, fmt.Errorf("ListUsers: %w", err)
 	}
 
-	if result.UsersOrError.Typename != "DagsterCloudUsersWithScopedPermissionGrants" {
-		return nil, fmt.Errorf("ListUsers: unexpected result type %q", result.UsersOrError.Typename)
+	switch r := resp.UsersOrError.(type) {
+	case *schema.ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrants:
+		users := make([]User, len(r.Users))
+		for i, u := range r.Users {
+			users[i] = userFromFields(u.UserWithGrantsFields)
+		}
+		return users, nil
+	default:
+		return nil, fmt.Errorf("ListUsers: unexpected result type %T", resp.UsersOrError)
 	}
+}
 
-	users := make([]User, len(result.UsersOrError.Users))
-	for i, u := range result.UsersOrError.Users {
-		users[i] = u.toUser()
+// UpdateUserRole updates the organization-level role for an existing member.
+func (c *Client) UpdateUserRole(ctx context.Context, email, role string) error {
+	input := schema.CreateOrUpdateCloudUserPermissionsInput{
+		Email:           email,
+		Grant:           schema.PermissionGrant(role),
+		DeploymentScope: schema.PermissionDeploymentScopeOrganization,
 	}
-	return users, nil
+	_, err := schema.UpdateUserPermissions(ctx, c.gqlClient(""), input)
+	if err != nil {
+		return fmt.Errorf("UpdateUserRole: %w", err)
+	}
+	return nil
 }
 
 // RemoveUser removes a member from the organization by email.
 func (c *Client) RemoveUser(ctx context.Context, email string) error {
-	const mutation = `
-mutation RemoveUser($email: String!) {
-  removeUserFromOrganization(email: $email) {
-    ... on RemoveUserFromOrganizationSuccess {
-      email
-    }
-  }
-}`
-
-	if err := c.doGraphQL(ctx, "", mutation, map[string]any{"email": email}, nil); err != nil {
+	_, err := schema.RemoveUser(ctx, c.gqlClient(""), email)
+	if err != nil {
 		return fmt.Errorf("RemoveUser: %w", err)
 	}
-
 	return nil
 }

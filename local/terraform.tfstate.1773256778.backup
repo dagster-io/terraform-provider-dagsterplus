@@ -1,0 +1,245 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.6",
+  "serial": 45,
+  "lineage": "9d0092b9-5271-247e-5e4e-659d532a4053",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "dagsterplus_agent_token",
+      "name": "test",
+      "provider": "provider[\"registry.terraform.io/dagster-io/dagsterplus\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "54773",
+            "name": "acc-tf-agent-token",
+            "token": "agent:terraform:c2312e89c0cf446ebb1f548ea4bfbb57"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "token"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "dagsterplus_alert_policy",
+      "name": "asset_health",
+      "provider": "provider[\"registry.terraform.io/dagster-io/dagsterplus\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "asset": [
+              {
+                "all_assets": true,
+                "asset_key": null,
+                "asset_selection": null,
+                "health_status": null,
+                "specific_events": [
+                  "materialization_success",
+                  "materialization_failure"
+                ]
+              }
+            ],
+            "automation": [],
+            "budget": [],
+            "code_location": [],
+            "deployment": "prod",
+            "description": "",
+            "enabled": true,
+            "event_types": [
+              "ASSET_MATERIALIZATION_SUCCESS",
+              "ASSET_MATERIALIZATION_FAILURE"
+            ],
+            "id": "prod/asset-health-alerts",
+            "insight_metric": [],
+            "name": "asset-health-alerts",
+            "notification_service": {
+              "default_email_addresses": null,
+              "email_addresses": [
+                "dennis@dagsterlabs.com"
+              ],
+              "integration_key": null,
+              "slack_channel_name": null,
+              "slack_workspace_name": null,
+              "type": "email",
+              "webhook_url": null
+            },
+            "policy_type": "asset",
+            "run": []
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "notification_service"
+              },
+              {
+                "type": "get_attr",
+                "value": "integration_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "notification_service"
+              },
+              {
+                "type": "get_attr",
+                "value": "webhook_url"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "dagsterplus_role",
+      "name": "observability",
+      "provider": "provider[\"registry.terraform.io/dagster-io/dagsterplus\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "description": "",
+            "icon": "",
+            "id": "40e1ac1a32a342f7997d9cb9f9aee2de",
+            "name": "acc-tf-observability",
+            "permissions": [
+              "edit_alerts",
+              "edit_all_catalog_views"
+            ],
+            "role_type": "deployment"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "dagsterplus_role",
+      "name": "org_admin",
+      "provider": "provider[\"registry.terraform.io/dagster-io/dagsterplus\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "description": "",
+            "icon": "",
+            "id": "5ed3ebbd80ad41558f03ba109507412e",
+            "name": "acc-tf-org-admin",
+            "permissions": [
+              "edit_custom_roles",
+              "edit_users_and_teams",
+              "read_audit_log"
+            ],
+            "role_type": "organization"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "dagsterplus_team",
+      "name": "data_engineering",
+      "provider": "provider[\"registry.terraform.io/dagster-io/dagsterplus\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "all_branch_deployments_grant": [],
+            "deployment_grant": [],
+            "id": "1fea051d57be41b0834d655959053317",
+            "name": "acc-tf-data-engineering",
+            "organization_grant": [
+              {
+                "custom_role_id": "5ed3ebbd80ad41558f03ba109507412e",
+                "grant": null
+              }
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "dagsterplus_role.org_admin"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "dagsterplus_team",
+      "name": "data_engineering_2",
+      "provider": "provider[\"registry.terraform.io/dagster-io/dagsterplus\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "all_branch_deployments_grant": [
+              {
+                "custom_role_id": "40e1ac1a32a342f7997d9cb9f9aee2de",
+                "grant": null
+              }
+            ],
+            "deployment_grant": [
+              {
+                "custom_role_id": "40e1ac1a32a342f7997d9cb9f9aee2de",
+                "deployment": "prod",
+                "grant": null
+              }
+            ],
+            "id": "c29296c146684a10a5e9c850804ca144",
+            "name": "acc-tf-data-engineering-2",
+            "organization_grant": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "dagsterplus_role.observability"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "dagsterplus_user_token",
+      "name": "test",
+      "provider": "provider[\"registry.terraform.io/dagster-io/dagsterplus\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "35304",
+            "name": "acc-tf-user-token",
+            "token": "user:2c5fd3485fff449da7c32fe8bf5f8310"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "token"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

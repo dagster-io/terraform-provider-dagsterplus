@@ -47,10 +47,10 @@ func (d *deploymentDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 				Required:    true,
 			},
 			"type": schema.StringAttribute{
-				Description: "The deployment type: PROD or BRANCH.",
+				Description: "The deployment type: SERVERLESS, HYBRID, or BRANCH.",
 				Computed:    true,
 			},
-			},
+		},
 	}
 }
 

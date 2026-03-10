@@ -2,11 +2,40 @@
 
 Manage [Dagster+](https://dagster.cloud) (Dagster Cloud) resources declaratively with Terraform.
 
-## Features
+## Status
 
-- **Deployments** – create and destroy production/branch deployments
-- **Code Locations** – register container-based code locations within a deployment
-- **Teams & Permissions** – manage teams and grant deployment-level roles
+| Entity                     | Resource                                  | Data Source                              | Imports | Status       | [datarootsio](https://github.com/datarootsio/terraform-provider-dagster) |
+|----------------------------|-------------------------------------------|------------------------------------------|---------|--------------|-------------------------------------------------------------------------|
+| Agent Token                | `dagsterplus_agent_token`                 | `dagsterplus_agent_token`                | Yes     | **Ready**    | - |
+| Alert Policies (list)      | —                                         | `dagsterplus_alert_policies`             | —       | **Ready**    | - |
+| Alert Policy               | `dagsterplus_alert_policy`                | `dagsterplus_alert_policy`               | Yes     | **Ready**    | - |
+| Atlan Integration          | `dagsterplus_atlan_integration`           | —                                        | Yes     | Experimental | - |
+| Code Location              | `dagsterplus_code_location`               | `dagsterplus_code_location`              | Yes     | Experimental | Yes |
+| Code Location (document)   | `dagsterplus_code_location_from_document` | —                                        | Yes     | Experimental | Yes |
+| Code Locations (list)      | —                                         | `dagsterplus_code_locations`             | —       | Experimental | - |
+| Configuration Document     | —                                         | `dagsterplus_configuration_document`     | —       | Experimental | Yes |
+| Custom Metric              | `dagsterplus_custom_metric`               | `dagsterplus_custom_metric`              | Yes     | **Ready**    | - |
+| Deployment                 | `dagsterplus_deployment`                  | `dagsterplus_deployment`                 | Yes     | **Ready**    | Yes |
+| Deployment Settings        | `dagsterplus_deployment_settings`         | —                                        | Yes     | Experimental | - |
+| Deployments (list)         | —                                         | `dagsterplus_deployments`                | —       | **Ready**    | - |
+| External Asset Connection  | `dagsterplus_external_asset_connection`   | —                                        | Yes     | Experimental | - |
+| GitHub Integration         | `dagsterplus_github_integration`          | —                                        | Yes     | Experimental | - |
+| Organization               | —                                         | `dagsterplus_organization`               | —       | Experimental | Yes |
+| Organization Settings      | `dagsterplus_organization_settings`       | —                                        | Yes     | **Ready**    | - |
+| Role                       | `dagsterplus_role`                        | `dagsterplus_role`                       | Yes     | **Ready**    | - |
+| Roles (list)               | —                                         | `dagsterplus_roles`                      | —       | **Ready**    | - |
+| SCIM Settings              | `dagsterplus_scim_settings`               | —                                        | Yes     | Experimental | - |
+| Secret                     | `dagsterplus_secret`                      | `dagsterplus_secret`                     | Yes     | **Ready**    | - |
+| Service Token              | `dagsterplus_service_token`               | —                                        | Yes     | **Ready**    | - |
+| Service User               | `dagsterplus_service_user`                | `dagsterplus_service_user`               | Yes     | **Ready**    | - |
+| Team                       | `dagsterplus_team`                        | `dagsterplus_team`                       | Yes     | **Ready**    | Yes |
+| Team Deployment Grant      | `dagsterplus_team_deployment_grant`       | —                                        | Yes     | Experimental | Yes |
+| Team Membership            | `dagsterplus_team_membership`             | —                                        | Yes     | Experimental | Yes |
+| Teams (list)               | —                                         | `dagsterplus_teams`                      | —       | **Ready**    | Yes |
+| User                       | `dagsterplus_user`                        | `dagsterplus_user`                       | Yes     | **Ready**    | Yes |
+| User Token                 | `dagsterplus_user_token`                  | `dagsterplus_user_token`                 | Yes     | **Ready**    | - |
+| Users (list)               | —                                         | `dagsterplus_users`                      | —       | **Ready**    | Yes |
+| Version                    | —                                         | `dagsterplus_version`                    | —       | Experimental | Yes |
 
 ## Requirements
 
@@ -18,57 +47,12 @@ Manage [Dagster+](https://dagster.cloud) (Dagster Cloud) resources declaratively
 The provider requires a Dagster+ API token and your organization name. Both can be
 supplied via HCL attributes or environment variables:
 
-| Attribute       | Environment variable            |
-|-----------------|---------------------------------|
-| `organization`  | `DAGSTER_CLOUD_ORGANIZATION`    |
-| `api_token`     | `DAGSTER_CLOUD_API_TOKEN`       |
+| Attribute       | Environment variable         |
+|-----------------|------------------------------|
+| `organization`  | `DAGSTER_CLOUD_ORGANIZATION` |
+| `api_token`     | `DAGSTER_CLOUD_API_TOKEN`    |
 
 Generate a token at **Dagster+ → Account Settings → API Tokens**.
-
-## Quick Start
-
-```hcl
-terraform {
-  required_providers {
-    dagsterplus = {
-      source  = "dagster-io/dagsterplus"
-      version = "~> 0.1"
-    }
-  }
-}
-
-provider "dagsterplus" {
-  organization = "my-org"
-  # api_token read from DAGSTER_CLOUD_API_TOKEN
-}
-
-resource "dagsterplus_deployment" "prod" {
-  name = "prod"
-  type = "PROD"
-}
-
-resource "dagsterplus_code_location" "pipeline" {
-  deployment_name = dagsterplus_deployment.prod.name
-  name            = "my-pipeline"
-  image           = "ghcr.io/my-org/my-pipeline:latest"
-
-  code_source {
-    python_file = "repo.py"
-  }
-
-  working_directory = "/app"
-  executable_path   = "/usr/bin/python3"
-}
-
-resource "dagsterplus_team" "data_eng" {
-  name = "data-engineering"
-
-  deployment_permission {
-    deployment_name = dagsterplus_deployment.prod.name
-    role            = "EDITOR"
-  }
-}
-```
 
 ## Provider Configuration
 
@@ -78,112 +62,40 @@ resource "dagsterplus_team" "data_eng" {
 | `api_token`    | string | Yes      | Dagster+ API token (sensitive) |
 | `base_url`     | string | No       | Override API base URL |
 
-## Supported Operations
-
-| Resource                    | Create | Read | Update | Delete | Import | Data Source |
-|-----------------------------|:------:|:----:|:------:|:------:|:------:|:-----------:|
-| `dagsterplus_deployment`    | ✓      | ✓    | —¹     | ✓      | ✓      | ✓           |
-| `dagsterplus_code_location` | ✓      | ✓    | ✓      | ✓      | ✓      | —           |
-| `dagsterplus_team`          | ✓      | ✓    | ✓      | ✓      | ✓      | —           |
-| `dagsterplus_user`          | ✓      | ✓    | ✓      | ✓      | ✓      | —           |
-
-¹ All deployment attributes (`name`, `type`) are ForceNew — any change destroys and recreates the deployment.
-
-## Resources
-
-### `dagsterplus_deployment`
-
-| Attribute    | Type   | Required | Description |
-|--------------|--------|----------|-------------|
-| `name`       | string | Yes      | Deployment name (forces new) |
-| `type`       | string | Yes      | `PROD` or `BRANCH` (forces new) |
-| `id`         | string | Computed | Same as `name` |
-| `created_at` | string | Computed | ISO 8601 creation timestamp |
-
-**Import:** `terraform import dagsterplus_deployment.prod prod`
-
-### `dagsterplus_code_location`
-
-| Attribute           | Type   | Required | Description |
-|---------------------|--------|----------|-------------|
-| `deployment_name`   | string | Yes      | Target deployment (forces new) |
-| `name`              | string | Yes      | Location name (forces new) |
-| `image`             | string | Yes      | Docker image reference |
-| `code_source`       | block  | Yes      | Where Dagster finds the code |
-| `working_directory` | string | No       | Working directory in container |
-| `executable_path`   | string | No       | Python executable path |
-
-`code_source` block attributes (at least one required):
-
-| Attribute      | Description |
-|----------------|-------------|
-| `python_file`  | Path to a Python file |
-| `package_name` | Python package name |
-| `module_name`  | Python module name |
-
-**Import:** `terraform import dagsterplus_code_location.pipeline prod/my-pipeline`
-
-### `dagsterplus_team`
-
-| Attribute              | Type   | Required | Description |
-|------------------------|--------|----------|-------------|
-| `name`                 | string | Yes      | Team name (forces new) |
-| `id`                   | string | Computed | Team ID |
-| `deployment_permission`| block  | No       | Repeated; grants a role on a deployment |
-
-`deployment_permission` block:
-
-| Attribute         | Description |
-|-------------------|-------------|
-| `deployment_name` | Deployment to grant access to |
-| `role`            | `VIEWER`, `LAUNCHER`, `EDITOR`, or `ADMIN` |
-
-**Import:** `terraform import dagsterplus_team.data_eng <team-id>`
-
-### `dagsterplus_user`
-
-| Attribute | Type   | Required | Description |
-|-----------|--------|----------|-------------|
-| `email`   | string | Yes      | Email address of the user to invite (forces new) |
-| `role`    | string | Yes      | Org-level role: `VIEWER`, `EDITOR`, `ADMIN`, or `OWNER` |
-| `id`      | string | Computed | User ID assigned by Dagster+ |
-| `name`    | string | Computed | Display name (set once the user accepts the invite) |
-
-**Import:** `terraform import dagsterplus_user.alice <user-id>`
-
-## Data Sources
-
-### `dagsterplus_deployment`
-
-```hcl
-data "dagsterplus_deployment" "existing" {
-  name = "prod"
-}
-```
-
 ## Local Development
 
+A working Terraform configuration for manual testing lives in `local/main.tf`. Edit it to exercise the resources you're developing, then use the make targets below.
+
 ```bash
-# Build
-make build
+# 1. Build the provider binary and write dev.tfrc
+make dev-setup
 
-# Install to local Terraform plugins directory
-make install
-
-# Add dev_overrides to ~/.terraformrc
-cat > ~/.terraformrc <<EOF
-provider_installation {
-  dev_overrides {
-    "dagster-io/dagsterplus" = "$HOME/.terraform.d/plugins/registry.terraform.io/dagster-io/dagsterplus/0.1.0/$(go env GOOS)_$(go env GOARCH)"
-  }
-  direct {}
-}
-EOF
-
-# Run acceptance tests (requires real credentials)
+# 2. Set credentials (or create a .env file in the repo root)
+export DAGSTER_CLOUD_ORGANIZATION=my-org
 export DAGSTER_CLOUD_API_TOKEN=your-token
-export DAGSTER_CLOUD_ORGANIZATION=your-org
+
+# 3. Iterate against local/main.tf
+make dev-plan
+make dev-apply
+make dev-destroy
+```
+
+`make dev-setup` writes a `dev.tfrc` that points Terraform at the locally-built binary via `dev_overrides`. Both `dev.tfrc` and `.env` are gitignored.
+
+### Running Tests
+
+```bash
+# Unit tests (no credentials required)
+make test
+
+# Acceptance tests (requires real credentials)
+export TF_ACC=1
+export DAGSTER_CLOUD_ORGANIZATION=my-org
+export DAGSTER_CLOUD_API_TOKEN=your-token
 make testacc
+
+# Run a specific resource's acceptance tests
+go test ./internal/provider/... -run TestAccAlertPolicy -v
 ```
 
 ## License

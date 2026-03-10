@@ -7,38 +7,41 @@ import (
 	"testing"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccTeamResource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy:             testAccCheckTeamDestroyedByName("acc-tf-team"),
+		CheckDestroy:             testAccCheckTeamDestroyedByName(rName),
 		Steps: []resource.TestStep{
 			// Create without permissions
 			{
-				Config: providerConfig() + testAccTeamConfigNoPerms("acc-tf-team"),
+				Config: providerConfig() + testAccTeamConfigNoPerms(rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dagsterplus_team.test", "name", "acc-tf-team"),
+					resource.TestCheckResourceAttr("dagsterplus_team.test", "name", rName),
 					resource.TestCheckResourceAttrSet("dagsterplus_team.test", "id"),
 				),
 			},
-			// Add a deployment permission
+			// Add a deployment permission (use "prod" — a stable pre-existing deployment)
 			{
-				Config: providerConfig() + testAccTeamConfigWithPerm("acc-tf-team", "acc-tf-test", "VIEWER"),
+				Config: providerConfig() + testAccTeamConfigWithPerm(rName, testAccAlertDeployment, "VIEWER"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dagsterplus_team.test", "name", "acc-tf-team"),
-					resource.TestCheckResourceAttr("dagsterplus_team.test", "deployment_permission.0.deployment_name", "acc-tf-test"),
-					resource.TestCheckResourceAttr("dagsterplus_team.test", "deployment_permission.0.role", "VIEWER"),
+					resource.TestCheckResourceAttr("dagsterplus_team.test", "name", rName),
+					resource.TestCheckResourceAttr("dagsterplus_team.test", "deployment_grant.0.deployment", testAccAlertDeployment),
+					resource.TestCheckResourceAttr("dagsterplus_team.test", "deployment_grant.0.grant", "VIEWER"),
 				),
 			},
 			// Update permission role
 			{
-				Config: providerConfig() + testAccTeamConfigWithPerm("acc-tf-team", "acc-tf-test", "EDITOR"),
+				Config: providerConfig() + testAccTeamConfigWithPerm(rName, testAccAlertDeployment, "EDITOR"),
 				Check: resource.TestCheckResourceAttr(
-					"dagsterplus_team.test", "deployment_permission.0.role", "EDITOR",
+					"dagsterplus_team.test", "deployment_grant.0.grant", "EDITOR",
 				),
 			},
 			// Import by team ID (Terraform sets state.ID to the team ID)
@@ -52,34 +55,75 @@ func TestAccTeamResource_basic(t *testing.T) {
 }
 
 func TestAccTeamResource_multiplePermissions(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy:             testAccCheckTeamDestroyedByName("acc-tf-team-multi"),
+		CheckDestroy:             testAccCheckTeamDestroyedByName(rName),
 		Steps: []resource.TestStep{
 			{
 				Config: providerConfig() + fmt.Sprintf(`
 resource "dagsterplus_team" "test" {
-  name = "acc-tf-team-multi"
+  name = %q
 
-  deployment_permission {
-    deployment_name = "prod"
-    role            = "EDITOR"
+  deployment_grant {
+    deployment = "prod"
+    grant      = "EDITOR"
   }
 
-  deployment_permission {
-    deployment_name = "staging"
-    role            = "ADMIN"
+  deployment_grant {
+    deployment = "staging"
+    grant      = "ADMIN"
   }
 }
-`),
+`, rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dagsterplus_team.test", "name", "acc-tf-team-multi"),
-					resource.TestCheckResourceAttr("dagsterplus_team.test", "deployment_permission.#", "2"),
+					resource.TestCheckResourceAttr("dagsterplus_team.test", "name", rName),
+					resource.TestCheckResourceAttr("dagsterplus_team.test", "deployment_grant.#", "2"),
 				),
 			},
 		},
 	})
+}
+
+// TestAccTeamResource_disappears verifies Terraform detects drift when the team is
+// deleted outside of Terraform.
+func TestAccTeamResource_disappears(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckTeamDestroyedByName(rName),
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfig() + testAccTeamConfigNoPerms(rName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("dagsterplus_team.test", "id"),
+					testAccTeamDisappears("dagsterplus_team.test"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+// testAccTeamDisappears deletes the team out-of-band during a Check step.
+func testAccTeamDisappears(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+		id := rs.Primary.ID
+		c := client.New(
+			os.Getenv("DAGSTER_CLOUD_ORGANIZATION"),
+			os.Getenv("DAGSTER_CLOUD_API_TOKEN"),
+			"",
+		)
+		return c.DeleteTeam(context.Background(), id)
+	}
 }
 
 func testAccTeamConfigNoPerms(name string) string {
@@ -95,9 +139,9 @@ func testAccTeamConfigWithPerm(name, deployment, role string) string {
 resource "dagsterplus_team" "test" {
   name = %q
 
-  deployment_permission {
-    deployment_name = %q
-    role            = %q
+  deployment_grant {
+    deployment = %q
+    grant      = %q
   }
 }
 `, name, deployment, role)

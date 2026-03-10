@@ -1,0 +1,31 @@
+fragment AgentTokenFields on DagsterCloudAgentToken {
+  id
+  description
+  token
+}
+
+query ListAgentTokens {
+  agentTokensOrError {
+    __typename
+    ... on DagsterCloudAgentTokens {
+      tokens {
+        ...AgentTokenFields
+      }
+    }
+  }
+}
+
+mutation CreateAgentToken($description: String!) {
+  createAgentToken(description: $description) {
+    __typename
+    ... on DagsterCloudAgentToken {
+      ...AgentTokenFields
+    }
+  }
+}
+
+mutation RevokeAgentToken($tokenId: Int!) {
+  revokeAgentToken(tokenId: $tokenId) {
+    __typename
+  }
+}

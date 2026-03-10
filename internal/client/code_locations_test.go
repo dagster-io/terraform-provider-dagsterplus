@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,25 +11,36 @@ import (
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 )
 
-func mockCodeLocationResponse() map[string]any {
+// serializedMeta returns a serialized JSON string for code location metadata.
+func serializedMeta(image, pythonFile, workDir, execPath string) string {
+	b, _ := json.Marshal(map[string]any{
+		"image":            image,
+		"codeSource":       map[string]any{"pythonFile": pythonFile},
+		"workingDirectory": workDir,
+		"executablePath":   execPath,
+	})
+	return string(b)
+}
+
+func workspaceResponse(entries []any) map[string]any {
 	return map[string]any{
-		"locationName":     "my-pipeline",
-		"image":            "my-registry/my-image:latest",
-		"codeSource":       map[string]any{"pythonFile": "repo.py"},
-		"workingDirectory": "/app",
-		"executablePath":   "/usr/bin/python3",
+		"workspace": map[string]any{
+			"workspaceEntries": entries,
+		},
 	}
 }
 
 func TestAddCodeLocation_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b := parseBody(t, r)
-		if !strings.Contains(b.Query, "AddCodeLocation") {
-			t.Errorf("expected AddCodeLocation mutation, got: %s", b.Query)
+		if !strings.Contains(b.Query, "AddOrUpdateCodeLocation") {
+			t.Errorf("expected AddOrUpdateCodeLocation mutation, got: %s", b.Query)
 		}
 		gqlOK(w, map[string]any{
-			"addOrUpdateCodeLocation": map[string]any{
-				"codeLocationDeployData": mockCodeLocationResponse(),
+			"addOrUpdateLocation": map[string]any{
+				"__typename":                   "WorkspaceEntry",
+				"locationName":                 "my-pipeline",
+				"serializedDeploymentMetadata": serializedMeta("my-registry/my-image:latest", "repo.py", "/app", "/usr/bin/python3"),
 			},
 		})
 	}))
@@ -60,17 +72,19 @@ func TestAddCodeLocation_Success(t *testing.T) {
 	}
 }
 
-func TestAddCodeLocation_NilResponse(t *testing.T) {
+func TestAddCodeLocation_ErrorResponse(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gqlOK(w, map[string]any{
-			"addOrUpdateCodeLocation": map[string]any{"codeLocationDeployData": nil},
+			"addOrUpdateLocation": map[string]any{
+				"__typename": "InvalidLocationError",
+			},
 		})
 	}))
 	defer srv.Close()
 
 	_, err := newClient(srv).AddCodeLocation(context.Background(), "prod", client.CodeLocationInput{Name: "x"})
 	if err == nil {
-		t.Fatal("expected error for nil response, got nil")
+		t.Fatal("expected error for invalid location response, got nil")
 	}
 }
 
@@ -80,12 +94,12 @@ func TestListCodeLocations_Success(t *testing.T) {
 		if !strings.Contains(b.Query, "ListCodeLocations") {
 			t.Errorf("expected ListCodeLocations query, got: %s", b.Query)
 		}
-		if b.Variables["deploymentName"] != "prod" {
-			t.Errorf("deploymentName = %v, want prod", b.Variables["deploymentName"])
-		}
-		gqlOK(w, map[string]any{
-			"codeLocations": []any{mockCodeLocationResponse()},
-		})
+		gqlOK(w, workspaceResponse([]any{
+			map[string]any{
+				"locationName":                 "my-pipeline",
+				"serializedDeploymentMetadata": serializedMeta("my-registry/my-image:latest", "repo.py", "/app", ""),
+			},
+		}))
 	}))
 	defer srv.Close()
 
@@ -106,15 +120,16 @@ func TestListCodeLocations_Success(t *testing.T) {
 
 func TestGetCodeLocation_Found(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gqlOK(w, map[string]any{
-			"codeLocations": []any{
-				mockCodeLocationResponse(),
-				map[string]any{
-					"locationName": "other", "image": "other:latest",
-					"codeSource": map[string]any{}, "workingDirectory": "", "executablePath": "",
-				},
+		gqlOK(w, workspaceResponse([]any{
+			map[string]any{
+				"locationName":                 "my-pipeline",
+				"serializedDeploymentMetadata": serializedMeta("my-registry/my-image:latest", "repo.py", "", ""),
 			},
-		})
+			map[string]any{
+				"locationName":                 "other",
+				"serializedDeploymentMetadata": serializedMeta("other:latest", "", "", ""),
+			},
+		}))
 	}))
 	defer srv.Close()
 
@@ -129,7 +144,7 @@ func TestGetCodeLocation_Found(t *testing.T) {
 
 func TestGetCodeLocation_NotFound(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gqlOK(w, map[string]any{"codeLocations": []any{}})
+		gqlOK(w, workspaceResponse([]any{}))
 	}))
 	defer srv.Close()
 
@@ -148,14 +163,11 @@ func TestDeleteCodeLocation_Success(t *testing.T) {
 		if !strings.Contains(b.Query, "DeleteCodeLocation") {
 			t.Errorf("expected DeleteCodeLocation mutation, got: %s", b.Query)
 		}
-		if b.Variables["deploymentName"] != "prod" {
-			t.Errorf("deploymentName = %v, want prod", b.Variables["deploymentName"])
-		}
-		if b.Variables["locationName"] != "my-pipeline" {
-			t.Errorf("locationName = %v, want my-pipeline", b.Variables["locationName"])
+		if b.Variables["name"] != "my-pipeline" {
+			t.Errorf("name = %v, want my-pipeline", b.Variables["name"])
 		}
 		gqlOK(w, map[string]any{
-			"deleteCodeLocation": map[string]any{"success": true},
+			"deleteLocation": map[string]any{"__typename": "DeleteLocationSuccess"},
 		})
 	}))
 	defer srv.Close()
@@ -169,8 +181,10 @@ func TestUpdateCodeLocation_Success(t *testing.T) {
 	// UpdateCodeLocation delegates to AddCodeLocation (upsert).
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gqlOK(w, map[string]any{
-			"addOrUpdateCodeLocation": map[string]any{
-				"codeLocationDeployData": mockCodeLocationResponse(),
+			"addOrUpdateLocation": map[string]any{
+				"__typename":                   "WorkspaceEntry",
+				"locationName":                 "my-pipeline",
+				"serializedDeploymentMetadata": serializedMeta("my-registry/my-image:v2", "", "", ""),
 			},
 		})
 	}))

@@ -3,50 +3,29 @@ package client
 import (
 	"context"
 	"fmt"
+
+	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
 )
 
 // Team represents a Dagster+ team.
 type Team struct {
-	ID   string `json:"teamId"`
-	Name string `json:"teamName"`
-}
-
-// Permission represents a deployment-level permission for a team.
-type Permission struct {
-	DeploymentName string `json:"deploymentName"`
-	Role           string `json:"deploymentRole"`
+	ID   string
+	Name string
 }
 
 // CreateTeam creates a new team in the organization.
 func (c *Client) CreateTeam(ctx context.Context, name string) (*Team, error) {
-	const mutation = `
-mutation CreateTeam($teamName: String!) {
-  createOrganizationMemberTeam(teamName: $teamName) {
-    team {
-      teamId
-      teamName
-    }
-  }
-}`
-
-	var result struct {
-		CreateOrganizationMemberTeam struct {
-			Team *Team `json:"team"`
-		} `json:"createOrganizationMemberTeam"`
-	}
-
-	err := c.doGraphQL(ctx, "", mutation, map[string]any{
-		"teamName": name,
-	}, &result)
+	resp, err := schema.CreateOrUpdateTeam(ctx, c.gqlClient(""), name)
 	if err != nil {
 		return nil, fmt.Errorf("CreateTeam: %w", err)
 	}
 
-	if result.CreateOrganizationMemberTeam.Team == nil {
-		return nil, fmt.Errorf("CreateTeam: API returned nil team")
+	switch r := resp.CreateOrUpdateTeam.(type) {
+	case *schema.CreateOrUpdateTeamCreateOrUpdateTeamCreateOrUpdateTeamSuccess:
+		return &Team{ID: r.Team.TeamFields.Id, Name: r.Team.TeamFields.Name}, nil
+	default:
+		return nil, fmt.Errorf("CreateTeam: unexpected result type %T", resp.CreateOrUpdateTeam)
 	}
-
-	return result.CreateOrganizationMemberTeam.Team, nil
 }
 
 // GetTeam retrieves a team by ID.
@@ -65,101 +44,41 @@ func (c *Client) GetTeam(ctx context.Context, id string) (*Team, error) {
 
 // ListTeams returns all teams in the organization.
 func (c *Client) ListTeams(ctx context.Context) ([]Team, error) {
-	const query = `
-query ListTeams {
-  organizationMemberTeams {
-    teamId
-    teamName
-  }
-}`
-
-	var result struct {
-		OrganizationMemberTeams []Team `json:"organizationMemberTeams"`
-	}
-
-	if err := c.doGraphQL(ctx, "", query, nil, &result); err != nil {
+	resp, err := schema.ListTeams(ctx, c.gqlClient(""))
+	if err != nil {
 		return nil, fmt.Errorf("ListTeams: %w", err)
 	}
 
-	return result.OrganizationMemberTeams, nil
-}
-
-// UpdateTeamPermissions sets deployment-level permissions for a team.
-func (c *Client) UpdateTeamPermissions(ctx context.Context, teamID string, perms []Permission) error {
-	const mutation = `
-mutation UpdateTeamPermissions($teamId: String!, $deploymentPermissions: [DeploymentPermissionInput!]!) {
-  updateOrganizationMemberTeamPermissions(
-    teamId: $teamId
-    deploymentPermissions: $deploymentPermissions
-  ) {
-    success
-  }
-}`
-
-	type deploymentPermInput struct {
-		DeploymentName string `json:"deploymentName"`
-		DeploymentRole string `json:"deploymentRole"`
-	}
-
-	inputs := make([]deploymentPermInput, len(perms))
-	for i, p := range perms {
-		inputs[i] = deploymentPermInput{
-			DeploymentName: p.DeploymentName,
-			DeploymentRole: p.Role,
+	teams := make([]Team, len(resp.TeamPermissions))
+	for i, tp := range resp.TeamPermissions {
+		teams[i] = Team{
+			ID:   tp.Team.TeamFields.Id,
+			Name: tp.Team.TeamFields.Name,
 		}
 	}
-
-	err := c.doGraphQL(ctx, "", mutation, map[string]any{
-		"teamId":                teamID,
-		"deploymentPermissions": inputs,
-	}, nil)
-	if err != nil {
-		return fmt.Errorf("UpdateTeamPermissions: %w", err)
-	}
-
-	return nil
+	return teams, nil
 }
 
-// GetTeamPermissions retrieves the deployment permissions for a team.
-func (c *Client) GetTeamPermissions(ctx context.Context, teamID string) ([]Permission, error) {
-	const query = `
-query GetTeamPermissions($teamId: String!) {
-  organizationMemberTeam(teamId: $teamId) {
-    deploymentPermissions {
-      deploymentName
-      deploymentRole
-    }
-  }
-}`
-
-	var result struct {
-		OrganizationMemberTeam struct {
-			DeploymentPermissions []Permission `json:"deploymentPermissions"`
-		} `json:"organizationMemberTeam"`
+// RenameTeam updates the name of an existing team.
+func (c *Client) RenameTeam(ctx context.Context, id, name string) (*Team, error) {
+	resp, err := schema.RenameTeam(ctx, c.gqlClient(""), id, name)
+	if err != nil {
+		return nil, fmt.Errorf("RenameTeam: %w", err)
 	}
 
-	if err := c.doGraphQL(ctx, "", query, map[string]any{"teamId": teamID}, &result); err != nil {
-		return nil, fmt.Errorf("GetTeamPermissions: %w", err)
+	switch r := resp.RenameTeam.(type) {
+	case *schema.RenameTeamRenameTeamDagsterCloudTeam:
+		return &Team{ID: r.TeamFields.Id, Name: r.TeamFields.Name}, nil
+	default:
+		return nil, fmt.Errorf("RenameTeam: unexpected result type %T", resp.RenameTeam)
 	}
-
-	return result.OrganizationMemberTeam.DeploymentPermissions, nil
 }
 
 // DeleteTeam removes a team from the organization.
 func (c *Client) DeleteTeam(ctx context.Context, id string) error {
-	const mutation = `
-mutation DeleteTeam($teamId: String!) {
-  deleteOrganizationMemberTeam(teamId: $teamId) {
-    success
-  }
-}`
-
-	err := c.doGraphQL(ctx, "", mutation, map[string]any{
-		"teamId": id,
-	}, nil)
+	_, err := schema.DeleteTeam(ctx, c.gqlClient(""), id)
 	if err != nil {
 		return fmt.Errorf("DeleteTeam: %w", err)
 	}
-
 	return nil
 }

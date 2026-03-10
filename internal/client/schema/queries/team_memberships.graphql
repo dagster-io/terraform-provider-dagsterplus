@@ -1,0 +1,22 @@
+query ListTeamMembers {
+  teamPermissions {
+    team {
+      id
+      members {
+        userId
+      }
+    }
+  }
+}
+
+mutation AddMemberToTeam($teamId: String!, $memberId: Int!) {
+  addMemberToTeam(teamId: $teamId, memberId: $memberId) {
+    __typename
+  }
+}
+
+mutation RemoveMemberFromTeam($teamId: String!, $memberId: Int!) {
+  removeMemberFromTeam(teamId: $teamId, memberId: $memberId) {
+    __typename
+  }
+}

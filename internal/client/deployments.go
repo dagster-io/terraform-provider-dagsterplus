@@ -3,51 +3,34 @@ package client
 import (
 	"context"
 	"fmt"
+
+	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
 )
 
 // Deployment represents a Dagster+ deployment.
 type Deployment struct {
-	Name string `json:"deploymentName"`
-	Type string `json:"deploymentType"`
+	IntID int64
+	Name  string
+	Type  string
 }
 
-// CreateDeployment creates a new deployment in the organization.
-func (c *Client) CreateDeployment(ctx context.Context, name, deploymentType string) (*Deployment, error) {
-	const mutation = `
-mutation CreateDeployment($deploymentName: String!, $deploymentAgentType: DeploymentAgentType!) {
-  createDeployment(deploymentName: $deploymentName, deploymentAgentType: $deploymentAgentType) {
-    __typename
-    ... on DagsterCloudDeployment {
-      deploymentName
-      deploymentType
-    }
-  }
-}`
-
-	var result struct {
-		CreateDeployment struct {
-			Typename       string `json:"__typename"`
-			DeploymentName string `json:"deploymentName"`
-			DeploymentType string `json:"deploymentType"`
-		} `json:"createDeployment"`
-	}
-
-	err := c.doGraphQL(ctx, "", mutation, map[string]any{
-		"deploymentName":      name,
-		"deploymentAgentType": deploymentType,
-	}, &result)
+// CreateDeployment creates a new serverless deployment in the organization.
+func (c *Client) CreateDeployment(ctx context.Context, name string) (*Deployment, error) {
+	resp, err := schema.CreateDeployment(ctx, c.gqlClient(""), name, schema.DeploymentAgentTypeServerless)
 	if err != nil {
 		return nil, fmt.Errorf("CreateDeployment: %w", err)
 	}
 
-	if result.CreateDeployment.Typename != "DagsterCloudDeployment" {
-		return nil, fmt.Errorf("CreateDeployment: unexpected result type %q (deployment may not have been created)", result.CreateDeployment.Typename)
+	switch r := resp.CreateDeployment.(type) {
+	case *schema.CreateDeploymentCreateDeploymentDagsterCloudDeployment:
+		return &Deployment{
+			IntID: int64(r.DeploymentFields.DeploymentId),
+			Name:  r.DeploymentFields.DeploymentName,
+			Type:  string(r.DeploymentFields.DeploymentType),
+		}, nil
+	default:
+		return nil, fmt.Errorf("CreateDeployment: unexpected result type %T", resp.CreateDeployment)
 	}
-
-	return &Deployment{
-		Name: result.CreateDeployment.DeploymentName,
-		Type: result.CreateDeployment.DeploymentType,
-	}, nil
 }
 
 // GetDeployment retrieves a deployment by name.
@@ -66,40 +49,55 @@ func (c *Client) GetDeployment(ctx context.Context, name string) (*Deployment, e
 
 // ListDeployments returns all deployments in the organization.
 func (c *Client) ListDeployments(ctx context.Context) ([]Deployment, error) {
-	const query = `
-query ListDeployments {
-  deployments {
-    deploymentName
-    deploymentType
-  }
-}`
-
-	var result struct {
-		Deployments []Deployment `json:"deployments"`
-	}
-
-	if err := c.doGraphQL(ctx, "", query, nil, &result); err != nil {
+	resp, err := schema.ListDeployments(ctx, c.gqlClient(""))
+	if err != nil {
 		return nil, fmt.Errorf("ListDeployments: %w", err)
 	}
 
-	return result.Deployments, nil
+	result := make([]Deployment, len(resp.Deployments))
+	for i, d := range resp.Deployments {
+		result[i] = Deployment{
+			IntID: int64(d.DeploymentFields.DeploymentId),
+			Name:  d.DeploymentFields.DeploymentName,
+			Type:  string(d.DeploymentFields.DeploymentType),
+		}
+	}
+	return result, nil
+}
+
+// GetDeploymentIntID returns the integer deployment ID for a given deployment name.
+func (c *Client) GetDeploymentIntID(ctx context.Context, name string) (int64, error) {
+	d, err := c.GetDeployment(ctx, name)
+	if err != nil {
+		return 0, err
+	}
+	return d.IntID, nil
+}
+
+// GetDeploymentNameByIntID returns the deployment name for a given integer deployment ID.
+func (c *Client) GetDeploymentNameByIntID(ctx context.Context, id int64) (string, error) {
+	deployments, err := c.ListDeployments(ctx)
+	if err != nil {
+		return "", err
+	}
+	for _, d := range deployments {
+		if d.IntID == id {
+			return d.Name, nil
+		}
+	}
+	return "", fmt.Errorf("GetDeploymentNameByIntID: deployment with id %d not found", id)
 }
 
 // DeleteDeployment deletes a deployment by name.
 func (c *Client) DeleteDeployment(ctx context.Context, name string) error {
-	const mutation = `
-mutation DeleteDeployment($deploymentName: String!) {
-  deleteDeployment(deploymentName: $deploymentName) {
-    success
-  }
-}`
-
-	err := c.doGraphQL(ctx, "", mutation, map[string]any{
-		"deploymentName": name,
-	}, nil)
+	d, err := c.GetDeployment(ctx, name)
 	if err != nil {
 		return fmt.Errorf("DeleteDeployment: %w", err)
 	}
 
+	_, err = schema.DeleteDeployment(ctx, c.gqlClient(""), int(d.IntID))
+	if err != nil {
+		return fmt.Errorf("DeleteDeployment: %w", err)
+	}
 	return nil
 }

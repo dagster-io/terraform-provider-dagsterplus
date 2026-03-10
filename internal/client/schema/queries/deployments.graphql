@@ -1,0 +1,26 @@
+fragment DeploymentFields on DagsterCloudDeployment {
+  deploymentId
+  deploymentName
+  deploymentType
+}
+
+query ListDeployments {
+  deployments {
+    ...DeploymentFields
+  }
+}
+
+mutation CreateDeployment($name: String!, $agentType: DeploymentAgentType!) {
+  createDeployment(deploymentName: $name, deploymentAgentType: $agentType) {
+    __typename
+    ... on DagsterCloudDeployment {
+      ...DeploymentFields
+    }
+  }
+}
+
+mutation DeleteDeployment($id: Int!) {
+  deleteDeployment(deploymentId: $id) {
+    __typename
+  }
+}

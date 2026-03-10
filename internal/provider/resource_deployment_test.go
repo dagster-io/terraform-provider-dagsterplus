@@ -7,24 +7,25 @@ import (
 	"testing"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccDeploymentResource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy:             testAccCheckDeploymentDestroyed("acc-tf-test"),
+		CheckDestroy:             testAccCheckDeploymentDestroyed(rName),
 		Steps: []resource.TestStep{
 			// Create and Read
 			{
-				Config: providerConfig() + testAccDeploymentConfig("acc-tf-test", "BRANCH"),
+				Config: providerConfig() + testAccDeploymentConfig(rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dagsterplus_deployment.test", "name", "acc-tf-test"),
-					resource.TestCheckResourceAttr("dagsterplus_deployment.test", "type", "BRANCH"),
+					resource.TestCheckResourceAttr("dagsterplus_deployment.test", "name", rName),
 					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "id"),
-					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "created_at"),
 				),
 			},
 			// Import
@@ -37,14 +38,52 @@ func TestAccDeploymentResource_basic(t *testing.T) {
 	})
 }
 
+// TestAccDeploymentResource_disappears verifies Terraform detects drift when the
+// deployment is deleted outside of Terraform.
+func TestAccDeploymentResource_disappears(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckDeploymentDestroyed(rName),
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfig() + testAccDeploymentConfig(rName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "id"),
+					testAccDeploymentDisappears("dagsterplus_deployment.test"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+// testAccDeploymentDisappears deletes the deployment out-of-band during a Check step.
+func testAccDeploymentDisappears(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+		name := rs.Primary.Attributes["name"]
+		c := client.New(
+			os.Getenv("DAGSTER_CLOUD_ORGANIZATION"),
+			os.Getenv("DAGSTER_CLOUD_API_TOKEN"),
+			"",
+		)
+		return c.DeleteDeployment(context.Background(), name)
+	}
+}
+
 // testAccDeploymentConfig returns HCL for a deployment resource.
-func testAccDeploymentConfig(name, deploymentType string) string {
+func testAccDeploymentConfig(name string) string {
 	return fmt.Sprintf(`
 resource "dagsterplus_deployment" "test" {
   name = %q
-  type = %q
 }
-`, name, deploymentType)
+`, name)
 }
 
 // testAccCheckDeploymentDestroyed verifies the deployment no longer exists.

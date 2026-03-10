@@ -1,0 +1,60 @@
+query ListCustomMetrics {
+  customMetrics {
+    id
+    metadataKey
+    displayName
+    description
+    createTimestamp
+    updateTimestamp
+  }
+}
+
+mutation CreateCustomMetric($metadataKey: String!, $displayName: String, $description: String) {
+  createCustomMetric(customMetricInput: {metadataKey: $metadataKey, displayName: $displayName, description: $description}) {
+    __typename
+    ... on CreateCustomMetricSuccess {
+      customMetric {
+        id
+        metadataKey
+        displayName
+        description
+        createTimestamp
+        updateTimestamp
+      }
+    }
+    ... on CustomMetricError {
+      message
+    }
+  }
+}
+
+mutation UpdateCustomMetric($customMetricId: String!, $displayName: String, $description: String) {
+  updateCustomMetric(customMetricId: $customMetricId, customMetricUpdateInput: {displayName: $displayName, description: $description}) {
+    __typename
+    ... on UpdateCustomMetricSuccess {
+      customMetric {
+        id
+        metadataKey
+        displayName
+        description
+        createTimestamp
+        updateTimestamp
+      }
+    }
+    ... on CustomMetricError {
+      message
+    }
+  }
+}
+
+mutation DeleteCustomMetric($customMetricId: String!) {
+  deleteCustomMetric(customMetricId: $customMetricId) {
+    __typename
+    ... on DeleteCustomMetricSuccess {
+      customMetricId
+    }
+    ... on CustomMetricError {
+      message
+    }
+  }
+}

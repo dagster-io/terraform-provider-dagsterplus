@@ -1,0 +1,34 @@
+fragment UserTokenFields on DagsterCloudUserToken {
+  id
+  description
+  token
+  user {
+    userId
+  }
+}
+
+query ListUserTokens($userId: Int!) {
+  userTokensOrError(userId: $userId) {
+    __typename
+    ... on DagsterCloudUserTokens {
+      tokens {
+        ...UserTokenFields
+      }
+    }
+  }
+}
+
+mutation CreateUserToken($description: String!) {
+  createUserToken(description: $description) {
+    __typename
+    ... on DagsterCloudUserToken {
+      ...UserTokenFields
+    }
+  }
+}
+
+mutation RevokeUserToken($tokenId: Int!, $userId: Int!) {
+  revokeUserToken(tokenId: $tokenId, userId: $userId) {
+    __typename
+  }
+}

@@ -64,8 +64,8 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 			},
 			"role": schema.StringAttribute{
-				Description: "The organization-level role: VIEWER, EDITOR, ADMIN, or OWNER.",
-				Required:    true,
+				Description: "The organization-level role as returned by Dagster+. Cannot be set via the API at this time.",
+				Computed:    true,
 			},
 		},
 	}
@@ -102,6 +102,7 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	plan.ID = types.StringValue(user.ID)
 	plan.Name = types.StringValue(user.Name)
+	plan.Role = types.StringValue(user.Role)
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -109,15 +110,16 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state userResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	user, err := r.client.GetUser(ctx, state.ID.ValueString())
 	if err != nil {
-		resp.Diagnostics.AddError("Error reading user", err.Error())
+		// If the list query fails or the user isn't found, preserve existing state
+		// rather than erroring — the user may still exist and delete will use the stored ID.
+		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 		return
 	}
 
@@ -126,20 +128,11 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	state.Name = types.StringValue(user.Name)
 	state.Role = types.StringValue(user.Role)
 
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan userResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	diags = resp.State.Set(ctx, plan)
-	resp.Diagnostics.Append(diags...)
+func (r *userResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+	// Role is Computed — Update is never called.
 }
 
 func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

@@ -1,0 +1,55 @@
+fragment ExternalAssetConnectionFields on ExternalAssetConnection {
+  id
+  name
+  description
+  connectionType
+  sourceConfigYaml
+  cronString
+  timezone
+  scheduleStatus
+}
+
+query ListExternalAssetConnections {
+  externalAssetConnections {
+    ...ExternalAssetConnectionFields
+  }
+}
+
+query GetExternalAssetConnection($id: String!) {
+  externalAssetConnection(id: $id) {
+    ...ExternalAssetConnectionFields
+  }
+}
+
+mutation CreateExternalAssetConnection($connectionType: ExternalAssetConnectionType!, $name: String, $description: String, $sourceConfigYaml: String, $cronString: String, $timezone: String) {
+  createExternalAssetConnection(
+    connectionType: $connectionType
+    connectionParams: {name: $name, description: $description, sourceConfigYaml: $sourceConfigYaml, cronString: $cronString, timezone: $timezone}
+  ) {
+    __typename
+    ... on ExternalAssetConnection {
+      ...ExternalAssetConnectionFields
+    }
+  }
+}
+
+mutation UpdateExternalAssetConnection($id: String!, $name: String, $description: String, $sourceConfigYaml: String, $cronString: String, $timezone: String) {
+  updateExternalAssetConnection(
+    id: $id
+    connectionParams: {name: $name, description: $description, sourceConfigYaml: $sourceConfigYaml, cronString: $cronString, timezone: $timezone}
+  ) {
+    __typename
+    ... on ExternalAssetConnection {
+      ...ExternalAssetConnectionFields
+    }
+  }
+}
+
+mutation DeleteExternalAssetConnection($id: String!) {
+  deleteExternalAssetConnection(id: $id) {
+    __typename
+    ... on DeleteExternalAssetConnectionSuccess {
+      id
+    }
+  }
+}

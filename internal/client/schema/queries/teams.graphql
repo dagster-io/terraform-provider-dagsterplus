@@ -1,0 +1,38 @@
+fragment TeamFields on DagsterCloudTeam {
+  id
+  name
+}
+
+query ListTeams {
+  teamPermissions {
+    team {
+      ...TeamFields
+    }
+  }
+}
+
+mutation CreateOrUpdateTeam($name: String!) {
+  createOrUpdateTeam(name: $name) {
+    __typename
+    ... on CreateOrUpdateTeamSuccess {
+      team {
+        ...TeamFields
+      }
+    }
+  }
+}
+
+mutation RenameTeam($teamId: String!, $name: String!) {
+  renameTeam(teamId: $teamId, name: $name) {
+    __typename
+    ... on DagsterCloudTeam {
+      ...TeamFields
+    }
+  }
+}
+
+mutation DeleteTeam($teamId: String!) {
+  deleteTeam(teamId: $teamId) {
+    __typename
+  }
+}

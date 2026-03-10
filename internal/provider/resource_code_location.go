@@ -6,10 +6,13 @@ import (
 	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -37,7 +40,7 @@ type codeSourceModel struct {
 // codeLocationResourceModel describes the resource data model.
 type codeLocationResourceModel struct {
 	ID               types.String    `tfsdk:"id"`
-	DeploymentName   types.String    `tfsdk:"deployment_name"`
+	DeploymentName   types.String    `tfsdk:"deployment"`
 	Name             types.String    `tfsdk:"name"`
 	Image            types.String    `tfsdk:"image"`
 	CodeSource       codeSourceModel `tfsdk:"code_source"`
@@ -54,13 +57,13 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 		Description: "Manages a Dagster+ code location within a deployment.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Unique identifier in the form '{deployment_name}/{name}'.",
+				Description: "Unique identifier in the form '{deployment}/{name}'.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"deployment_name": schema.StringAttribute{
+			"deployment": schema.StringAttribute{
 				Description: "The name of the deployment this code location belongs to.",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
@@ -94,16 +97,34 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 				Description: "Specifies where Dagster finds the code.",
 				Attributes: map[string]schema.Attribute{
 					"python_file": schema.StringAttribute{
-						Description: "Path to a Python file containing the repository.",
+						Description: "Path to a Python file containing the repository. Mutually exclusive with package_name and module_name.",
 						Optional:    true,
+						Validators: []validator.String{
+							stringvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("package_name"),
+								path.MatchRelative().AtParent().AtName("module_name"),
+							),
+						},
 					},
 					"package_name": schema.StringAttribute{
-						Description: "Python package name containing the repository.",
+						Description: "Python package name containing the repository. Mutually exclusive with python_file and module_name.",
 						Optional:    true,
+						Validators: []validator.String{
+							stringvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("python_file"),
+								path.MatchRelative().AtParent().AtName("module_name"),
+							),
+						},
 					},
 					"module_name": schema.StringAttribute{
-						Description: "Python module name containing the repository.",
+						Description: "Python module name containing the repository. Mutually exclusive with python_file and package_name.",
 						Optional:    true,
+						Validators: []validator.String{
+							stringvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("python_file"),
+								path.MatchRelative().AtParent().AtName("package_name"),
+							),
+						},
 					},
 				},
 			},
@@ -228,12 +249,12 @@ func (r *codeLocationResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *codeLocationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Import ID format: "{deployment_name}/{location_name}"
+	// Import ID format: "{deployment}/{location_name}"
 	parts := strings.SplitN(req.ID, "/", 2)
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Invalid import ID",
-			"Import ID must be in the format '{deployment_name}/{location_name}'.",
+			"Import ID must be in the format '{deployment}/{location_name}'.",
 		)
 		return
 	}

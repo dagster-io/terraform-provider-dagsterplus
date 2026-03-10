@@ -1,0 +1,66 @@
+fragment CustomRoleFields on CustomRole {
+  id
+  name
+  description
+  iconName
+  deploymentScope
+  permissions
+}
+
+query ListRoles {
+  customRoles {
+    ...CustomRoleFields
+  }
+}
+
+mutation CreateRole(
+  $name: String!
+  $description: String!
+  $iconName: String!
+  $scope: CustomRoleDeploymentScope!
+  $permissions: [CustomRolePermission!]!
+) {
+  createCustomRole(
+    name: $name
+    description: $description
+    iconName: $iconName
+    customRoleDeploymentScope: $scope
+    customRolePermissions: $permissions
+  ) {
+    __typename
+    ... on CreateOrUpdateCustomRoleSuccess {
+      customRole {
+        ...CustomRoleFields
+      }
+    }
+  }
+}
+
+mutation UpdateRole(
+  $id: String!
+  $name: String!
+  $description: String!
+  $iconName: String!
+  $permissions: [CustomRolePermission!]!
+) {
+  updateCustomRole(
+    customRoleId: $id
+    name: $name
+    description: $description
+    iconName: $iconName
+    customRolePermissions: $permissions
+  ) {
+    __typename
+    ... on CreateOrUpdateCustomRoleSuccess {
+      customRole {
+        ...CustomRoleFields
+      }
+    }
+  }
+}
+
+mutation DeleteRole($id: String!) {
+  deleteCustomRole(customRoleId: $id) {
+    __typename
+  }
+}

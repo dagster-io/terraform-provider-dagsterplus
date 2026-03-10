@@ -10,10 +10,8 @@ import (
 
 func mockDeployment() map[string]any {
 	return map[string]any{
-		"id":             "dep-123",
 		"deploymentName": "prod",
 		"deploymentType": "PROD",
-		"createdAt":      "2024-01-15T10:00:00Z",
 	}
 }
 
@@ -23,21 +21,23 @@ func TestCreateDeployment_Success(t *testing.T) {
 		if !strings.Contains(b.Query, "CreateDeployment") {
 			t.Errorf("expected CreateDeployment mutation, got: %s", b.Query)
 		}
-		if b.Variables["deploymentName"] != "prod" {
-			t.Errorf("deploymentName = %v, want prod", b.Variables["deploymentName"])
+		if b.Variables["name"] != "prod" {
+			t.Errorf("name = %v, want prod", b.Variables["name"])
 		}
-		if b.Variables["deploymentType"] != "PROD" {
-			t.Errorf("deploymentType = %v, want PROD", b.Variables["deploymentType"])
+		if b.Variables["agentType"] != "SERVERLESS" {
+			t.Errorf("agentType = %v, want SERVERLESS", b.Variables["agentType"])
 		}
 		gqlOK(w, map[string]any{
 			"createDeployment": map[string]any{
-				"deployment": mockDeployment(),
+				"__typename":     "DagsterCloudDeployment",
+				"deploymentName": "prod",
+				"deploymentType": "PROD",
 			},
 		})
 	}))
 	defer srv.Close()
 
-	dep, err := newClient(srv).CreateDeployment(context.Background(), "prod", "PROD")
+	dep, err := newClient(srv).CreateDeployment(context.Background(), "prod")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -47,9 +47,6 @@ func TestCreateDeployment_Success(t *testing.T) {
 	if dep.Type != "PROD" {
 		t.Errorf("Type = %q, want PROD", dep.Type)
 	}
-	if dep.CreatedAt != "2024-01-15T10:00:00Z" {
-		t.Errorf("CreatedAt = %q, unexpected", dep.CreatedAt)
-	}
 }
 
 func TestCreateDeployment_GraphQLError(t *testing.T) {
@@ -58,7 +55,7 @@ func TestCreateDeployment_GraphQLError(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	_, err := newClient(srv).CreateDeployment(context.Background(), "prod", "PROD")
+	_, err := newClient(srv).CreateDeployment(context.Background(), "prod")
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -75,7 +72,7 @@ func TestCreateDeployment_NilDeployment(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	_, err := newClient(srv).CreateDeployment(context.Background(), "prod", "PROD")
+	_, err := newClient(srv).CreateDeployment(context.Background(), "prod")
 	if err == nil {
 		t.Fatal("expected error for nil deployment, got nil")
 	}
@@ -159,17 +156,32 @@ func TestGetDeployment_NotFound(t *testing.T) {
 }
 
 func TestDeleteDeployment_Success(t *testing.T) {
+	calls := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b := parseBody(t, r)
-		if !strings.Contains(b.Query, "DeleteDeployment") {
-			t.Errorf("expected DeleteDeployment mutation, got: %s", b.Query)
+		calls++
+		if calls == 1 {
+			// First: ListDeployments to resolve the integer ID.
+			if !strings.Contains(b.Query, "ListDeployments") {
+				t.Errorf("expected ListDeployments query, got: %s", b.Query)
+			}
+			gqlOK(w, map[string]any{
+				"deployments": []any{
+					map[string]any{"deploymentId": 42, "deploymentName": "prod", "deploymentType": "PROD"},
+				},
+			})
+		} else {
+			// Second: DeleteDeployment by integer ID.
+			if !strings.Contains(b.Query, "DeleteDeployment") {
+				t.Errorf("expected DeleteDeployment mutation, got: %s", b.Query)
+			}
+			if b.Variables["id"] != float64(42) {
+				t.Errorf("id = %v, want 42", b.Variables["id"])
+			}
+			gqlOK(w, map[string]any{
+				"deleteDeployment": map[string]any{"__typename": "DagsterCloudDeployment"},
+			})
 		}
-		if b.Variables["deploymentName"] != "prod" {
-			t.Errorf("deploymentName = %v, want prod", b.Variables["deploymentName"])
-		}
-		gqlOK(w, map[string]any{
-			"deleteDeployment": map[string]any{"success": true},
-		})
 	}))
 	defer srv.Close()
 

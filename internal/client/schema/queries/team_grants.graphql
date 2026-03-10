@@ -1,0 +1,73 @@
+fragment TeamPermissionsFields on DagsterCloudTeamPermissions {
+  team {
+    id
+  }
+  organizationPermissionGrant {
+    grant
+    customRoleId
+    deploymentScope
+    deploymentId
+  }
+  allBranchDeploymentsPermissionGrant {
+    grant
+    customRoleId
+    deploymentScope
+    deploymentId
+  }
+  deploymentPermissionGrants {
+    grant
+    customRoleId
+    deploymentScope
+    deploymentId
+  }
+}
+
+query ListTeamGrants {
+  teamPermissions {
+    ...TeamPermissionsFields
+  }
+}
+
+mutation SetTeamGrant(
+  $teamId: String!
+  $scope: PermissionDeploymentScope!
+  $grant: PermissionGrant!
+  $customRoleId: String
+  $deploymentId: Int
+) {
+  createOrUpdateTeamPermission(
+    teamId: $teamId
+    deploymentScope: $scope
+    grant: $grant
+    customRoleId: $customRoleId
+    deploymentId: $deploymentId
+  ) {
+    __typename
+    ... on CreateOrUpdateTeamPermissionSuccess {
+      teamPermissions {
+        ...TeamPermissionsFields
+      }
+    }
+  }
+}
+
+mutation DeleteTeamGrant(
+  $teamId: String!
+  $scope: PermissionDeploymentScope!
+  $deploymentId: Int
+) {
+  removeTeamPermission(
+    teamId: $teamId
+    deploymentScope: $scope
+    deploymentId: $deploymentId
+  ) {
+    __typename
+    ... on RemoveTeamPermissionSuccess {
+      teamPermissions {
+        team {
+          id
+        }
+      }
+    }
+  }
+}

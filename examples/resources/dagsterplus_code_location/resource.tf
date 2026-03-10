@@ -1,5 +1,5 @@
 resource "dagsterplus_code_location" "my_pipeline" {
-  deployment_name = "prod"
+  deployment = "prod"
   name            = "my-pipeline"
   image           = "ghcr.io/my-org/my-pipeline:latest"
 
@@ -13,7 +13,7 @@ resource "dagsterplus_code_location" "my_pipeline" {
 
 # Using a package name instead of a Python file
 resource "dagsterplus_code_location" "my_package" {
-  deployment_name = "prod"
+  deployment = "prod"
   name            = "my-package"
   image           = "ghcr.io/my-org/my-package:latest"
 

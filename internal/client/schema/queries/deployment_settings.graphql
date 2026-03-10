@@ -1,0 +1,14 @@
+query GetDeploymentSettings {
+  deploymentSettings {
+    settings
+  }
+}
+
+mutation SetDeploymentSettings($settings: GenericScalar) {
+  setDeploymentSettings(deploymentSettings: {settings: $settings}) {
+    __typename
+    ... on DeploymentSettings {
+      settings
+    }
+  }
+}

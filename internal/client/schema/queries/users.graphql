@@ -1,0 +1,54 @@
+fragment ScopedGrantFields on DagsterCloudScopedPermissionGrant {
+  grant
+  customRoleId
+  deploymentScope
+  deploymentId
+}
+
+fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
+  user {
+    userId
+    email
+    name
+  }
+  organizationPermissionGrant {
+    ...ScopedGrantFields
+  }
+}
+
+query ListUsers {
+  usersOrError {
+    __typename
+    ... on DagsterCloudUsersWithScopedPermissionGrants {
+      users {
+        ...UserWithGrantsFields
+      }
+    }
+  }
+}
+
+mutation AddUser($email: String!) {
+  addUserToOrganization(email: $email) {
+    __typename
+    ... on AddUserToOrganizationSuccess {
+      userWithGrants {
+        ...UserWithGrantsFields
+      }
+    }
+  }
+}
+
+mutation UpdateUserPermissions($userPermission: CreateOrUpdateCloudUserPermissionsInput!) {
+  createOrUpdateUserPermissions(userPermission: $userPermission) {
+    __typename
+  }
+}
+
+mutation RemoveUser($email: String!) {
+  removeUserFromOrganization(email: $email) {
+    __typename
+    ... on RemoveUserFromOrganizationSuccess {
+      email
+    }
+  }
+}

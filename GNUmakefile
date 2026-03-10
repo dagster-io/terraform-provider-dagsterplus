@@ -1,4 +1,8 @@
-default: build
+default: generate build
+
+.PHONY: generate
+generate:
+	GOFLAGS="-mod=mod" go run github.com/Khan/genqlient internal/client/schema/genqlient.yaml
 
 BINARY_NAME   = terraform-provider-dagsterplus
 REGISTRY      = registry.terraform.io

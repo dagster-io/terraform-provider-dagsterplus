@@ -6,22 +6,21 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 )
 
 func TestCreateTeam_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b := parseBody(t, r)
-		if !strings.Contains(b.Query, "CreateTeam") {
-			t.Errorf("expected CreateTeam mutation, got: %s", b.Query)
+		if !strings.Contains(b.Query, "CreateOrUpdateTeam") {
+			t.Errorf("expected CreateOrUpdateTeam mutation, got: %s", b.Query)
 		}
-		if b.Variables["teamName"] != "data-engineering" {
-			t.Errorf("teamName = %v, want data-engineering", b.Variables["teamName"])
+		if b.Variables["name"] != "data-engineering" {
+			t.Errorf("name = %v, want data-engineering", b.Variables["name"])
 		}
 		gqlOK(w, map[string]any{
-			"createOrganizationMemberTeam": map[string]any{
-				"team": map[string]any{"teamId": "team-abc", "teamName": "data-engineering"},
+			"createOrUpdateTeam": map[string]any{
+				"__typename": "CreateOrUpdateTeamSuccess",
+				"team":       map[string]any{"id": "team-abc", "name": "data-engineering"},
 			},
 		})
 	}))
@@ -39,17 +38,20 @@ func TestCreateTeam_Success(t *testing.T) {
 	}
 }
 
-func TestCreateTeam_NilTeam(t *testing.T) {
+func TestCreateTeam_UnexpectedTypename(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gqlOK(w, map[string]any{
-			"createOrganizationMemberTeam": map[string]any{"team": nil},
+			"createOrUpdateTeam": map[string]any{
+				"__typename": "CreateOrUpdateTeamFailure",
+				"team":       nil,
+			},
 		})
 	}))
 	defer srv.Close()
 
 	_, err := newClient(srv).CreateTeam(context.Background(), "data-engineering")
 	if err == nil {
-		t.Fatal("expected error for nil team, got nil")
+		t.Fatal("expected error for unexpected typename, got nil")
 	}
 }
 
@@ -60,9 +62,9 @@ func TestListTeams_Success(t *testing.T) {
 			t.Errorf("expected ListTeams query, got: %s", b.Query)
 		}
 		gqlOK(w, map[string]any{
-			"organizationMemberTeams": []any{
-				map[string]any{"teamId": "team-abc", "teamName": "data-engineering"},
-				map[string]any{"teamId": "team-def", "teamName": "platform"},
+			"teamPermissions": []any{
+				map[string]any{"team": map[string]any{"id": "team-abc", "name": "data-engineering"}},
+				map[string]any{"team": map[string]any{"id": "team-def", "name": "platform"}},
 			},
 		})
 	}))
@@ -83,9 +85,9 @@ func TestListTeams_Success(t *testing.T) {
 func TestGetTeam_Found(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gqlOK(w, map[string]any{
-			"organizationMemberTeams": []any{
-				map[string]any{"teamId": "team-abc", "teamName": "data-engineering"},
-				map[string]any{"teamId": "team-def", "teamName": "platform"},
+			"teamPermissions": []any{
+				map[string]any{"team": map[string]any{"id": "team-abc", "name": "data-engineering"}},
+				map[string]any{"team": map[string]any{"id": "team-def", "name": "platform"}},
 			},
 		})
 	}))
@@ -102,7 +104,7 @@ func TestGetTeam_Found(t *testing.T) {
 
 func TestGetTeam_NotFound(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gqlOK(w, map[string]any{"organizationMemberTeams": []any{}})
+		gqlOK(w, map[string]any{"teamPermissions": []any{}})
 	}))
 	defer srv.Close()
 
@@ -112,64 +114,6 @@ func TestGetTeam_NotFound(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "not found") {
 		t.Errorf("error should mention not found, got: %v", err)
-	}
-}
-
-func TestGetTeamPermissions_Success(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b := parseBody(t, r)
-		if !strings.Contains(b.Query, "GetTeamPermissions") {
-			t.Errorf("expected GetTeamPermissions query, got: %s", b.Query)
-		}
-		if b.Variables["teamId"] != "team-abc" {
-			t.Errorf("teamId = %v, want team-abc", b.Variables["teamId"])
-		}
-		gqlOK(w, map[string]any{
-			"organizationMemberTeam": map[string]any{
-				"deploymentPermissions": []any{
-					map[string]any{"deploymentName": "prod", "deploymentRole": "EDITOR"},
-					map[string]any{"deploymentName": "staging", "deploymentRole": "ADMIN"},
-				},
-			},
-		})
-	}))
-	defer srv.Close()
-
-	perms, err := newClient(srv).GetTeamPermissions(context.Background(), "team-abc")
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(perms) != 2 {
-		t.Fatalf("len = %d, want 2", len(perms))
-	}
-	if perms[0].DeploymentName != "prod" {
-		t.Errorf("perms[0].DeploymentName = %q, want prod", perms[0].DeploymentName)
-	}
-	if perms[0].Role != "EDITOR" {
-		t.Errorf("perms[0].Role = %q, want EDITOR", perms[0].Role)
-	}
-}
-
-func TestUpdateTeamPermissions_Success(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b := parseBody(t, r)
-		if !strings.Contains(b.Query, "UpdateTeamPermissions") {
-			t.Errorf("expected UpdateTeamPermissions mutation, got: %s", b.Query)
-		}
-		if b.Variables["teamId"] != "team-abc" {
-			t.Errorf("teamId = %v, want team-abc", b.Variables["teamId"])
-		}
-		gqlOK(w, map[string]any{
-			"updateOrganizationMemberTeamPermissions": map[string]any{"success": true},
-		})
-	}))
-	defer srv.Close()
-
-	perms := []client.Permission{
-		{DeploymentName: "prod", Role: "EDITOR"},
-	}
-	if err := newClient(srv).UpdateTeamPermissions(context.Background(), "team-abc", perms); err != nil {
-		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
@@ -183,7 +127,7 @@ func TestDeleteTeam_Success(t *testing.T) {
 			t.Errorf("teamId = %v, want team-abc", b.Variables["teamId"])
 		}
 		gqlOK(w, map[string]any{
-			"deleteOrganizationMemberTeam": map[string]any{"success": true},
+			"deleteTeam": map[string]any{"__typename": "DeleteTeamSuccess"},
 		})
 	}))
 	defer srv.Close()

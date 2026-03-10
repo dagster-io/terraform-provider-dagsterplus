@@ -1,0 +1,27 @@
+fragment WorkspaceEntryFields on WorkspaceEntry {
+  locationName
+  serializedDeploymentMetadata
+}
+
+query ListCodeLocations {
+  workspace {
+    workspaceEntries {
+      ...WorkspaceEntryFields
+    }
+  }
+}
+
+mutation AddOrUpdateCodeLocation($location: LocationSelector!) {
+  addOrUpdateLocation(location: $location) {
+    __typename
+    ... on WorkspaceEntry {
+      ...WorkspaceEntryFields
+    }
+  }
+}
+
+mutation DeleteCodeLocation($name: String!) {
+  deleteLocation(locationName: $name) {
+    __typename
+  }
+}

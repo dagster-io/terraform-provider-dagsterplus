@@ -1,0 +1,129 @@
+query ListServiceUsers {
+  serviceUsersOrError {
+    __typename
+    ... on ServiceUsersWithScopedPermissionGrants {
+      serviceUsers {
+        id
+        serviceUser {
+          id
+          name
+          description
+        }
+      }
+    }
+  }
+}
+
+query GetServiceUser($serviceUserId: String!) {
+  serviceUser(serviceUserId: $serviceUserId) {
+    __typename
+    ... on ServiceUserWithScopedPermissionGrants {
+      id
+      serviceUser {
+        id
+        name
+        description
+      }
+    }
+  }
+}
+
+mutation CreateServiceUser($name: String!, $description: String) {
+  createServiceUser(name: $name, description: $description) {
+    __typename
+    ... on ServiceUserWithScopedPermissionGrants {
+      id
+      serviceUser {
+        id
+        name
+        description
+      }
+    }
+    ... on ServiceUserNameConflictError {
+      message
+    }
+  }
+}
+
+mutation UpdateServiceUser($id: String!, $name: String, $description: String) {
+  updateServiceUser(id: $id, name: $name, description: $description) {
+    __typename
+    ... on ServiceUserWithScopedPermissionGrants {
+      id
+      serviceUser {
+        id
+        name
+        description
+      }
+    }
+    ... on ServiceUserNameConflictError {
+      message
+    }
+    ... on ServiceUserNotFoundError {
+      message
+    }
+  }
+}
+
+mutation DeleteServiceUser($serviceUserId: String!) {
+  deleteServiceUser(serviceUserId: $serviceUserId) {
+    __typename
+    ... on DeleteServiceUserSuccess {
+      success
+    }
+    ... on ServiceUserNotFoundError {
+      message
+    }
+  }
+}
+
+query ListServiceTokens($serviceUserId: String!) {
+  serviceTokensOrError(serviceUserId: $serviceUserId) {
+    __typename
+    ... on ServiceTokens {
+      tokens {
+        id
+        token
+        description
+        revoked
+        serviceUser {
+          id
+        }
+      }
+    }
+  }
+}
+
+mutation CreateServiceToken($serviceUserId: String!, $description: String) {
+  createServiceToken(serviceUserId: $serviceUserId, description: $description) {
+    __typename
+    ... on ServiceToken {
+      id
+      token
+      description
+      revoked
+    }
+  }
+}
+
+mutation RevokeServiceToken($tokenId: String!) {
+  revokeServiceToken(tokenId: $tokenId) {
+    __typename
+    ... on ServiceToken {
+      id
+      revoked
+    }
+  }
+}
+
+mutation UpdateServiceToken($tokenId: String!, $serviceUserId: String!, $description: String) {
+  updateServiceToken(tokenId: $tokenId, serviceUserId: $serviceUserId, description: $description) {
+    __typename
+    ... on ServiceToken {
+      id
+      token
+      description
+      revoked
+    }
+  }
+}

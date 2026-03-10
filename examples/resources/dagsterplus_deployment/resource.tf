@@ -1,11 +1,11 @@
 resource "dagsterplus_deployment" "prod" {
   name = "prod"
-  type = "PROD"
+  type = "SERVERLESS"
 }
 
-resource "dagsterplus_deployment" "staging" {
-  name = "staging"
-  type = "BRANCH"
+resource "dagsterplus_deployment" "hybrid" {
+  name = "hybrid-prod"
+  type = "HYBRID"
 }
 
 output "prod_deployment_id" {

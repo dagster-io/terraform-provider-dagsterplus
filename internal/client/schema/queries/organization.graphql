@@ -1,0 +1,94 @@
+fragment OrganizationFields on DagsterCloudOrganization {
+  id
+  publicId
+  name
+  status
+  metadata {
+    slackAppInstallation {
+      teamId
+      teamName
+    }
+    githubAppInstallation {
+      accountName
+      appId
+      settingsUrl
+      repos
+    }
+  }
+}
+
+query GetVersion {
+  version
+}
+
+query GetOrganization {
+  organization {
+    ...OrganizationFields
+  }
+}
+
+query GetScimSyncEnabled {
+  scimSyncEnabled
+}
+
+query GetAtlanIntegrationSettings {
+  atlanIntegration {
+    atlanIntegrationSettingsOrError {
+      __typename
+      ... on AtlanIntegrationSettings {
+        token
+        domain
+      }
+    }
+  }
+}
+
+mutation SetScimSyncEnabled($enabled: Boolean!) {
+  setScimSyncEnabled(enabled: $enabled) {
+    __typename
+    ... on SetScimSyncEnabledSuccess {
+      enabled
+    }
+  }
+}
+
+mutation SetAtlanIntegrationSettings($token: String!, $domain: String!) {
+  setAtlanIntegrationSettings(atlanIntegrationSettings: {token: $token, domain: $domain}) {
+    __typename
+    ... on SetAtlanIntegrationSettingsSuccess {
+      organization
+      success
+    }
+  }
+}
+
+mutation DeleteAtlanIntegrationSettings {
+  deleteAtlanIntegrationSettings {
+    __typename
+    ... on DeleteAtlanIntegrationSuccess {
+      organization
+      success
+    }
+  }
+}
+
+mutation SelectGithubInstallation($accountName: String!) {
+  selectInstallation(accountName: $accountName) {
+    __typename
+    ... on GithubAppInstallation {
+      accountName
+      appId
+      settingsUrl
+      repos
+    }
+  }
+}
+
+mutation DeselectGithubInstallation {
+  deselectInstallation {
+    __typename
+    ... on DeselectInstallationSuccess {
+      ok
+    }
+  }
+}

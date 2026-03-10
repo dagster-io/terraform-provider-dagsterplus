@@ -1,0 +1,8 @@
+schema: schema.graphql
+operations:
+  - queries/*.graphql
+generated: generated.go
+
+bindings:
+  GenericScalar:
+    type: encoding/json.RawMessage

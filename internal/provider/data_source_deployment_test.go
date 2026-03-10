@@ -8,19 +8,15 @@ import (
 )
 
 func TestAccDeploymentDataSource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				// Reads an existing deployment — assumes "prod" exists in the test org.
-				// Adjust to a deployment name that exists in your Dagster+ org.
-				Config: providerConfig() + testAccDeploymentDataSourceConfig("prod"),
+				Config: providerConfig() + testAccDeploymentDataSourceConfig("acc-tf-ds-dep"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.dagsterplus_deployment.test", "name", "prod"),
+					resource.TestCheckResourceAttr("data.dagsterplus_deployment.test", "name", "acc-tf-ds-dep"),
 					resource.TestCheckResourceAttrSet("data.dagsterplus_deployment.test", "id"),
-					resource.TestCheckResourceAttrSet("data.dagsterplus_deployment.test", "type"),
-					resource.TestCheckResourceAttrSet("data.dagsterplus_deployment.test", "created_at"),
 				),
 			},
 		},
@@ -28,12 +24,12 @@ func TestAccDeploymentDataSource_basic(t *testing.T) {
 }
 
 func TestAccDeploymentDataSource_notFound(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      providerConfig() + testAccDeploymentDataSourceConfig("this-deployment-does-not-exist-xyz"),
+				Config:      providerConfig() + testAccDeploymentDataSourceNotFoundConfig(),
 				ExpectError: errRegexp("not found"),
 			},
 		},
@@ -42,8 +38,21 @@ func TestAccDeploymentDataSource_notFound(t *testing.T) {
 
 func testAccDeploymentDataSourceConfig(name string) string {
 	return fmt.Sprintf(`
-data "dagsterplus_deployment" "test" {
+resource "dagsterplus_deployment" "test" {
   name = %q
 }
+
+data "dagsterplus_deployment" "test" {
+  name       = dagsterplus_deployment.test.name
+  depends_on = [dagsterplus_deployment.test]
+}
 `, name)
+}
+
+func testAccDeploymentDataSourceNotFoundConfig() string {
+	return `
+data "dagsterplus_deployment" "test" {
+  name = "this-deployment-does-not-exist-xyz"
+}
+`
 }

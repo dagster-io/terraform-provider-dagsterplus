@@ -30,7 +30,6 @@ type deploymentResource struct {
 type deploymentResourceModel struct {
 	ID   types.String `tfsdk:"id"`
 	Name types.String `tfsdk:"name"`
-	Type types.String `tfsdk:"type"`
 }
 
 func (r *deploymentResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -49,20 +48,13 @@ func (r *deploymentResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"name": schema.StringAttribute{
-				Description: "The name of the deployment.",
+				Description: "The name of the deployment. Changing this forces a new resource.",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"type": schema.StringAttribute{
-				Description: "The deployment agent type: SERVERLESS or HYBRID.",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			},
+		},
 	}
 }
 
@@ -83,13 +75,12 @@ func (r *deploymentResource) Configure(_ context.Context, req resource.Configure
 
 func (r *deploymentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan deploymentResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	deployment, err := r.client.CreateDeployment(ctx, plan.Name.ValueString(), plan.Type.ValueString())
+	deployment, err := r.client.CreateDeployment(ctx, plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating deployment", err.Error())
 		return
@@ -97,16 +88,13 @@ func (r *deploymentResource) Create(ctx context.Context, req resource.CreateRequ
 
 	plan.ID = types.StringValue(deployment.Name)
 	plan.Name = types.StringValue(deployment.Name)
-	plan.Type = types.StringValue(deployment.Type)
 
-	diags = resp.State.Set(ctx, plan)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
 func (r *deploymentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state deploymentResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -119,45 +107,28 @@ func (r *deploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	state.ID = types.StringValue(deployment.Name)
 	state.Name = types.StringValue(deployment.Name)
-	state.Type = types.StringValue(deployment.Type)
 
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-func (r *deploymentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Deployment name and type are both ForceNew, so Update should never be called.
-	// If it is called anyway, re-read the current state.
-	var plan deploymentResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	diags = resp.State.Set(ctx, plan)
-	resp.Diagnostics.Append(diags...)
+func (r *deploymentResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+	// name is RequiresReplace — Update is never called.
 }
 
 func (r *deploymentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state deploymentResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	err := r.client.DeleteDeployment(ctx, state.Name.ValueString())
-	if err != nil {
+	if err := r.client.DeleteDeployment(ctx, state.Name.ValueString()); err != nil {
 		resp.Diagnostics.AddError("Error deleting deployment", err.Error())
 	}
 }
 
 func (r *deploymentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Import by deployment name.
-	name := req.ID
-
-	deployment, err := r.client.GetDeployment(ctx, name)
+	deployment, err := r.client.GetDeployment(ctx, req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error importing deployment", err.Error())
 		return
@@ -166,9 +137,7 @@ func (r *deploymentResource) ImportState(ctx context.Context, req resource.Impor
 	state := deploymentResourceModel{
 		ID:   types.StringValue(deployment.Name),
 		Name: types.StringValue(deployment.Name),
-		Type: types.StringValue(deployment.Type),
 	}
 
-	diags := resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }

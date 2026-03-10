@@ -118,12 +118,47 @@ func (p *dagsterplusProvider) Resources(_ context.Context) []func() resource.Res
 		NewTeamResource,
 		NewUserResource,
 		NewAlertPolicyResource,
+		NewAgentTokenResource,
+		NewUserTokenResource,
+		NewRoleResource,
+		NewScimSettingsResource,
+		NewAtlanIntegrationResource,
+		NewGithubIntegrationResource,
+		NewSecretResource,
+		NewDeploymentSettingsResource,
+		NewServiceUserResource,
+		NewServiceTokenResource,
+		NewOrganizationSettingsResource,
+		NewCustomMetricResource,
+		NewExternalAssetConnectionResource,
+		NewTeamMembershipResource,
+		NewTeamDeploymentGrantResource,
+		NewCodeLocationFromDocumentResource,
 	}
 }
 
 func (p *dagsterplusProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewDeploymentDataSource,
+		NewDeploymentsDataSource,
+		NewAlertPolicyDataSource,
+		NewAlertPoliciesDataSource,
+		NewUserDataSource,
+		NewUsersDataSource,
+		NewTeamDataSource,
+		NewTeamsDataSource,
+		NewCodeLocationDataSource,
+		NewCodeLocationsDataSource,
+		NewAgentTokenDataSource,
+		NewUserTokenDataSource,
+		NewRoleDataSource,
+		NewRolesDataSource,
+		NewOrganizationDataSource,
+		NewSecretDataSource,
+		NewServiceUserDataSource,
+		NewCustomMetricDataSource,
+		NewVersionDataSource,
+		NewConfigurationDocumentDataSource,
 	}
 }
 

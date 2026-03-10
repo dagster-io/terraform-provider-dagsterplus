@@ -1,0 +1,14 @@
+query GetOrganizationSettings {
+  organizationSettings {
+    settings
+  }
+}
+
+mutation SetOrganizationSettings($settings: GenericScalar) {
+  setOrganizationSettings(organizationSettings: {settings: $settings}) {
+    __typename
+    ... on OrganizationSettings {
+      settings
+    }
+  }
+}
