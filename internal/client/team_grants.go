@@ -110,6 +110,26 @@ func (c *Client) GetTeamGrant(ctx context.Context, teamID, deploymentScope strin
 	return nil, fmt.Errorf("GetTeamGrant: grant for team %q scope %q not found", teamID, deploymentScope)
 }
 
+// ListTeamDeploymentGrants returns all deployment-scoped grants for a given team ID.
+func (c *Client) ListTeamDeploymentGrants(ctx context.Context, teamID string) ([]TeamGrant, error) {
+	resp, err := schema.ListTeamGrants(ctx, c.gqlClient(""))
+	if err != nil {
+		return nil, fmt.Errorf("ListTeamDeploymentGrants: %w", err)
+	}
+
+	for _, tp := range resp.TeamPermissions {
+		if tp.TeamPermissionsFields.Team.Id != teamID {
+			continue
+		}
+		var grants []TeamGrant
+		for _, g := range tp.TeamPermissionsFields.DeploymentPermissionGrants {
+			grants = append(grants, *teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId))
+		}
+		return grants, nil
+	}
+	return nil, nil
+}
+
 // DeleteTeamGrant removes a permission grant for a team at the given scope.
 func (c *Client) DeleteTeamGrant(ctx context.Context, teamID, deploymentScope string, deploymentID int64) error {
 	_, err := schema.DeleteTeamGrant(ctx, c.gqlClient(""),

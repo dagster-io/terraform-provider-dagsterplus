@@ -28,12 +28,80 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
+// testAccDeployment returns the name of the primary pre-existing deployment used
+// by acceptance tests. Override with DAGSTER_CLOUD_TEST_DEPLOYMENT.
+func testAccDeployment() string {
+	if v := os.Getenv("DAGSTER_CLOUD_TEST_DEPLOYMENT"); v != "" {
+		return v
+	}
+	return "prod"
+}
+
+// testAccDeployment2 returns the name of a second pre-existing deployment used
+// by tests that need two deployments (e.g. team multi-grant tests).
+// Override with DAGSTER_CLOUD_TEST_DEPLOYMENT_2.
+func testAccDeployment2() string {
+	if v := os.Getenv("DAGSTER_CLOUD_TEST_DEPLOYMENT_2"); v != "" {
+		return v
+	}
+	return "staging"
+}
+
+// testAccUserEmail returns the email address used for user acceptance tests.
+// It must be an address that is invitable in the test organisation (i.e. not
+// already a full member). Set DAGSTER_CLOUD_TEST_USER_EMAIL; the test is
+// skipped when the variable is absent so as not to fail on unconfigured envs.
+func testAccUserEmail(t *testing.T) string {
+	t.Helper()
+	email := os.Getenv("DAGSTER_CLOUD_TEST_USER_EMAIL")
+	if email == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_USER_EMAIL must be set to run user acceptance tests")
+	}
+	return email
+}
+
 // providerConfig returns the HCL provider block for acceptance tests.
 // Credentials are read from environment variables.
 func providerConfig() string {
 	return `
 provider "dagsterplus" {}
 `
+}
+
+// testAccExternalAssetsPreCheck skips the test if external asset connections are not
+// enabled for the test organisation. Set DAGSTER_CLOUD_TEST_EXTERNAL_ASSETS=1 to opt in.
+func testAccExternalAssetsPreCheck(t *testing.T) {
+	t.Helper()
+	if os.Getenv("DAGSTER_CLOUD_TEST_EXTERNAL_ASSETS") == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_EXTERNAL_ASSETS must be set to run external asset connection tests")
+	}
+}
+
+// testAccDeployment2PreCheck skips the test if DAGSTER_CLOUD_TEST_DEPLOYMENT_2 is not set.
+// Tests requiring a second deployment are skipped unless a real second deployment is provided.
+func testAccDeployment2PreCheck(t *testing.T) {
+	t.Helper()
+	if os.Getenv("DAGSTER_CLOUD_TEST_DEPLOYMENT_2") == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_DEPLOYMENT_2 must be set to run multi-deployment tests")
+	}
+}
+
+// testAccOrgGrantsPreCheck skips the test if org-level team grants are not enabled for the
+// test organisation. Set DAGSTER_CLOUD_TEST_ORG_GRANTS=1 to opt in.
+func testAccOrgGrantsPreCheck(t *testing.T) {
+	t.Helper()
+	if os.Getenv("DAGSTER_CLOUD_TEST_ORG_GRANTS") == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_ORG_GRANTS must be set to run org-level team grant tests")
+	}
+}
+
+// testAccGithubIntegrationPreCheck skips the test if GitHub integration is not enabled for the
+// test organisation. Set DAGSTER_CLOUD_TEST_GITHUB_INTEGRATION=1 to opt in.
+func testAccGithubIntegrationPreCheck(t *testing.T) {
+	t.Helper()
+	if os.Getenv("DAGSTER_CLOUD_TEST_GITHUB_INTEGRATION") == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_GITHUB_INTEGRATION must be set to run GitHub integration tests")
+	}
 }
 
 // errRegexp compiles a regexp for use with resource.TestStep.ExpectError.
