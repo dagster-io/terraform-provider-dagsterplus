@@ -9,22 +9,22 @@ Manage [Dagster+](https://dagster.cloud) (Dagster Cloud) resources declaratively
 | Agent Token                | `dagsterplus_agent_token`                 | `dagsterplus_agent_token`                | Yes     | **Ready**    | - |
 | Alert Policies (list)      | —                                         | `dagsterplus_alert_policies`             | —       | **Ready**    | - |
 | Alert Policy               | `dagsterplus_alert_policy`                | `dagsterplus_alert_policy`               | Yes     | **Ready**    | - |
-| Atlan Integration          | `dagsterplus_atlan_integration`           | —                                        | Yes     | Experimental | - |
-| Code Location              | `dagsterplus_code_location`               | `dagsterplus_code_location`              | Yes     | Experimental | Yes |
+| Atlan Integration          | `dagsterplus_atlan_integration`           | —                                        | Yes     | **Ready**    | - |
+| Code Location              | `dagsterplus_code_location`               | `dagsterplus_code_location`              | Yes     | **Ready**    | Yes |
 | Code Location (document)   | `dagsterplus_code_location_from_document` | —                                        | Yes     | Experimental | Yes |
-| Code Locations (list)      | —                                         | `dagsterplus_code_locations`             | —       | Experimental | - |
+| Code Locations (list)      | —                                         | `dagsterplus_code_locations`             | —       | **Ready**    | - |
 | Configuration Document     | —                                         | `dagsterplus_configuration_document`     | —       | Experimental | Yes |
 | Custom Metric              | `dagsterplus_custom_metric`               | `dagsterplus_custom_metric`              | Yes     | **Ready**    | - |
 | Deployment                 | `dagsterplus_deployment`                  | `dagsterplus_deployment`                 | Yes     | **Ready**    | Yes |
-| Deployment Settings        | `dagsterplus_deployment_settings`         | —                                        | Yes     | Experimental | - |
+| Deployment Settings        | `dagsterplus_deployment_settings`         | —                                        | Yes     | **Ready**    | - |
 | Deployments (list)         | —                                         | `dagsterplus_deployments`                | —       | **Ready**    | - |
 | External Asset Connection  | `dagsterplus_external_asset_connection`   | —                                        | Yes     | Experimental | - |
 | GitHub Integration         | `dagsterplus_github_integration`          | —                                        | Yes     | Experimental | - |
-| Organization               | —                                         | `dagsterplus_organization`               | —       | Experimental | Yes |
+| Organization               | —                                         | `dagsterplus_organization`               | —       | **Ready**    | Yes |
 | Organization Settings      | `dagsterplus_organization_settings`       | —                                        | Yes     | **Ready**    | - |
 | Role                       | `dagsterplus_role`                        | `dagsterplus_role`                       | Yes     | **Ready**    | - |
 | Roles (list)               | —                                         | `dagsterplus_roles`                      | —       | **Ready**    | - |
-| SCIM Settings              | `dagsterplus_scim_settings`               | —                                        | Yes     | Experimental | - |
+| SCIM Settings              | `dagsterplus_scim_settings`               | —                                        | Yes     | **Ready**    | - |
 | Secret                     | `dagsterplus_secret`                      | `dagsterplus_secret`                     | Yes     | **Ready**    | - |
 | Service Token              | `dagsterplus_service_token`               | —                                        | Yes     | **Ready**    | - |
 | Service User               | `dagsterplus_service_user`                | `dagsterplus_service_user`               | Yes     | **Ready**    | - |

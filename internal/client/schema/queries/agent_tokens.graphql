@@ -2,6 +2,7 @@ fragment AgentTokenFields on DagsterCloudAgentToken {
   id
   description
   token
+  revoked
 }
 
 query ListAgentTokens {

@@ -46,12 +46,15 @@ func (c *Client) ListAgentTokens(ctx context.Context) ([]AgentToken, error) {
 
 	switch r := resp.AgentTokensOrError.(type) {
 	case *schema.ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokens:
-		tokens := make([]AgentToken, len(r.Tokens))
-		for i, t := range r.Tokens {
-			tokens[i] = AgentToken{
+		var tokens []AgentToken
+		for _, t := range r.Tokens {
+			if t.AgentTokenFields.Revoked {
+				continue
+			}
+			tokens = append(tokens, AgentToken{
 				ID:   strconv.Itoa(t.AgentTokenFields.Id),
 				Name: t.AgentTokenFields.Description,
-			}
+			})
 		}
 		return tokens, nil
 	default:

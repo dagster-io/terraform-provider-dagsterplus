@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
+	"github.com/dagster-io/terraform-provider-dagsterplus/internal/datasources"
+	"github.com/dagster-io/terraform-provider-dagsterplus/internal/resources"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -113,52 +115,52 @@ func (p *dagsterplusProvider) Configure(ctx context.Context, req provider.Config
 
 func (p *dagsterplusProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewDeploymentResource,
-		NewCodeLocationResource,
-		NewTeamResource,
-		NewUserResource,
-		NewAlertPolicyResource,
-		NewAgentTokenResource,
-		NewUserTokenResource,
-		NewRoleResource,
-		NewScimSettingsResource,
-		NewAtlanIntegrationResource,
-		NewGithubIntegrationResource,
-		NewSecretResource,
-		NewDeploymentSettingsResource,
-		NewServiceUserResource,
-		NewServiceTokenResource,
-		NewOrganizationSettingsResource,
-		NewCustomMetricResource,
-		NewExternalAssetConnectionResource,
-		NewTeamMembershipResource,
-		NewTeamDeploymentGrantResource,
-		NewCodeLocationFromDocumentResource,
+		resources.NewDeploymentResource,
+		resources.NewCodeLocationResource,
+		resources.NewTeamResource,
+		resources.NewUserResource,
+		resources.NewAlertPolicyResource,
+		resources.NewAgentTokenResource,
+		resources.NewUserTokenResource,
+		resources.NewRoleResource,
+		resources.NewScimSettingsResource,
+		resources.NewAtlanIntegrationResource,
+		resources.NewGithubIntegrationResource,
+		resources.NewSecretResource,
+		resources.NewDeploymentSettingsResource,
+		resources.NewServiceUserResource,
+		resources.NewServiceTokenResource,
+		resources.NewOrganizationSettingsResource,
+		resources.NewCustomMetricResource,
+		resources.NewExternalAssetConnectionResource,
+		resources.NewTeamMembershipResource,
+		resources.NewTeamDeploymentGrantResource,
+		resources.NewCodeLocationFromDocumentResource,
 	}
 }
 
 func (p *dagsterplusProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewDeploymentDataSource,
-		NewDeploymentsDataSource,
-		NewAlertPolicyDataSource,
-		NewAlertPoliciesDataSource,
-		NewUserDataSource,
-		NewUsersDataSource,
-		NewTeamDataSource,
-		NewTeamsDataSource,
-		NewCodeLocationDataSource,
-		NewCodeLocationsDataSource,
-		NewAgentTokenDataSource,
-		NewUserTokenDataSource,
-		NewRoleDataSource,
-		NewRolesDataSource,
-		NewOrganizationDataSource,
-		NewSecretDataSource,
-		NewServiceUserDataSource,
-		NewCustomMetricDataSource,
-		NewVersionDataSource,
-		NewConfigurationDocumentDataSource,
+		datasources.NewDeploymentDataSource,
+		datasources.NewDeploymentsDataSource,
+		datasources.NewAlertPolicyDataSource,
+		datasources.NewAlertPoliciesDataSource,
+		datasources.NewUserDataSource,
+		datasources.NewUsersDataSource,
+		datasources.NewTeamDataSource,
+		datasources.NewTeamsDataSource,
+		datasources.NewCodeLocationDataSource,
+		datasources.NewCodeLocationsDataSource,
+		datasources.NewAgentTokenDataSource,
+		datasources.NewUserTokenDataSource,
+		datasources.NewRoleDataSource,
+		datasources.NewRolesDataSource,
+		datasources.NewOrganizationDataSource,
+		datasources.NewSecretDataSource,
+		datasources.NewServiceUserDataSource,
+		datasources.NewCustomMetricDataSource,
+		datasources.NewVersionDataSource,
+		datasources.NewConfigurationDocumentDataSource,
 	}
 }
 

@@ -778,6 +778,7 @@ type AgentTokenFields struct {
 	Id          int    `json:"id"`
 	Description string `json:"description"`
 	Token       string `json:"token"`
+	Revoked     bool   `json:"revoked"`
 }
 
 // GetId returns AgentTokenFields.Id, and is useful for accessing the field via an interface.
@@ -788,6 +789,9 @@ func (v *AgentTokenFields) GetDescription() string { return v.Description }
 
 // GetToken returns AgentTokenFields.Token, and is useful for accessing the field via an interface.
 func (v *AgentTokenFields) GetToken() string { return v.Token }
+
+// GetRevoked returns AgentTokenFields.Revoked, and is useful for accessing the field via an interface.
+func (v *AgentTokenFields) GetRevoked() bool { return v.Revoked }
 
 // Event types which we can alert on. These can either correspond with a DagsterEventType or a discrete
 // event outside of the event log. The AlertPolicyEventType set on an AlertPolicy indicates what that policy
@@ -2068,6 +2072,11 @@ func (v *CreateAgentTokenCreateAgentTokenDagsterCloudAgentToken) GetToken() stri
 	return v.AgentTokenFields.Token
 }
 
+// GetRevoked returns CreateAgentTokenCreateAgentTokenDagsterCloudAgentToken.Revoked, and is useful for accessing the field via an interface.
+func (v *CreateAgentTokenCreateAgentTokenDagsterCloudAgentToken) GetRevoked() bool {
+	return v.AgentTokenFields.Revoked
+}
+
 func (v *CreateAgentTokenCreateAgentTokenDagsterCloudAgentToken) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2101,6 +2110,8 @@ type __premarshalCreateAgentTokenCreateAgentTokenDagsterCloudAgentToken struct {
 	Description string `json:"description"`
 
 	Token string `json:"token"`
+
+	Revoked bool `json:"revoked"`
 }
 
 func (v *CreateAgentTokenCreateAgentTokenDagsterCloudAgentToken) MarshalJSON() ([]byte, error) {
@@ -2118,6 +2129,7 @@ func (v *CreateAgentTokenCreateAgentTokenDagsterCloudAgentToken) __premarshalJSO
 	retval.Id = v.AgentTokenFields.Id
 	retval.Description = v.AgentTokenFields.Description
 	retval.Token = v.AgentTokenFields.Token
+	retval.Revoked = v.AgentTokenFields.Revoked
 	return &retval, nil
 }
 
@@ -8615,6 +8627,11 @@ func (v *ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokensTokensDagsterCl
 	return v.AgentTokenFields.Token
 }
 
+// GetRevoked returns ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokensTokensDagsterCloudAgentToken.Revoked, and is useful for accessing the field via an interface.
+func (v *ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokensTokensDagsterCloudAgentToken) GetRevoked() bool {
+	return v.AgentTokenFields.Revoked
+}
+
 func (v *ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokensTokensDagsterCloudAgentToken) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -8646,6 +8663,8 @@ type __premarshalListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokensTokensD
 	Description string `json:"description"`
 
 	Token string `json:"token"`
+
+	Revoked bool `json:"revoked"`
 }
 
 func (v *ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokensTokensDagsterCloudAgentToken) MarshalJSON() ([]byte, error) {
@@ -8662,6 +8681,7 @@ func (v *ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokensTokensDagsterCl
 	retval.Id = v.AgentTokenFields.Id
 	retval.Description = v.AgentTokenFields.Description
 	retval.Token = v.AgentTokenFields.Token
+	retval.Revoked = v.AgentTokenFields.Revoked
 	return &retval, nil
 }
 
@@ -16705,6 +16725,7 @@ fragment AgentTokenFields on DagsterCloudAgentToken {
 	id
 	description
 	token
+	revoked
 }
 `
 
@@ -17967,6 +17988,7 @@ fragment AgentTokenFields on DagsterCloudAgentToken {
 	id
 	description
 	token
+	revoked
 }
 `
 
