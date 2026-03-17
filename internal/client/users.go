@@ -9,10 +9,12 @@ import (
 
 // User represents a Dagster+ organization member.
 type User struct {
-	ID    string
-	Email string
-	Name  string
-	Role  string // populated from organizationPermissionGrant.grant
+	ID                string
+	Email             string
+	Name              string
+	Role              string // populated from organizationPermissionGrant.grant
+	Picture           string
+	IsScimProvisioned bool
 }
 
 func userFromFields(f schema.UserWithGrantsFields) User {
@@ -21,10 +23,12 @@ func userFromFields(f schema.UserWithGrantsFields) User {
 		role = string(f.OrganizationPermissionGrant.ScopedGrantFields.Grant)
 	}
 	return User{
-		ID:    fmt.Sprintf("%d", f.User.UserId),
-		Email: f.User.Email,
-		Name:  f.User.Name,
-		Role:  role,
+		ID:                fmt.Sprintf("%d", f.User.UserId),
+		Email:             f.User.Email,
+		Name:              f.User.Name,
+		Role:              role,
+		Picture:           f.User.Picture,
+		IsScimProvisioned: f.User.IsScimProvisioned,
 	}
 }
 

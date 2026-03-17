@@ -21,10 +21,11 @@ type organizationDataSource struct {
 }
 
 type organizationDataSourceModel struct {
-	ID       types.String `tfsdk:"id"`
-	PublicID types.String `tfsdk:"public_id"`
-	Name     types.String `tfsdk:"name"`
-	Status   types.String `tfsdk:"status"`
+	ID            types.String `tfsdk:"id"`
+	PublicID      types.String `tfsdk:"public_id"`
+	Name          types.String `tfsdk:"name"`
+	Status        types.String `tfsdk:"status"`
+	AccountReview types.String `tfsdk:"account_review"`
 	// GitHub App installation (nil when not installed)
 	GitHubAccountName types.String `tfsdk:"github_account_name"`
 	GitHubAppID       types.String `tfsdk:"github_app_id"`
@@ -57,6 +58,10 @@ func (d *organizationDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			},
 			"status": schema.StringAttribute{
 				Description: "The organization status: ACTIVE, READ_ONLY, SUSPENDED, or PENDING_DELETION.",
+				Computed:    true,
+			},
+			"account_review": schema.StringAttribute{
+				Description: "Account review status of the organization.",
 				Computed:    true,
 			},
 			"github_account_name": schema.StringAttribute{
@@ -112,10 +117,11 @@ func (d *organizationDataSource) Read(ctx context.Context, _ datasource.ReadRequ
 	}
 
 	state := organizationDataSourceModel{
-		ID:       types.StringValue(org.Name),
-		PublicID: types.StringValue(org.PublicID),
-		Name:     types.StringValue(org.Name),
-		Status:   types.StringValue(org.Status),
+		ID:            types.StringValue(org.Name),
+		PublicID:      types.StringValue(org.PublicID),
+		Name:          types.StringValue(org.Name),
+		Status:        types.StringValue(org.Status),
+		AccountReview: types.StringValue(org.AccountReview),
 	}
 
 	// GitHub App installation fields.

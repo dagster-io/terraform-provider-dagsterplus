@@ -29,8 +29,9 @@ type deploymentResource struct {
 
 // deploymentResourceModel describes the resource data model.
 type deploymentResourceModel struct {
-	ID   types.String `tfsdk:"id"`
-	Name types.String `tfsdk:"name"`
+	ID     types.String `tfsdk:"id"`
+	Name   types.String `tfsdk:"name"`
+	Status types.String `tfsdk:"status"`
 }
 
 func (r *deploymentResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -53,6 +54,13 @@ func (r *deploymentResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"status": schema.StringAttribute{
+				Description: "The current status of the deployment (e.g. ACTIVE, PENDING_DELETION).",
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
@@ -89,6 +97,7 @@ func (r *deploymentResource) Create(ctx context.Context, req resource.CreateRequ
 
 	plan.ID = types.StringValue(deployment.Name)
 	plan.Name = types.StringValue(deployment.Name)
+	plan.Status = types.StringValue(deployment.Status)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
@@ -112,6 +121,7 @@ func (r *deploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	state.ID = types.StringValue(deployment.Name)
 	state.Name = types.StringValue(deployment.Name)
+	state.Status = types.StringValue(deployment.Status)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -143,8 +153,9 @@ func (r *deploymentResource) ImportState(ctx context.Context, req resource.Impor
 	}
 
 	state := deploymentResourceModel{
-		ID:   types.StringValue(deployment.Name),
-		Name: types.StringValue(deployment.Name),
+		ID:     types.StringValue(deployment.Name),
+		Name:   types.StringValue(deployment.Name),
+		Status: types.StringValue(deployment.Status),
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)

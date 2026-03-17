@@ -28,10 +28,11 @@ type userResource struct {
 
 // userResourceModel describes the resource data model.
 type userResourceModel struct {
-	ID    types.String `tfsdk:"id"`
-	Email types.String `tfsdk:"email"`
-	Name  types.String `tfsdk:"name"`
-	Role  types.String `tfsdk:"role"`
+	ID      types.String `tfsdk:"id"`
+	Email   types.String `tfsdk:"email"`
+	Name    types.String `tfsdk:"name"`
+	Role    types.String `tfsdk:"role"`
+	Picture types.String `tfsdk:"picture"`
 }
 
 func (r *userResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -66,6 +67,13 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			"role": schema.StringAttribute{
 				Description: "The organization-level role as returned by Dagster+. Cannot be set via the API at this time.",
 				Computed:    true,
+			},
+			"picture": schema.StringAttribute{
+				Description: "URL to the user's profile picture.",
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
@@ -103,6 +111,7 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 	plan.ID = types.StringValue(user.ID)
 	plan.Name = types.StringValue(user.Name)
 	plan.Role = types.StringValue(user.Role)
+	plan.Picture = types.StringValue(user.Picture)
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -127,6 +136,7 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	state.Email = types.StringValue(user.Email)
 	state.Name = types.StringValue(user.Name)
 	state.Role = types.StringValue(user.Role)
+	state.Picture = types.StringValue(user.Picture)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -156,10 +166,11 @@ func (r *userResource) ImportState(ctx context.Context, req resource.ImportState
 	}
 
 	state := userResourceModel{
-		ID:    types.StringValue(user.ID),
-		Email: types.StringValue(user.Email),
-		Name:  types.StringValue(user.Name),
-		Role:  types.StringValue(user.Role),
+		ID:      types.StringValue(user.ID),
+		Email:   types.StringValue(user.Email),
+		Name:    types.StringValue(user.Name),
+		Role:    types.StringValue(user.Role),
+		Picture: types.StringValue(user.Picture),
 	}
 
 	diags := resp.State.Set(ctx, state)

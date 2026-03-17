@@ -2632,6 +2632,11 @@ func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) GetDeploymentTy
 	return v.DeploymentFields.DeploymentType
 }
 
+// GetDeploymentStatus returns CreateDeploymentCreateDeploymentDagsterCloudDeployment.DeploymentStatus, and is useful for accessing the field via an interface.
+func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) GetDeploymentStatus() DeploymentStatus {
+	return v.DeploymentFields.DeploymentStatus
+}
+
 func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2665,6 +2670,8 @@ type __premarshalCreateDeploymentCreateDeploymentDagsterCloudDeployment struct {
 	DeploymentName string `json:"deploymentName"`
 
 	DeploymentType DagsterCloudDeploymentType `json:"deploymentType"`
+
+	DeploymentStatus DeploymentStatus `json:"deploymentStatus"`
 }
 
 func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) MarshalJSON() ([]byte, error) {
@@ -2682,6 +2689,7 @@ func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) __premarshalJSO
 	retval.DeploymentId = v.DeploymentFields.DeploymentId
 	retval.DeploymentName = v.DeploymentFields.DeploymentName
 	retval.DeploymentType = v.DeploymentFields.DeploymentType
+	retval.DeploymentStatus = v.DeploymentFields.DeploymentStatus
 	return &retval, nil
 }
 
@@ -5110,6 +5118,39 @@ var AllCustomRolePermission = []CustomRolePermission{
 	CustomRolePermissionEditIssues,
 }
 
+// The account review status of an Organization.
+// New GA users are automatically added as "LEAD".
+// When they convert from trial they become "CUSTOMER"
+// Some customers with high fraud scores may be challenged with 2fa
+// or a credit card challenge. If they fail they will enter "PENDING_REVIEW".
+// If they fail manual review they will enter "REJECTED" and lose access
+// to their serverless trial.
+type DagsterCloudAccountReviewStatus string
+
+const (
+	DagsterCloudAccountReviewStatusLead            DagsterCloudAccountReviewStatus = "LEAD"
+	DagsterCloudAccountReviewStatusCustomer        DagsterCloudAccountReviewStatus = "CUSTOMER"
+	DagsterCloudAccountReviewStatusPendingReview   DagsterCloudAccountReviewStatus = "PENDING_REVIEW"
+	DagsterCloudAccountReviewStatusApproved        DagsterCloudAccountReviewStatus = "APPROVED"
+	DagsterCloudAccountReviewStatusRejected        DagsterCloudAccountReviewStatus = "REJECTED"
+	DagsterCloudAccountReviewStatusDeactivated     DagsterCloudAccountReviewStatus = "DEACTIVATED"
+	DagsterCloudAccountReviewStatusCancelRequested DagsterCloudAccountReviewStatus = "CANCEL_REQUESTED"
+	DagsterCloudAccountReviewStatusCanceled        DagsterCloudAccountReviewStatus = "CANCELED"
+	DagsterCloudAccountReviewStatusExpired         DagsterCloudAccountReviewStatus = "EXPIRED"
+)
+
+var AllDagsterCloudAccountReviewStatus = []DagsterCloudAccountReviewStatus{
+	DagsterCloudAccountReviewStatusLead,
+	DagsterCloudAccountReviewStatusCustomer,
+	DagsterCloudAccountReviewStatusPendingReview,
+	DagsterCloudAccountReviewStatusApproved,
+	DagsterCloudAccountReviewStatusRejected,
+	DagsterCloudAccountReviewStatusDeactivated,
+	DagsterCloudAccountReviewStatusCancelRequested,
+	DagsterCloudAccountReviewStatusCanceled,
+	DagsterCloudAccountReviewStatusExpired,
+}
+
 type DagsterCloudDeploymentType string
 
 const (
@@ -7404,9 +7445,10 @@ var AllDeploymentAgentType = []DeploymentAgentType{
 
 // DeploymentFields includes the GraphQL fields of DagsterCloudDeployment requested by the fragment DeploymentFields.
 type DeploymentFields struct {
-	DeploymentId   int                        `json:"deploymentId"`
-	DeploymentName string                     `json:"deploymentName"`
-	DeploymentType DagsterCloudDeploymentType `json:"deploymentType"`
+	DeploymentId     int                        `json:"deploymentId"`
+	DeploymentName   string                     `json:"deploymentName"`
+	DeploymentType   DagsterCloudDeploymentType `json:"deploymentType"`
+	DeploymentStatus DeploymentStatus           `json:"deploymentStatus"`
 }
 
 // GetDeploymentId returns DeploymentFields.DeploymentId, and is useful for accessing the field via an interface.
@@ -7417,6 +7459,22 @@ func (v *DeploymentFields) GetDeploymentName() string { return v.DeploymentName 
 
 // GetDeploymentType returns DeploymentFields.DeploymentType, and is useful for accessing the field via an interface.
 func (v *DeploymentFields) GetDeploymentType() DagsterCloudDeploymentType { return v.DeploymentType }
+
+// GetDeploymentStatus returns DeploymentFields.DeploymentStatus, and is useful for accessing the field via an interface.
+func (v *DeploymentFields) GetDeploymentStatus() DeploymentStatus { return v.DeploymentStatus }
+
+// An enumeration.
+type DeploymentStatus string
+
+const (
+	DeploymentStatusActive          DeploymentStatus = "ACTIVE"
+	DeploymentStatusPendingDeletion DeploymentStatus = "PENDING_DELETION"
+)
+
+var AllDeploymentStatus = []DeploymentStatus{
+	DeploymentStatusActive,
+	DeploymentStatusPendingDeletion,
+}
 
 // DeselectGithubInstallationDeselectInstallationDeselectInstallationResult includes the requested fields of the GraphQL interface DeselectInstallationResult.
 //
@@ -8107,6 +8165,11 @@ func (v *GetOrganizationOrganizationDagsterCloudOrganization) GetStatus() Organi
 	return v.OrganizationFields.Status
 }
 
+// GetAccountReview returns GetOrganizationOrganizationDagsterCloudOrganization.AccountReview, and is useful for accessing the field via an interface.
+func (v *GetOrganizationOrganizationDagsterCloudOrganization) GetAccountReview() OrganizationFieldsAccountReviewOrganizationAccountReview {
+	return v.OrganizationFields.AccountReview
+}
+
 // GetMetadata returns GetOrganizationOrganizationDagsterCloudOrganization.Metadata, and is useful for accessing the field via an interface.
 func (v *GetOrganizationOrganizationDagsterCloudOrganization) GetMetadata() OrganizationFieldsMetadataDagsterCloudOrganizationMetadata {
 	return v.OrganizationFields.Metadata
@@ -8146,6 +8209,8 @@ type __premarshalGetOrganizationOrganizationDagsterCloudOrganization struct {
 
 	Status OrganizationStatus `json:"status"`
 
+	AccountReview OrganizationFieldsAccountReviewOrganizationAccountReview `json:"accountReview"`
+
 	Metadata OrganizationFieldsMetadataDagsterCloudOrganizationMetadata `json:"metadata"`
 }
 
@@ -8164,6 +8229,7 @@ func (v *GetOrganizationOrganizationDagsterCloudOrganization) __premarshalJSON()
 	retval.PublicId = v.OrganizationFields.PublicId
 	retval.Name = v.OrganizationFields.Name
 	retval.Status = v.OrganizationFields.Status
+	retval.AccountReview = v.OrganizationFields.AccountReview
 	retval.Metadata = v.OrganizationFields.Metadata
 	return &retval, nil
 }
@@ -9065,6 +9131,11 @@ func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) GetDeploymentType() D
 	return v.DeploymentFields.DeploymentType
 }
 
+// GetDeploymentStatus returns ListDeploymentsDeploymentsDagsterCloudDeployment.DeploymentStatus, and is useful for accessing the field via an interface.
+func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) GetDeploymentStatus() DeploymentStatus {
+	return v.DeploymentFields.DeploymentStatus
+}
+
 func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -9096,6 +9167,8 @@ type __premarshalListDeploymentsDeploymentsDagsterCloudDeployment struct {
 	DeploymentName string `json:"deploymentName"`
 
 	DeploymentType DagsterCloudDeploymentType `json:"deploymentType"`
+
+	DeploymentStatus DeploymentStatus `json:"deploymentStatus"`
 }
 
 func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) MarshalJSON() ([]byte, error) {
@@ -9112,6 +9185,7 @@ func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) __premarshalJSON() (*
 	retval.DeploymentId = v.DeploymentFields.DeploymentId
 	retval.DeploymentName = v.DeploymentFields.DeploymentName
 	retval.DeploymentType = v.DeploymentFields.DeploymentType
+	retval.DeploymentStatus = v.DeploymentFields.DeploymentStatus
 	return &retval, nil
 }
 
@@ -10862,11 +10936,12 @@ func (v *LocationSelector) GetAutoloadDefsModuleName() string { return v.Autoloa
 
 // OrganizationFields includes the GraphQL fields of DagsterCloudOrganization requested by the fragment OrganizationFields.
 type OrganizationFields struct {
-	Id       int                                                        `json:"id"`
-	PublicId string                                                     `json:"publicId"`
-	Name     string                                                     `json:"name"`
-	Status   OrganizationStatus                                         `json:"status"`
-	Metadata OrganizationFieldsMetadataDagsterCloudOrganizationMetadata `json:"metadata"`
+	Id            int                                                        `json:"id"`
+	PublicId      string                                                     `json:"publicId"`
+	Name          string                                                     `json:"name"`
+	Status        OrganizationStatus                                         `json:"status"`
+	AccountReview OrganizationFieldsAccountReviewOrganizationAccountReview   `json:"accountReview"`
+	Metadata      OrganizationFieldsMetadataDagsterCloudOrganizationMetadata `json:"metadata"`
 }
 
 // GetId returns OrganizationFields.Id, and is useful for accessing the field via an interface.
@@ -10881,9 +10956,24 @@ func (v *OrganizationFields) GetName() string { return v.Name }
 // GetStatus returns OrganizationFields.Status, and is useful for accessing the field via an interface.
 func (v *OrganizationFields) GetStatus() OrganizationStatus { return v.Status }
 
+// GetAccountReview returns OrganizationFields.AccountReview, and is useful for accessing the field via an interface.
+func (v *OrganizationFields) GetAccountReview() OrganizationFieldsAccountReviewOrganizationAccountReview {
+	return v.AccountReview
+}
+
 // GetMetadata returns OrganizationFields.Metadata, and is useful for accessing the field via an interface.
 func (v *OrganizationFields) GetMetadata() OrganizationFieldsMetadataDagsterCloudOrganizationMetadata {
 	return v.Metadata
+}
+
+// OrganizationFieldsAccountReviewOrganizationAccountReview includes the requested fields of the GraphQL type OrganizationAccountReview.
+type OrganizationFieldsAccountReviewOrganizationAccountReview struct {
+	Status DagsterCloudAccountReviewStatus `json:"status"`
+}
+
+// GetStatus returns OrganizationFieldsAccountReviewOrganizationAccountReview.Status, and is useful for accessing the field via an interface.
+func (v *OrganizationFieldsAccountReviewOrganizationAccountReview) GetStatus() DagsterCloudAccountReviewStatus {
+	return v.Status
 }
 
 // OrganizationFieldsMetadataDagsterCloudOrganizationMetadata includes the requested fields of the GraphQL type DagsterCloudOrganizationMetadata.
@@ -13807,10 +13897,11 @@ func (v *TeamPermissionsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudSco
 //
 // If the deploymentId is null, then this represents an organization grant.
 type TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	Grant           PermissionGrant           `json:"grant"`
-	CustomRoleId    string                    `json:"customRoleId"`
-	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
-	DeploymentId    int                       `json:"deploymentId"`
+	Grant           PermissionGrant                                                                                                     `json:"grant"`
+	CustomRoleId    string                                                                                                              `json:"customRoleId"`
+	DeploymentScope PermissionDeploymentScope                                                                                           `json:"deploymentScope"`
+	DeploymentId    int                                                                                                                 `json:"deploymentId"`
+	LocationGrants  []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant `json:"locationGrants"`
 }
 
 // GetGrant returns TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
@@ -13831,6 +13922,33 @@ func (v *TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermis
 // GetDeploymentId returns TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
 func (v *TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
 	return v.DeploymentId
+}
+
+// GetLocationGrants returns TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.LocationGrants, and is useful for accessing the field via an interface.
+func (v *TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetLocationGrants() []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant {
+	return v.LocationGrants
+}
+
+// TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant includes the requested fields of the GraphQL type LocationScopedGrant.
+type TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant struct {
+	LocationName string          `json:"locationName"`
+	Grant        PermissionGrant `json:"grant"`
+	CustomRoleId string          `json:"customRoleId"`
+}
+
+// GetLocationName returns TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant.LocationName, and is useful for accessing the field via an interface.
+func (v *TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) GetLocationName() string {
+	return v.LocationName
+}
+
+// GetGrant returns TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant.Grant, and is useful for accessing the field via an interface.
+func (v *TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) GetGrant() PermissionGrant {
+	return v.Grant
+}
+
+// GetCustomRoleId returns TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant.CustomRoleId, and is useful for accessing the field via an interface.
+func (v *TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) GetCustomRoleId() string {
+	return v.CustomRoleId
 }
 
 // TeamPermissionsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
@@ -15943,9 +16061,11 @@ func (v *UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermis
 
 // UserWithGrantsFieldsUserDagsterCloudUser includes the requested fields of the GraphQL type DagsterCloudUser.
 type UserWithGrantsFieldsUserDagsterCloudUser struct {
-	UserId int    `json:"userId"`
-	Email  string `json:"email"`
-	Name   string `json:"name"`
+	UserId            int    `json:"userId"`
+	Email             string `json:"email"`
+	Name              string `json:"name"`
+	Picture           string `json:"picture"`
+	IsScimProvisioned bool   `json:"isScimProvisioned"`
 }
 
 // GetUserId returns UserWithGrantsFieldsUserDagsterCloudUser.UserId, and is useful for accessing the field via an interface.
@@ -15956,6 +16076,14 @@ func (v *UserWithGrantsFieldsUserDagsterCloudUser) GetEmail() string { return v.
 
 // GetName returns UserWithGrantsFieldsUserDagsterCloudUser.Name, and is useful for accessing the field via an interface.
 func (v *UserWithGrantsFieldsUserDagsterCloudUser) GetName() string { return v.Name }
+
+// GetPicture returns UserWithGrantsFieldsUserDagsterCloudUser.Picture, and is useful for accessing the field via an interface.
+func (v *UserWithGrantsFieldsUserDagsterCloudUser) GetPicture() string { return v.Picture }
+
+// GetIsScimProvisioned returns UserWithGrantsFieldsUserDagsterCloudUser.IsScimProvisioned, and is useful for accessing the field via an interface.
+func (v *UserWithGrantsFieldsUserDagsterCloudUser) GetIsScimProvisioned() bool {
+	return v.IsScimProvisioned
+}
 
 // WorkspaceEntryFields includes the GraphQL fields of WorkspaceEntry requested by the fragment WorkspaceEntryFields.
 type WorkspaceEntryFields struct {
@@ -16407,11 +16535,12 @@ func (v *__SetScimSyncEnabledInput) GetEnabled() bool { return v.Enabled }
 
 // __SetTeamGrantInput is used internally by genqlient
 type __SetTeamGrantInput struct {
-	TeamId       string                    `json:"teamId"`
-	Scope        PermissionDeploymentScope `json:"scope"`
-	Grant        PermissionGrant           `json:"grant"`
-	CustomRoleId string                    `json:"customRoleId"`
-	DeploymentId int                       `json:"deploymentId"`
+	TeamId         string                     `json:"teamId"`
+	Scope          PermissionDeploymentScope  `json:"scope"`
+	Grant          PermissionGrant            `json:"grant"`
+	CustomRoleId   string                     `json:"customRoleId"`
+	DeploymentId   int                        `json:"deploymentId"`
+	LocationGrants []LocationScopedGrantInput `json:"locationGrants"`
 }
 
 // GetTeamId returns __SetTeamGrantInput.TeamId, and is useful for accessing the field via an interface.
@@ -16428,6 +16557,9 @@ func (v *__SetTeamGrantInput) GetCustomRoleId() string { return v.CustomRoleId }
 
 // GetDeploymentId returns __SetTeamGrantInput.DeploymentId, and is useful for accessing the field via an interface.
 func (v *__SetTeamGrantInput) GetDeploymentId() int { return v.DeploymentId }
+
+// GetLocationGrants returns __SetTeamGrantInput.LocationGrants, and is useful for accessing the field via an interface.
+func (v *__SetTeamGrantInput) GetLocationGrants() []LocationScopedGrantInput { return v.LocationGrants }
 
 // __UpdateCustomMetricInput is used internally by genqlient
 type __UpdateCustomMetricInput struct {
@@ -16673,6 +16805,8 @@ fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
 		userId
 		email
 		name
+		picture
+		isScimProvisioned
 	}
 	organizationPermissionGrant {
 		... ScopedGrantFields
@@ -16819,6 +16953,7 @@ fragment DeploymentFields on DagsterCloudDeployment {
 	deploymentId
 	deploymentName
 	deploymentType
+	deploymentStatus
 }
 `
 
@@ -17808,6 +17943,9 @@ fragment OrganizationFields on DagsterCloudOrganization {
 	publicId
 	name
 	status
+	accountReview {
+		status
+	}
 	metadata {
 		slackAppInstallation {
 			teamId
@@ -18225,6 +18363,7 @@ fragment DeploymentFields on DagsterCloudDeployment {
 	deploymentId
 	deploymentName
 	deploymentType
+	deploymentStatus
 }
 `
 
@@ -18486,6 +18625,11 @@ fragment TeamPermissionsFields on DagsterCloudTeamPermissions {
 		customRoleId
 		deploymentScope
 		deploymentId
+		locationGrants {
+			locationName
+			grant
+			customRoleId
+		}
 	}
 }
 `
@@ -18646,6 +18790,8 @@ fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
 		userId
 		email
 		name
+		picture
+		isScimProvisioned
 	}
 	organizationPermissionGrant {
 		... ScopedGrantFields
@@ -19097,8 +19243,8 @@ func SetScimSyncEnabled(
 
 // The mutation executed by SetTeamGrant.
 const SetTeamGrant_Operation = `
-mutation SetTeamGrant ($teamId: String!, $scope: PermissionDeploymentScope!, $grant: PermissionGrant!, $customRoleId: String, $deploymentId: Int) {
-	createOrUpdateTeamPermission(teamId: $teamId, deploymentScope: $scope, grant: $grant, customRoleId: $customRoleId, deploymentId: $deploymentId) {
+mutation SetTeamGrant ($teamId: String!, $scope: PermissionDeploymentScope!, $grant: PermissionGrant!, $customRoleId: String, $deploymentId: Int, $locationGrants: [LocationScopedGrantInput!]) {
+	createOrUpdateTeamPermission(teamId: $teamId, deploymentScope: $scope, grant: $grant, customRoleId: $customRoleId, deploymentId: $deploymentId, locationGrants: $locationGrants) {
 		__typename
 		... on CreateOrUpdateTeamPermissionSuccess {
 			teamPermissions {
@@ -19128,6 +19274,11 @@ fragment TeamPermissionsFields on DagsterCloudTeamPermissions {
 		customRoleId
 		deploymentScope
 		deploymentId
+		locationGrants {
+			locationName
+			grant
+			customRoleId
+		}
 	}
 }
 `
@@ -19140,16 +19291,18 @@ func SetTeamGrant(
 	grant PermissionGrant,
 	customRoleId string,
 	deploymentId int,
+	locationGrants []LocationScopedGrantInput,
 ) (data_ *SetTeamGrantResponse, err_ error) {
 	req_ := &graphql.Request{
 		OpName: "SetTeamGrant",
 		Query:  SetTeamGrant_Operation,
 		Variables: &__SetTeamGrantInput{
-			TeamId:       teamId,
-			Scope:        scope,
-			Grant:        grant,
-			CustomRoleId: customRoleId,
-			DeploymentId: deploymentId,
+			TeamId:         teamId,
+			Scope:          scope,
+			Grant:          grant,
+			CustomRoleId:   customRoleId,
+			DeploymentId:   deploymentId,
+			LocationGrants: locationGrants,
 		},
 	}
 

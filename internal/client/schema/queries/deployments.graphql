@@ -2,6 +2,7 @@ fragment DeploymentFields on DagsterCloudDeployment {
   deploymentId
   deploymentName
   deploymentType
+  deploymentStatus
 }
 
 query ListDeployments {

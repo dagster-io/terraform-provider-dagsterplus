@@ -11,10 +11,14 @@ import (
 // codeLocationDocument is the canonical JSON shape for a code location document.
 type codeLocationDocument struct {
 	LocationName     string     `json:"locationName"`
-	Image            string     `json:"image"`
+	Image            string     `json:"image,omitempty"`
 	CodeSource       CodeSource `json:"codeSource"`
 	WorkingDirectory string     `json:"workingDirectory,omitempty"`
 	ExecutablePath   string     `json:"executablePath,omitempty"`
+	Attribute        string     `json:"attribute,omitempty"`
+	AgentQueue       string     `json:"agentQueue,omitempty"`
+	CommitHash       string     `json:"commitHash,omitempty"`
+	URL              string     `json:"url,omitempty"`
 }
 
 // ParseCodeLocationDocument parses a JSON document into a CodeLocationInput and returns the location name.
@@ -32,6 +36,10 @@ func ParseCodeLocationDocument(docJSON string) (CodeLocationInput, string, error
 		CodeSource:       doc.CodeSource,
 		WorkingDirectory: doc.WorkingDirectory,
 		ExecutablePath:   doc.ExecutablePath,
+		Attribute:        doc.Attribute,
+		AgentQueue:       doc.AgentQueue,
+		CommitHash:       doc.CommitHash,
+		URL:              doc.URL,
 	}
 	return input, doc.LocationName, nil
 }
@@ -44,6 +52,10 @@ func CodeLocationToDocument(loc *CodeLocation) (string, error) {
 		CodeSource:       loc.CodeSource,
 		WorkingDirectory: loc.WorkingDirectory,
 		ExecutablePath:   loc.ExecutablePath,
+		Attribute:        loc.Attribute,
+		AgentQueue:       loc.AgentQueue,
+		CommitHash:       loc.CommitHash,
+		URL:              loc.URL,
 	}
 	b, err := json.Marshal(doc)
 	if err != nil {
@@ -67,6 +79,10 @@ type CodeLocation struct {
 	CodeSource       CodeSource `json:"codeSource"`
 	WorkingDirectory string     `json:"workingDirectory"`
 	ExecutablePath   string     `json:"executablePath"`
+	Attribute        string     `json:"attribute"`
+	AgentQueue       string     `json:"agentQueue"`
+	CommitHash       string     `json:"commitHash"`
+	URL              string     `json:"url"`
 }
 
 // CodeLocationInput is the input for creating or updating a code location.
@@ -76,6 +92,10 @@ type CodeLocationInput struct {
 	CodeSource       CodeSource `json:"codeSource"`
 	WorkingDirectory string     `json:"workingDirectory,omitempty"`
 	ExecutablePath   string     `json:"executablePath,omitempty"`
+	Attribute        string     `json:"attribute,omitempty"`
+	AgentQueue       string     `json:"agentQueue,omitempty"`
+	CommitHash       string     `json:"commitHash,omitempty"`
+	URL              string     `json:"url,omitempty"`
 }
 
 // serializedMetadata mirrors the JSON shape of WorkspaceEntry.serializedDeploymentMetadata.
@@ -85,6 +105,10 @@ type serializedMetadata struct {
 	CodeSource       CodeSource `json:"codeSource"`
 	WorkingDirectory string     `json:"workingDirectory"`
 	ExecutablePath   string     `json:"executablePath"`
+	Attribute        string     `json:"attribute"`
+	AgentQueue       string     `json:"agentQueue"`
+	CommitHash       string     `json:"commitHash"`
+	URL              string     `json:"url"`
 }
 
 // AddCodeLocation adds a code location to a deployment.
@@ -97,6 +121,10 @@ func (c *Client) AddCodeLocation(ctx context.Context, deployment string, loc Cod
 		ModuleName:       loc.CodeSource.ModuleName,
 		WorkingDirectory: loc.WorkingDirectory,
 		ExecutablePath:   loc.ExecutablePath,
+		Attribute:        loc.Attribute,
+		AgentQueue:       loc.AgentQueue,
+		CommitHash:       loc.CommitHash,
+		Url:              loc.URL,
 	}
 
 	resp, err := schema.AddOrUpdateCodeLocation(ctx, c.gqlClient(deployment), selector)
@@ -113,6 +141,10 @@ func (c *Client) AddCodeLocation(ctx context.Context, deployment string, loc Cod
 			CodeSource:       loc.CodeSource,
 			WorkingDirectory: loc.WorkingDirectory,
 			ExecutablePath:   loc.ExecutablePath,
+			Attribute:        loc.Attribute,
+			AgentQueue:       loc.AgentQueue,
+			CommitHash:       loc.CommitHash,
+			URL:              loc.URL,
 		}
 		return cl, nil
 	default:
@@ -156,6 +188,10 @@ func (c *Client) ListCodeLocations(ctx context.Context, deployment string) ([]Co
 			CodeSource:       meta.CodeSource,
 			WorkingDirectory: meta.WorkingDirectory,
 			ExecutablePath:   meta.ExecutablePath,
+			Attribute:        meta.Attribute,
+			AgentQueue:       meta.AgentQueue,
+			CommitHash:       meta.CommitHash,
+			URL:              meta.URL,
 		})
 	}
 	return locations, nil

@@ -25,9 +25,10 @@ type deploymentDataSource struct {
 
 // deploymentDataSourceModel describes the data source data model.
 type deploymentDataSourceModel struct {
-	ID   types.String `tfsdk:"id"`
-	Name types.String `tfsdk:"name"`
-	Type types.String `tfsdk:"type"`
+	ID     types.String `tfsdk:"id"`
+	Name   types.String `tfsdk:"name"`
+	Type   types.String `tfsdk:"type"`
+	Status types.String `tfsdk:"status"`
 }
 
 func (d *deploymentDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -48,6 +49,10 @@ func (d *deploymentDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 			},
 			"type": schema.StringAttribute{
 				Description: "The deployment type: SERVERLESS, HYBRID, or BRANCH.",
+				Computed:    true,
+			},
+			"status": schema.StringAttribute{
+				Description: "The current status of the deployment (e.g. ACTIVE, PENDING_DELETION).",
 				Computed:    true,
 			},
 		},
@@ -84,9 +89,10 @@ func (d *deploymentDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	state := deploymentDataSourceModel{
-		ID:   types.StringValue(deployment.Name),
-		Name: types.StringValue(deployment.Name),
-		Type: types.StringValue(deployment.Type),
+		ID:     types.StringValue(deployment.Name),
+		Name:   types.StringValue(deployment.Name),
+		Type:   types.StringValue(deployment.Type),
+		Status: types.StringValue(deployment.Status),
 	}
 
 	diags = resp.State.Set(ctx, state)

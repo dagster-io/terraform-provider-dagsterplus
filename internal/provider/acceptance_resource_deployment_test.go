@@ -26,6 +26,7 @@ func TestAccDeploymentResource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("dagsterplus_deployment.test", "name", rName),
 					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "id"),
+					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "status"),
 				),
 			},
 			// Import
