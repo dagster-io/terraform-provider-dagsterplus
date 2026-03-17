@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-
 var _ resource.Resource = &teamDeploymentGrantResource{}
 var _ resource.ResourceWithImportState = &teamDeploymentGrantResource{}
 

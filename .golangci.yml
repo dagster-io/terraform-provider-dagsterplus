@@ -1,0 +1,19 @@
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - gosec
+    - gochecknoinits
+
+linters-settings:
+  gosec:
+    excludes:
+      - G404 # weak RNG — not a concern in test helpers
+
+issues:
+  exclude-rules:
+    # Test files: allow unhandled errors in test setup and gosec findings
+    - path: "_test\\.go"
+      linters: [errcheck, gosec]

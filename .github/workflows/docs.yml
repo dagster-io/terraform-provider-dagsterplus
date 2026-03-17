@@ -1,0 +1,22 @@
+name: Docs
+
+on:
+  pull_request:
+    paths:
+      - "examples/**"
+      - "internal/**"
+      - "templates/**"
+      - ".github/**"
+
+jobs:
+  docs-generate:
+    name: Docs Generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install tfplugindocs
+        run: go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
+      - run: tfplugindocs generate --provider-name dagsterplus
