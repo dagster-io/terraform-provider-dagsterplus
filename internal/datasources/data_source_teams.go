@@ -3,6 +3,7 @@ package datasources
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -21,8 +22,9 @@ type teamsDataSource struct {
 }
 
 type teamsDataSourceModel struct {
-	ID    types.String          `tfsdk:"id"`
-	Teams []teamDataSourceModel `tfsdk:"teams"`
+	ID          types.String          `tfsdk:"id"`
+	RegexFilter types.String          `tfsdk:"regex_filter"`
+	Teams       []teamDataSourceModel `tfsdk:"teams"`
 }
 
 func (d *teamsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -36,6 +38,10 @@ func (d *teamsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 			"id": schema.StringAttribute{
 				Description: "Static identifier for this data source.",
 				Computed:    true,
+			},
+			"regex_filter": schema.StringAttribute{
+				Description: "Regex filter to select teams based on the team name. Regex matching is done using Go's regexp package.",
+				Optional:    true,
 			},
 			"teams": schema.ListNestedAttribute{
 				Description: "All teams in the organization.",
@@ -72,22 +78,41 @@ func (d *teamsDataSource) Configure(_ context.Context, req datasource.ConfigureR
 	d.client = c
 }
 
-func (d *teamsDataSource) Read(ctx context.Context, _ datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *teamsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config teamsDataSourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	teams, err := d.client.ListTeams(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading teams", err.Error())
 		return
 	}
 
-	state := teamsDataSourceModel{
-		ID:    types.StringValue("teams"),
-		Teams: make([]teamDataSourceModel, len(teams)),
+	var re *regexp.Regexp
+	if !config.RegexFilter.IsNull() && config.RegexFilter.ValueString() != "" {
+		re, err = regexp.Compile(config.RegexFilter.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Invalid regex_filter", fmt.Sprintf("Failed to compile regex_filter %q: %s", config.RegexFilter.ValueString(), err))
+			return
+		}
 	}
-	for i, t := range teams {
-		state.Teams[i] = teamDataSourceModel{
+
+	state := teamsDataSourceModel{
+		ID:          types.StringValue("teams"),
+		RegexFilter: config.RegexFilter,
+		Teams:       []teamDataSourceModel{},
+	}
+	for _, t := range teams {
+		if re != nil && !re.MatchString(t.Name) {
+			continue
+		}
+		state.Teams = append(state.Teams, teamDataSourceModel{
 			ID:   types.StringValue(t.ID),
 			Name: types.StringValue(t.Name),
-		}
+		})
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)

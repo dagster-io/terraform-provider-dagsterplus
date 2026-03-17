@@ -3,6 +3,9 @@ fragment OrganizationFields on DagsterCloudOrganization {
   publicId
   name
   status
+  accountReview {
+    status
+  }
   metadata {
     slackAppInstallation {
       teamId

@@ -24,8 +24,10 @@ func TestAccCodeLocationDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.dagsterplus_code_location.test", "deployment", rDep),
 					resource.TestCheckResourceAttr("data.dagsterplus_code_location.test", "name", rLoc),
 					resource.TestCheckResourceAttr("data.dagsterplus_code_location.test", "image", "ghcr.io/example/repo:latest"),
-					// code_source.python_file is not asserted — the API does not reliably return code_source via list endpoint.
 					resource.TestCheckResourceAttrSet("data.dagsterplus_code_location.test", "id"),
+					// attribute and agent_queue are empty for a basic image-based location.
+					resource.TestCheckResourceAttr("data.dagsterplus_code_location.test", "attribute", ""),
+					resource.TestCheckResourceAttr("data.dagsterplus_code_location.test", "agent_queue", ""),
 				),
 			},
 		},

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -19,6 +20,7 @@ import (
 // Ensure codeLocationResource satisfies the resource.Resource interface.
 var _ resource.Resource = &codeLocationResource{}
 var _ resource.ResourceWithImportState = &codeLocationResource{}
+var _ resource.ResourceWithConfigValidators = &codeLocationResource{}
 
 // NewCodeLocationResource returns a new code location resource.
 func NewCodeLocationResource() resource.Resource {
@@ -37,6 +39,12 @@ type CodeSourceModel struct {
 	ModuleName  types.String `tfsdk:"module_name"`
 }
 
+// GitModel represents the git nested block.
+type GitModel struct {
+	CommitHash types.String `tfsdk:"commit_hash"`
+	URL        types.String `tfsdk:"url"`
+}
+
 // codeLocationResourceModel describes the resource data model.
 type codeLocationResourceModel struct {
 	ID               types.String    `tfsdk:"id"`
@@ -46,6 +54,9 @@ type codeLocationResourceModel struct {
 	CodeSource       CodeSourceModel `tfsdk:"code_source"`
 	WorkingDirectory types.String    `tfsdk:"working_directory"`
 	ExecutablePath   types.String    `tfsdk:"executable_path"`
+	Attribute        types.String    `tfsdk:"attribute"`
+	AgentQueue       types.String    `tfsdk:"agent_queue"`
+	Git              *GitModel       `tfsdk:"git"`
 }
 
 func (r *codeLocationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -78,8 +89,8 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 				},
 			},
 			"image": schema.StringAttribute{
-				Description: "The Docker image to use for this code location.",
-				Required:    true,
+				Description: "The Docker image to use for this code location. Exactly one of image or git must be specified.",
+				Optional:    true,
 			},
 			"working_directory": schema.StringAttribute{
 				Description: "The working directory inside the container.",
@@ -88,6 +99,16 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"executable_path": schema.StringAttribute{
 				Description: "Path to the Python executable inside the container.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"attribute": schema.StringAttribute{
+				Description: "Python attribute containing the Definitions object.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"agent_queue": schema.StringAttribute{
+				Description: "The agent queue to use for this code location.",
 				Optional:    true,
 				Computed:    true,
 			},
@@ -128,7 +149,29 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 					},
 				},
 			},
+			"git": schema.SingleNestedBlock{
+				Description: "Git-based code location. Exactly one of image or git must be specified.",
+				Attributes: map[string]schema.Attribute{
+					"commit_hash": schema.StringAttribute{
+						Description: "The git commit hash to use.",
+						Optional:    true,
+					},
+					"url": schema.StringAttribute{
+						Description: "The URL of the git repository.",
+						Optional:    true,
+					},
+				},
+			},
 		},
+	}
+}
+
+func (r *codeLocationResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.ExactlyOneOf(
+			path.MatchRoot("image"),
+			path.MatchRoot("git"),
+		),
 	}
 }
 
@@ -148,17 +191,24 @@ func (r *codeLocationResource) Configure(_ context.Context, req resource.Configu
 }
 
 func modelToInput(plan codeLocationResourceModel) client.CodeLocationInput {
-	return client.CodeLocationInput{
+	input := client.CodeLocationInput{
 		Name:             plan.Name.ValueString(),
 		Image:            plan.Image.ValueString(),
 		WorkingDirectory: plan.WorkingDirectory.ValueString(),
 		ExecutablePath:   plan.ExecutablePath.ValueString(),
+		Attribute:        plan.Attribute.ValueString(),
+		AgentQueue:       plan.AgentQueue.ValueString(),
 		CodeSource: client.CodeSource{
 			PythonFile:  plan.CodeSource.PythonFile.ValueString(),
 			PackageName: plan.CodeSource.PackageName.ValueString(),
 			ModuleName:  plan.CodeSource.ModuleName.ValueString(),
 		},
 	}
+	if plan.Git != nil {
+		input.CommitHash = plan.Git.CommitHash.ValueString()
+		input.URL = plan.Git.URL.ValueString()
+	}
+	return input
 }
 
 // CodeSourceStringVal converts an API string to a types.String, using null for
@@ -173,14 +223,44 @@ func CodeSourceStringVal(s string) types.String {
 func applyCodeLocation(state *codeLocationResourceModel, cl *client.CodeLocation) {
 	state.ID = types.StringValue(cl.ID)
 	state.Name = types.StringValue(cl.Name)
-	state.Image = types.StringValue(cl.Image)
+	if cl.Image != "" {
+		state.Image = types.StringValue(cl.Image)
+	} else {
+		state.Image = types.StringNull()
+	}
 	state.WorkingDirectory = types.StringValue(cl.WorkingDirectory)
 	state.ExecutablePath = types.StringValue(cl.ExecutablePath)
+	state.Attribute = types.StringValue(cl.Attribute)
+	state.AgentQueue = types.StringValue(cl.AgentQueue)
 	state.CodeSource = CodeSourceModel{
 		PythonFile:  CodeSourceStringVal(cl.CodeSource.PythonFile),
 		PackageName: CodeSourceStringVal(cl.CodeSource.PackageName),
 		ModuleName:  CodeSourceStringVal(cl.CodeSource.ModuleName),
 	}
+	if cl.CommitHash != "" || cl.URL != "" {
+		state.Git = &GitModel{
+			CommitHash: types.StringValue(cl.CommitHash),
+			URL:        types.StringValue(cl.URL),
+		}
+	} else {
+		state.Git = nil
+	}
+}
+
+func requireGitFields(git *GitModel, diagnostics interface{ AddError(string, string) }) bool {
+	if git == nil {
+		return true
+	}
+	ok := true
+	if git.CommitHash.IsNull() || git.CommitHash.ValueString() == "" {
+		diagnostics.AddError("Missing git.commit_hash", "git.commit_hash is required when the git block is specified.")
+		ok = false
+	}
+	if git.URL.IsNull() || git.URL.ValueString() == "" {
+		diagnostics.AddError("Missing git.url", "git.url is required when the git block is specified.")
+		ok = false
+	}
+	return ok
 }
 
 func (r *codeLocationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -188,6 +268,10 @@ func (r *codeLocationResource) Create(ctx context.Context, req resource.CreateRe
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !requireGitFields(plan.Git, &resp.Diagnostics) {
 		return
 	}
 
@@ -224,7 +308,11 @@ func (r *codeLocationResource) Read(ctx context.Context, req resource.ReadReques
 	// Always update fields the API reliably returns.
 	state.ID = types.StringValue(cl.ID)
 	state.Name = types.StringValue(cl.Name)
-	state.Image = types.StringValue(cl.Image)
+	if cl.Image != "" {
+		state.Image = types.StringValue(cl.Image)
+	} else {
+		state.Image = types.StringNull()
+	}
 
 	// For optional fields and code_source, only overwrite state when the API
 	// returns a non-empty value. The serialized metadata may omit or rename
@@ -234,6 +322,18 @@ func (r *codeLocationResource) Read(ctx context.Context, req resource.ReadReques
 	}
 	if cl.ExecutablePath != "" {
 		state.ExecutablePath = types.StringValue(cl.ExecutablePath)
+	}
+	if cl.Attribute != "" {
+		state.Attribute = types.StringValue(cl.Attribute)
+	}
+	if cl.AgentQueue != "" {
+		state.AgentQueue = types.StringValue(cl.AgentQueue)
+	}
+	if cl.CommitHash != "" || cl.URL != "" {
+		state.Git = &GitModel{
+			CommitHash: types.StringValue(cl.CommitHash),
+			URL:        types.StringValue(cl.URL),
+		}
 	}
 	cs := cl.CodeSource
 	if cs.PythonFile != "" || cs.PackageName != "" || cs.ModuleName != "" {
@@ -253,6 +353,10 @@ func (r *codeLocationResource) Update(ctx context.Context, req resource.UpdateRe
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !requireGitFields(plan.Git, &resp.Diagnostics) {
 		return
 	}
 

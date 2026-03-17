@@ -7,6 +7,13 @@ import (
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
 )
 
+// LocationGrant represents a permission grant scoped to a specific code location.
+type LocationGrant struct {
+	LocationName string
+	Grant        string
+	CustomRoleID string
+}
+
 // TeamGrant represents a permission grant for a team at a specific scope.
 type TeamGrant struct {
 	TeamID          string
@@ -14,6 +21,7 @@ type TeamGrant struct {
 	DeploymentID    int64  // 0 for org scope
 	Grant           string // "VIEWER" | "EDITOR" | "LAUNCHER" | "ADMIN" | "CUSTOM"
 	CustomRoleID    string // only when Grant == "CUSTOM"
+	LocationGrants  []LocationGrant
 }
 
 var grantScopeToAPI = map[string]schema.PermissionDeploymentScope{
@@ -28,10 +36,18 @@ var apiToGrantScope = map[schema.PermissionDeploymentScope]string{
 	"ALL_BRANCH_DEPLOYMENTS": "all_branch_deployments",
 }
 
-func teamGrantFromFields(teamID string, grant schema.PermissionGrant, customRoleId string, deploymentScope schema.PermissionDeploymentScope, deploymentId int) *TeamGrant {
+func teamGrantFromFields(teamID string, grant schema.PermissionGrant, customRoleId string, deploymentScope schema.PermissionDeploymentScope, deploymentId int, locationGrants []schema.TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) *TeamGrant {
 	scope := apiToGrantScope[deploymentScope]
 	if scope == "" {
 		scope = string(deploymentScope)
+	}
+	lgs := make([]LocationGrant, len(locationGrants))
+	for i, lg := range locationGrants {
+		lgs[i] = LocationGrant{
+			LocationName: lg.LocationName,
+			Grant:        string(lg.Grant),
+			CustomRoleID: lg.CustomRoleId,
+		}
 	}
 	return &TeamGrant{
 		TeamID:          teamID,
@@ -39,6 +55,7 @@ func teamGrantFromFields(teamID string, grant schema.PermissionGrant, customRole
 		DeploymentID:    int64(deploymentId),
 		Grant:           string(grant),
 		CustomRoleID:    customRoleId,
+		LocationGrants:  lgs,
 	}
 }
 
@@ -50,17 +67,17 @@ func findGrantInFields(f schema.TeamPermissionsFields, deploymentScope string, d
 		if g.Grant == "" {
 			return nil
 		}
-		return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId)
+		return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil)
 	case "all_branch_deployments":
 		g := f.AllBranchDeploymentsPermissionGrant
 		if g.Grant == "" {
 			return nil
 		}
-		return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId)
+		return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil)
 	default:
 		for _, g := range f.DeploymentPermissionGrants {
 			if int64(g.DeploymentId) == deploymentID {
-				return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId)
+				return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants)
 			}
 		}
 	}
@@ -69,12 +86,21 @@ func findGrantInFields(f schema.TeamPermissionsFields, deploymentScope string, d
 
 // SetTeamGrant creates or updates a permission grant for a team.
 func (c *Client) SetTeamGrant(ctx context.Context, grant TeamGrant) (*TeamGrant, error) {
+	locationGrants := make([]schema.LocationScopedGrantInput, len(grant.LocationGrants))
+	for i, lg := range grant.LocationGrants {
+		locationGrants[i] = schema.LocationScopedGrantInput{
+			LocationName: lg.LocationName,
+			Grant:        schema.PermissionGrant(lg.Grant),
+			CustomRoleId: lg.CustomRoleID,
+		}
+	}
 	resp, err := schema.SetTeamGrant(ctx, c.gqlClient(""),
 		grant.TeamID,
 		grantScopeToAPI[grant.DeploymentScope],
 		schema.PermissionGrant(grant.Grant),
 		grant.CustomRoleID,
 		int(grant.DeploymentID),
+		locationGrants,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("SetTeamGrant: %w", err)
@@ -123,7 +149,7 @@ func (c *Client) ListTeamDeploymentGrants(ctx context.Context, teamID string) ([
 		}
 		var grants []TeamGrant
 		for _, g := range tp.TeamPermissionsFields.DeploymentPermissionGrants {
-			grants = append(grants, *teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId))
+			grants = append(grants, *teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants))
 		}
 		return grants, nil
 	}

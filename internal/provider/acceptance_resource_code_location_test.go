@@ -46,10 +46,17 @@ func TestAccCodeLocationResource_basic(t *testing.T) {
 			},
 			// Import — the API serialized metadata does not reliably return code_source/path fields.
 			{
-				ResourceName:            "dagsterplus_code_location.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"code_source.python_file", "working_directory", "executable_path"},
+				ResourceName:      "dagsterplus_code_location.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"code_source.python_file",
+					"working_directory",
+					"executable_path",
+					"attribute",
+					"agent_queue",
+					"git",
+				},
 			},
 		},
 	})
@@ -67,8 +74,8 @@ func TestAccCodeLocationResource_packageName(t *testing.T) {
 				Config: providerConfig() + fmt.Sprintf(`
 resource "dagsterplus_code_location" "test" {
   deployment = %q
-  name            = %q
-  image           = "ghcr.io/example/repo:latest"
+  name       = %q
+  image      = "ghcr.io/example/repo:latest"
 
   code_source {
     package_name = "my_dagster_package"
@@ -77,6 +84,95 @@ resource "dagsterplus_code_location" "test" {
 `, testAccDeployment(), rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("dagsterplus_code_location.test", "code_source.package_name", "my_dagster_package"),
+				),
+			},
+		},
+	})
+}
+
+// TestAccCodeLocationResource_agentQueue tests that agent_queue and attribute are
+// persisted and read back correctly.
+func TestAccCodeLocationResource_agentQueue(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckCodeLocationDestroyed(testAccDeployment(), rName),
+		Steps: []resource.TestStep{
+			// Create with agent_queue and attribute
+			{
+				Config: providerConfig() + fmt.Sprintf(`
+resource "dagsterplus_code_location" "test" {
+  deployment  = %q
+  name        = %q
+  image       = "ghcr.io/example/repo:latest"
+  agent_queue = "default"
+  attribute   = "my_defs"
+
+  code_source {
+    python_file = "repo.py"
+  }
+}
+`, testAccDeployment(), rName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_code_location.test", "agent_queue", "default"),
+					resource.TestCheckResourceAttr("dagsterplus_code_location.test", "attribute", "my_defs"),
+				),
+			},
+			// Update attribute value
+			{
+				Config: providerConfig() + fmt.Sprintf(`
+resource "dagsterplus_code_location" "test" {
+  deployment  = %q
+  name        = %q
+  image       = "ghcr.io/example/repo:latest"
+  agent_queue = "default"
+  attribute   = "updated_defs"
+
+  code_source {
+    python_file = "repo.py"
+  }
+}
+`, testAccDeployment(), rName),
+				Check: resource.TestCheckResourceAttr(
+					"dagsterplus_code_location.test", "attribute", "updated_defs",
+				),
+			},
+		},
+	})
+}
+
+// TestAccCodeLocationResource_git tests a git-based code location (no image).
+func TestAccCodeLocationResource_git(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckCodeLocationDestroyed(testAccDeployment(), rName),
+		Steps: []resource.TestStep{
+			// Create with git block instead of image
+			{
+				Config: providerConfig() + fmt.Sprintf(`
+resource "dagsterplus_code_location" "test" {
+  deployment = %q
+  name       = %q
+
+  git {
+    commit_hash = "abc123def456"
+    url         = "https://github.com/example/repo"
+  }
+
+  code_source {
+    python_file = "repo.py"
+  }
+}
+`, testAccDeployment(), rName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_code_location.test", "git.commit_hash", "abc123def456"),
+					resource.TestCheckResourceAttr("dagsterplus_code_location.test", "git.url", "https://github.com/example/repo"),
+					resource.TestCheckNoResourceAttr("dagsterplus_code_location.test", "image"),
 				),
 			},
 		},
@@ -130,8 +226,8 @@ func testAccCodeLocationConfig(deployment, name, image, pythonFile string) strin
 	return fmt.Sprintf(`
 resource "dagsterplus_code_location" "test" {
   deployment = %q
-  name            = %q
-  image           = %q
+  name       = %q
+  image      = %q
 
   code_source {
     python_file = %q

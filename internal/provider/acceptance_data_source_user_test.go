@@ -20,6 +20,7 @@ func TestAccUserDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.dagsterplus_user.test", "email", testEmail),
 					resource.TestCheckResourceAttr("data.dagsterplus_user.test", "role", "VIEWER"),
 					resource.TestCheckResourceAttrSet("data.dagsterplus_user.test", "id"),
+					resource.TestCheckResourceAttrSet("data.dagsterplus_user.test", "picture"),
 				),
 			},
 		},

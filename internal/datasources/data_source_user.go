@@ -21,10 +21,12 @@ type userDataSource struct {
 }
 
 type userDataSourceModel struct {
-	ID    types.String `tfsdk:"id"`
-	Email types.String `tfsdk:"email"`
-	Name  types.String `tfsdk:"name"`
-	Role  types.String `tfsdk:"role"`
+	ID                types.String `tfsdk:"id"`
+	Email             types.String `tfsdk:"email"`
+	Name              types.String `tfsdk:"name"`
+	Role              types.String `tfsdk:"role"`
+	Picture           types.String `tfsdk:"picture"`
+	IsScimProvisioned types.Bool   `tfsdk:"is_scim_provisioned"`
 }
 
 func (d *userDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -49,6 +51,14 @@ func (d *userDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 			},
 			"role": schema.StringAttribute{
 				Description: "The organization-level role: VIEWER, EDITOR, ADMIN, or OWNER.",
+				Computed:    true,
+			},
+			"picture": schema.StringAttribute{
+				Description: "URL to the user's profile picture.",
+				Computed:    true,
+			},
+			"is_scim_provisioned": schema.BoolAttribute{
+				Description: "Whether this user was provisioned through SCIM.",
 				Computed:    true,
 			},
 		},
@@ -86,10 +96,12 @@ func (d *userDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	for _, u := range users {
 		if u.Email == config.Email.ValueString() {
 			resp.Diagnostics.Append(resp.State.Set(ctx, userDataSourceModel{
-				ID:    types.StringValue(u.ID),
-				Email: types.StringValue(u.Email),
-				Name:  types.StringValue(u.Name),
-				Role:  types.StringValue(u.Role),
+				ID:                types.StringValue(u.ID),
+				Email:             types.StringValue(u.Email),
+				Name:              types.StringValue(u.Name),
+				Role:              types.StringValue(u.Role),
+				Picture:           types.StringValue(u.Picture),
+				IsScimProvisioned: types.BoolValue(u.IsScimProvisioned),
 			})...)
 			return
 		}

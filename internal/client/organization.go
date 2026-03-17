@@ -9,12 +9,13 @@ import (
 
 // Organization represents Dagster+ org-level metadata.
 type Organization struct {
-	IntID    int
-	PublicID string
-	Name     string
-	Status   string
-	Slack    *SlackInstallation
-	GitHub   *GitHubInstallation
+	IntID         int
+	PublicID      string
+	Name          string
+	Status        string
+	AccountReview string
+	Slack         *SlackInstallation
+	GitHub        *GitHubInstallation
 }
 
 // SlackInstallation holds Slack App installation info.
@@ -53,10 +54,11 @@ func (c *Client) GetOrganization(ctx context.Context) (*Organization, error) {
 		return nil, fmt.Errorf("GetOrganization: %w", err)
 	}
 	org := &Organization{
-		IntID:    resp.Organization.Id,
-		PublicID: resp.Organization.PublicId,
-		Name:     resp.Organization.Name,
-		Status:   string(resp.Organization.Status),
+		IntID:         resp.Organization.Id,
+		PublicID:      resp.Organization.PublicId,
+		Name:          resp.Organization.Name,
+		Status:        string(resp.Organization.Status),
+		AccountReview: string(resp.Organization.AccountReview.Status),
 	}
 	if s := resp.Organization.Metadata.SlackAppInstallation; s.TeamId != "" {
 		org.Slack = &SlackInstallation{

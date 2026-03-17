@@ -10,6 +10,8 @@ fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
     userId
     email
     name
+    picture
+    isScimProvisioned
   }
   organizationPermissionGrant {
     ...ScopedGrantFields

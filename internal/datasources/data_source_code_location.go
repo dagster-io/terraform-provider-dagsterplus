@@ -29,6 +29,8 @@ type codeLocationDataSourceModel struct {
 	CodeSource       *resources.CodeSourceModel `tfsdk:"code_source"`
 	WorkingDirectory types.String               `tfsdk:"working_directory"`
 	ExecutablePath   types.String               `tfsdk:"executable_path"`
+	Attribute        types.String               `tfsdk:"attribute"`
+	AgentQueue       types.String               `tfsdk:"agent_queue"`
 }
 
 func (d *codeLocationDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -61,6 +63,14 @@ func (d *codeLocationDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			},
 			"executable_path": schema.StringAttribute{
 				Description: "Path to the Python executable inside the container.",
+				Computed:    true,
+			},
+			"attribute": schema.StringAttribute{
+				Description: "Python attribute containing the Definitions object.",
+				Computed:    true,
+			},
+			"agent_queue": schema.StringAttribute{
+				Description: "The agent queue used by this code location.",
 				Computed:    true,
 			},
 		},
@@ -121,6 +131,8 @@ func (d *codeLocationDataSource) Read(ctx context.Context, req datasource.ReadRe
 		Image:            types.StringValue(cl.Image),
 		WorkingDirectory: types.StringValue(cl.WorkingDirectory),
 		ExecutablePath:   types.StringValue(cl.ExecutablePath),
+		Attribute:        types.StringValue(cl.Attribute),
+		AgentQueue:       types.StringValue(cl.AgentQueue),
 		CodeSource: &resources.CodeSourceModel{
 			PythonFile:  resources.CodeSourceStringVal(cl.CodeSource.PythonFile),
 			PackageName: resources.CodeSourceStringVal(cl.CodeSource.PackageName),

@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+
 var _ resource.Resource = &teamDeploymentGrantResource{}
 var _ resource.ResourceWithImportState = &teamDeploymentGrantResource{}
 
@@ -27,12 +28,19 @@ type teamDeploymentGrantResource struct {
 	client *client.Client
 }
 
-type teamDeploymentGrantResourceModel struct {
-	ID           types.String `tfsdk:"id"`
-	TeamID       types.String `tfsdk:"team_id"`
-	Deployment   types.String `tfsdk:"deployment"`
+type locationGrantModel struct {
+	LocationName types.String `tfsdk:"location_name"`
 	Grant        types.String `tfsdk:"grant"`
 	CustomRoleID types.String `tfsdk:"custom_role_id"`
+}
+
+type teamDeploymentGrantResourceModel struct {
+	ID             types.String         `tfsdk:"id"`
+	TeamID         types.String         `tfsdk:"team_id"`
+	Deployment     types.String         `tfsdk:"deployment"`
+	Grant          types.String         `tfsdk:"grant"`
+	CustomRoleID   types.String         `tfsdk:"custom_role_id"`
+	LocationGrants []locationGrantModel `tfsdk:"location_grants"`
 }
 
 func (r *teamDeploymentGrantResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -82,6 +90,34 @@ func (r *teamDeploymentGrantResource) Schema(_ context.Context, _ resource.Schem
 				},
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"location_grants": schema.ListNestedBlock{
+				Description: "Per-code-location permission overrides within this deployment.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"location_name": schema.StringAttribute{
+							Description: "The name of the code location.",
+							Required:    true,
+						},
+						"grant": schema.StringAttribute{
+							Description: "Standard permission level for this location. Conflicts with custom_role_id.",
+							Optional:    true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+							},
+						},
+						"custom_role_id": schema.StringAttribute{
+							Description: "Custom role ID for this location. Conflicts with grant.",
+							Optional:    true,
+							Validators: []validator.String{
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -98,6 +134,32 @@ func (r *teamDeploymentGrantResource) Configure(_ context.Context, req resource.
 		return
 	}
 	r.client = c
+}
+
+func locationGrantsToClient(models []locationGrantModel) []client.LocationGrant {
+	grants := make([]client.LocationGrant, len(models))
+	for i, m := range models {
+		g, roleID := resolveGrantFields(m.Grant, m.CustomRoleID)
+		grants[i] = client.LocationGrant{
+			LocationName: m.LocationName.ValueString(),
+			Grant:        g,
+			CustomRoleID: roleID,
+		}
+	}
+	return grants
+}
+
+func locationGrantsFromClient(grants []client.LocationGrant) []locationGrantModel {
+	models := make([]locationGrantModel, len(grants))
+	for i, g := range grants {
+		grantVal, customRoleIDVal := grantFieldsFromAPI(g.Grant, g.CustomRoleID)
+		models[i] = locationGrantModel{
+			LocationName: types.StringValue(g.LocationName),
+			Grant:        grantVal,
+			CustomRoleID: customRoleIDVal,
+		}
+	}
+	return models
 }
 
 func (r *teamDeploymentGrantResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -120,6 +182,7 @@ func (r *teamDeploymentGrantResource) Create(ctx context.Context, req resource.C
 		DeploymentID:    intID,
 		Grant:           grantStr,
 		CustomRoleID:    customRoleID,
+		LocationGrants:  locationGrantsToClient(plan.LocationGrants),
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error setting deployment grant", err.Error())
@@ -128,6 +191,7 @@ func (r *teamDeploymentGrantResource) Create(ctx context.Context, req resource.C
 
 	plan.ID = types.StringValue(plan.TeamID.ValueString() + "/" + plan.Deployment.ValueString())
 	plan.Grant, plan.CustomRoleID = grantFieldsFromAPI(result.Grant, result.CustomRoleID)
+	plan.LocationGrants = locationGrantsFromClient(result.LocationGrants)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -152,6 +216,7 @@ func (r *teamDeploymentGrantResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	state.Grant, state.CustomRoleID = grantFieldsFromAPI(grant.Grant, grant.CustomRoleID)
+	state.LocationGrants = locationGrantsFromClient(grant.LocationGrants)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -175,6 +240,7 @@ func (r *teamDeploymentGrantResource) Update(ctx context.Context, req resource.U
 		DeploymentID:    intID,
 		Grant:           grantStr,
 		CustomRoleID:    customRoleID,
+		LocationGrants:  locationGrantsToClient(plan.LocationGrants),
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating deployment grant", err.Error())
@@ -182,6 +248,7 @@ func (r *teamDeploymentGrantResource) Update(ctx context.Context, req resource.U
 	}
 
 	plan.Grant, plan.CustomRoleID = grantFieldsFromAPI(result.Grant, result.CustomRoleID)
+	plan.LocationGrants = locationGrantsFromClient(result.LocationGrants)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -230,11 +297,12 @@ func (r *teamDeploymentGrantResource) ImportState(ctx context.Context, req resou
 
 	grantVal, customRoleIDVal := grantFieldsFromAPI(grant.Grant, grant.CustomRoleID)
 	state := teamDeploymentGrantResourceModel{
-		ID:           types.StringValue(req.ID),
-		TeamID:       types.StringValue(teamID),
-		Deployment:   types.StringValue(deployment),
-		Grant:        grantVal,
-		CustomRoleID: customRoleIDVal,
+		ID:             types.StringValue(req.ID),
+		TeamID:         types.StringValue(teamID),
+		Deployment:     types.StringValue(deployment),
+		Grant:          grantVal,
+		CustomRoleID:   customRoleIDVal,
+		LocationGrants: locationGrantsFromClient(grant.LocationGrants),
 	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }

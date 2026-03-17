@@ -3,6 +3,7 @@ package datasources
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -21,8 +22,9 @@ type usersDataSource struct {
 }
 
 type usersDataSourceModel struct {
-	ID    types.String          `tfsdk:"id"`
-	Users []userDataSourceModel `tfsdk:"users"`
+	ID         types.String          `tfsdk:"id"`
+	EmailRegex types.String          `tfsdk:"email_regex"`
+	Users      []userDataSourceModel `tfsdk:"users"`
 }
 
 func (d *usersDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -37,8 +39,12 @@ func (d *usersDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 				Description: "Static identifier for this data source.",
 				Computed:    true,
 			},
+			"email_regex": schema.StringAttribute{
+				Description: "Regex filter to select users based on email address. Regex matching is done using Go's regexp package.",
+				Optional:    true,
+			},
 			"users": schema.ListNestedAttribute{
-				Description: "All users in the organization.",
+				Description: "Users in the organization, optionally filtered by email_regex.",
 				Computed:    true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -56,6 +62,14 @@ func (d *usersDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 						},
 						"role": schema.StringAttribute{
 							Description: "The organization-level role: VIEWER, EDITOR, ADMIN, or OWNER.",
+							Computed:    true,
+						},
+						"picture": schema.StringAttribute{
+							Description: "URL to the user's profile picture.",
+							Computed:    true,
+						},
+						"is_scim_provisioned": schema.BoolAttribute{
+							Description: "Whether this user was provisioned through SCIM.",
 							Computed:    true,
 						},
 					},
@@ -80,24 +94,45 @@ func (d *usersDataSource) Configure(_ context.Context, req datasource.ConfigureR
 	d.client = c
 }
 
-func (d *usersDataSource) Read(ctx context.Context, _ datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *usersDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config usersDataSourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	users, err := d.client.ListUsers(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading users", err.Error())
 		return
 	}
 
-	state := usersDataSourceModel{
-		ID:    types.StringValue("users"),
-		Users: make([]userDataSourceModel, len(users)),
-	}
-	for i, u := range users {
-		state.Users[i] = userDataSourceModel{
-			ID:    types.StringValue(u.ID),
-			Email: types.StringValue(u.Email),
-			Name:  types.StringValue(u.Name),
-			Role:  types.StringValue(u.Role),
+	var re *regexp.Regexp
+	if !config.EmailRegex.IsNull() && config.EmailRegex.ValueString() != "" {
+		re, err = regexp.Compile(config.EmailRegex.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Invalid email_regex", fmt.Sprintf("Failed to compile email_regex %q: %s", config.EmailRegex.ValueString(), err))
+			return
 		}
+	}
+
+	state := usersDataSourceModel{
+		ID:         types.StringValue("users"),
+		EmailRegex: config.EmailRegex,
+		Users:      []userDataSourceModel{},
+	}
+	for _, u := range users {
+		if re != nil && !re.MatchString(u.Email) {
+			continue
+		}
+		state.Users = append(state.Users, userDataSourceModel{
+			ID:                types.StringValue(u.ID),
+			Email:             types.StringValue(u.Email),
+			Name:              types.StringValue(u.Name),
+			Role:              types.StringValue(u.Role),
+			Picture:           types.StringValue(u.Picture),
+			IsScimProvisioned: types.BoolValue(u.IsScimProvisioned),
+		})
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
