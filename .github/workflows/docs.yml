@@ -9,8 +9,8 @@ on:
       - ".github/**"
 
 jobs:
-  docs-freshness:
-    name: Docs Freshness
+  docs-generate:
+    name: Docs Generate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +19,4 @@ jobs:
           go-version-file: go.mod
       - name: Install tfplugindocs
         run: go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
-      - run: tfplugindocs generate
-      - name: Check for stale docs
-        run: git diff --exit-code docs/
+      - run: tfplugindocs generate --provider-name dagsterplus

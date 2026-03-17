@@ -1,5 +1,6 @@
 # Go
 /terraform-provider-dagsterplus
+/terraform-provider-dagster-plus
 *.test
 *.out
 vendor/
@@ -24,6 +25,9 @@ Thumbs.db
 
 # Release
 dist/
+
+# Generated docs (produced by tfplugindocs)
+docs/
 
 # Local dev workspace
 .env

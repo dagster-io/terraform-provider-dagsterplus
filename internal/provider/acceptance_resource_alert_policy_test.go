@@ -378,9 +378,9 @@ func TestAccAlertPolicyResource_insightMetric(t *testing.T) {
 			// from budget policies in the API response, so import infers "budget".
 			// Ignore all block-specific fields that differ between the two schemas.
 			{
-				ResourceName:            "dagsterplus_alert_policy.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "dagsterplus_alert_policy.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"policy_type",
 					"insight_metric.#", "insight_metric.0.%",

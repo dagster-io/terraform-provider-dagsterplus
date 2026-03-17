@@ -59,7 +59,7 @@ vet:
 
 .PHONY: docs
 docs:
-	tfplugindocs generate
+	tfplugindocs generate --provider-name dagsterplus
 
 # ---------------------------------------------------------------------------
 # Housekeeping
