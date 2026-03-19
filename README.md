@@ -64,7 +64,7 @@ Generate a token at **Dagster+ → Account Settings → API Tokens**.
 
 ## Local Development
 
-A working Terraform configuration for manual testing lives in `local/main.tf`. Edit it to exercise the resources you're developing, then use the make targets below.
+A working Terraform configuration for manual testing lives in `integration/main.tf`. Edit it to exercise the resources you're developing, then use the make targets below.
 
 ```bash
 # 1. Build the provider binary and write dev.tfrc
@@ -82,7 +82,7 @@ make dev-destroy
 
 `make dev-setup` writes a `dev.tfrc` that points Terraform at the locally-built binary via `dev_overrides`. Both `dev.tfrc` and `.env` are gitignored.
 
-### Running Tests
+## Running Tests
 
 ```bash
 # Unit tests (no credentials required)
@@ -96,7 +96,24 @@ make testacc
 
 # Run a specific resource's acceptance tests
 go test ./internal/provider/... -run TestAccAlertPolicy -v
+
+# Full integration cycle (apply → no-drift plan → destroy) against integration/main.tf
+make dev-integration
 ```
+
+### Acceptance test environment variables
+
+All acceptance tests require `TF_ACC=1`, `DAGSTER_CLOUD_ORGANIZATION`, and `DAGSTER_CLOUD_API_TOKEN`.
+Some tests require additional variables or are skipped when they are absent:
+
+| Variable | Default | Used by | Notes |
+|---|---|---|---|
+| `DAGSTER_CLOUD_TEST_DEPLOYMENT` | `prod` | Alert Policy, Code Location, Deployment Settings, Team Deployment Grant | Must be an existing deployment in the org |
+| `DAGSTER_CLOUD_TEST_DEPLOYMENT_2` | *(skip)* | Team (multi-deployment grant test) | Must be a second existing deployment |
+| `DAGSTER_CLOUD_TEST_USER_EMAIL` | *(skip)* | User | An email address that can be invited (not already a full member) |
+| `DAGSTER_CLOUD_TEST_EXTERNAL_ASSETS=1` | *(skip)* | External Asset Connection | Opt-in; requires the feature to be enabled for the org |
+| `DAGSTER_CLOUD_TEST_ORG_GRANTS=1` | *(skip)* | Team (org-level grant test) | Opt-in; requires org-level grant support to be enabled |
+| `DAGSTER_CLOUD_TEST_GITHUB_INTEGRATION=1` | *(skip)* | GitHub Integration | Opt-in; requires GitHub integration to be enabled for the org |
 
 ## License
 

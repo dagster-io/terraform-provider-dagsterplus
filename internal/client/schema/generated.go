@@ -2394,10 +2394,14 @@ func (v *CreateCustomMetricCreateCustomMetricCustomMetricError) GetMessage() str
 // CreateCustomMetricCreateCustomMetricPythonError includes the requested fields of the GraphQL type PythonError.
 type CreateCustomMetricCreateCustomMetricPythonError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns CreateCustomMetricCreateCustomMetricPythonError.Typename, and is useful for accessing the field via an interface.
 func (v *CreateCustomMetricCreateCustomMetricPythonError) GetTypename() string { return v.Typename }
+
+// GetMessage returns CreateCustomMetricCreateCustomMetricPythonError.Message, and is useful for accessing the field via an interface.
+func (v *CreateCustomMetricCreateCustomMetricPythonError) GetMessage() string { return v.Message }
 
 // CreateCustomMetricResponse is returned by CreateCustomMetric on success.
 type CreateCustomMetricResponse struct {
@@ -5872,10 +5876,14 @@ func (v *DeleteCustomMetricDeleteCustomMetricDeleteCustomMetricSuccess) GetCusto
 // DeleteCustomMetricDeleteCustomMetricPythonError includes the requested fields of the GraphQL type PythonError.
 type DeleteCustomMetricDeleteCustomMetricPythonError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns DeleteCustomMetricDeleteCustomMetricPythonError.Typename, and is useful for accessing the field via an interface.
 func (v *DeleteCustomMetricDeleteCustomMetricPythonError) GetTypename() string { return v.Typename }
+
+// GetMessage returns DeleteCustomMetricDeleteCustomMetricPythonError.Message, and is useful for accessing the field via an interface.
+func (v *DeleteCustomMetricDeleteCustomMetricPythonError) GetMessage() string { return v.Message }
 
 // DeleteCustomMetricResponse is returned by DeleteCustomMetric on success.
 type DeleteCustomMetricResponse struct {
@@ -8982,6 +8990,326 @@ type ListAlertPoliciesResponse struct {
 // GetAlertPolicies returns ListAlertPoliciesResponse.AlertPolicies, and is useful for accessing the field via an interface.
 func (v *ListAlertPoliciesResponse) GetAlertPolicies() []ListAlertPoliciesAlertPoliciesAlertPolicy {
 	return v.AlertPolicies
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganization includes the requested fields of the GraphQL type DagsterCloudOrganization.
+type ListAllOrgUsersOrganizationDagsterCloudOrganization struct {
+	UsersOrError ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError `json:"-"`
+}
+
+// GetUsersOrError returns ListAllOrgUsersOrganizationDagsterCloudOrganization.UsersOrError, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganization) GetUsersOrError() ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError {
+	return v.UsersOrError
+}
+
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganization) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*ListAllOrgUsersOrganizationDagsterCloudOrganization
+		UsersOrError json.RawMessage `json:"usersOrError"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.ListAllOrgUsersOrganizationDagsterCloudOrganization = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.UsersOrError
+		src := firstPass.UsersOrError
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal ListAllOrgUsersOrganizationDagsterCloudOrganization.UsersOrError: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalListAllOrgUsersOrganizationDagsterCloudOrganization struct {
+	UsersOrError json.RawMessage `json:"usersOrError"`
+}
+
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganization) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganization) __premarshalJSON() (*__premarshalListAllOrgUsersOrganizationDagsterCloudOrganization, error) {
+	var retval __premarshalListAllOrgUsersOrganizationDagsterCloudOrganization
+
+	{
+
+		dst := &retval.UsersOrError
+		src := v.UsersOrError
+		var err error
+		*dst, err = __marshalListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal ListAllOrgUsersOrganizationDagsterCloudOrganization.UsersOrError: %w", err)
+		}
+	}
+	return &retval, nil
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError includes the requested fields of the GraphQL type CantRemoveAllAdminsError.
+// The GraphQL type's documentation follows.
+//
+// This error should only be raised if a user attempts to remove all organization
+// admins from their org.
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError.Typename, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError) GetTypename() string {
+	return v.Typename
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList includes the requested fields of the GraphQL type DagsterCloudUserList.
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList struct {
+	Typename string                                                                                                     `json:"__typename"`
+	Users    []ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser `json:"users"`
+}
+
+// GetTypename returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList.Typename, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList) GetTypename() string {
+	return v.Typename
+}
+
+// GetUsers returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList.Users, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList) GetUsers() []ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser {
+	return v.Users
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError includes the requested fields of the GraphQL interface DagsterCloudUserListOrError.
+//
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError is implemented by the following types:
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError interface {
+	implementsGraphQLInterfaceListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+}
+
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError) implementsGraphQLInterfaceListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError() {
+}
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList) implementsGraphQLInterfaceListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError() {
+}
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError) implementsGraphQLInterfaceListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError() {
+}
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError) implementsGraphQLInterfaceListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError() {
+}
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError) implementsGraphQLInterfaceListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError() {
+}
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError) implementsGraphQLInterfaceListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError() {
+}
+
+func __unmarshalListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError(b []byte, v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "CantRemoveAllAdminsError":
+		*v = new(ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError)
+		return json.Unmarshal(b, *v)
+	case "DagsterCloudUserList":
+		*v = new(ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList)
+		return json.Unmarshal(b, *v)
+	case "PythonError":
+		*v = new(ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError)
+		return json.Unmarshal(b, *v)
+	case "UnauthorizedError":
+		*v = new(ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError)
+		return json.Unmarshal(b, *v)
+	case "UserLimitError":
+		*v = new(ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError)
+		return json.Unmarshal(b, *v)
+	case "UserNotFoundError":
+		*v = new(ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing DagsterCloudUserListOrError.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError(v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError:
+		typename = "CantRemoveAllAdminsError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorCantRemoveAllAdminsError
+		}{typename, v}
+		return json.Marshal(result)
+	case *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList:
+		typename = "DagsterCloudUserList"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList
+		}{typename, v}
+		return json.Marshal(result)
+	case *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError:
+		typename = "PythonError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError
+		}{typename, v}
+		return json.Marshal(result)
+	case *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError:
+		typename = "UnauthorizedError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError
+		}{typename, v}
+		return json.Marshal(result)
+	case *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError:
+		typename = "UserLimitError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError
+		}{typename, v}
+		return json.Marshal(result)
+	case *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError:
+		typename = "UserNotFoundError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListOrError: "%T"`, v)
+	}
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser includes the requested fields of the GraphQL type DagsterCloudUser.
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser struct {
+	UserId            int    `json:"userId"`
+	Email             string `json:"email"`
+	Name              string `json:"name"`
+	Picture           string `json:"picture"`
+	IsScimProvisioned bool   `json:"isScimProvisioned"`
+}
+
+// GetUserId returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser.UserId, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser) GetUserId() int {
+	return v.UserId
+}
+
+// GetEmail returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser.Email, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser) GetEmail() string {
+	return v.Email
+}
+
+// GetName returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser.Name, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser) GetName() string {
+	return v.Name
+}
+
+// GetPicture returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser.Picture, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser) GetPicture() string {
+	return v.Picture
+}
+
+// GetIsScimProvisioned returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser.IsScimProvisioned, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserListUsersDagsterCloudUser) GetIsScimProvisioned() bool {
+	return v.IsScimProvisioned
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError includes the requested fields of the GraphQL type PythonError.
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError.Typename, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorPythonError) GetTypename() string {
+	return v.Typename
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError.Typename, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUnauthorizedError) GetTypename() string {
+	return v.Typename
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError includes the requested fields of the GraphQL type UserLimitError.
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError.Typename, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserLimitError) GetTypename() string {
+	return v.Typename
+}
+
+// ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError includes the requested fields of the GraphQL type UserNotFoundError.
+// The GraphQL type's documentation follows.
+//
+// This error should only be raised after authorization to view the user is checked to
+// not leak info about the users.
+type ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError.Typename, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorUserNotFoundError) GetTypename() string {
+	return v.Typename
+}
+
+// ListAllOrgUsersResponse is returned by ListAllOrgUsers on success.
+type ListAllOrgUsersResponse struct {
+	Organization ListAllOrgUsersOrganizationDagsterCloudOrganization `json:"organization"`
+}
+
+// GetOrganization returns ListAllOrgUsersResponse.Organization, and is useful for accessing the field via an interface.
+func (v *ListAllOrgUsersResponse) GetOrganization() ListAllOrgUsersOrganizationDagsterCloudOrganization {
+	return v.Organization
 }
 
 // ListCodeLocationsResponse is returned by ListCodeLocations on success.
@@ -14084,10 +14412,14 @@ func (v *UpdateCustomMetricUpdateCustomMetricCustomMetricError) GetMessage() str
 // UpdateCustomMetricUpdateCustomMetricPythonError includes the requested fields of the GraphQL type PythonError.
 type UpdateCustomMetricUpdateCustomMetricPythonError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns UpdateCustomMetricUpdateCustomMetricPythonError.Typename, and is useful for accessing the field via an interface.
 func (v *UpdateCustomMetricUpdateCustomMetricPythonError) GetTypename() string { return v.Typename }
+
+// GetMessage returns UpdateCustomMetricUpdateCustomMetricPythonError.Message, and is useful for accessing the field via an interface.
+func (v *UpdateCustomMetricUpdateCustomMetricPythonError) GetMessage() string { return v.Message }
 
 // UpdateCustomMetricUpdateCustomMetricUpdateCustomMetricResult includes the requested fields of the GraphQL interface UpdateCustomMetricResult.
 //
@@ -16906,6 +17238,9 @@ mutation CreateCustomMetric ($metadataKey: String!, $displayName: String, $descr
 		... on CustomMetricError {
 			message
 		}
+		... on PythonError {
+			message
+		}
 	}
 }
 `
@@ -17496,6 +17831,9 @@ mutation DeleteCustomMetric ($customMetricId: String!) {
 			customMetricId
 		}
 		... on CustomMetricError {
+			message
+		}
+		... on PythonError {
 			message
 		}
 	}
@@ -18270,6 +18608,49 @@ func ListAlertPolicies(
 	}
 
 	data_ = &ListAlertPoliciesResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by ListAllOrgUsers.
+const ListAllOrgUsers_Operation = `
+query ListAllOrgUsers {
+	organization {
+		usersOrError {
+			__typename
+			... on DagsterCloudUserList {
+				users {
+					userId
+					email
+					name
+					picture
+					isScimProvisioned
+				}
+			}
+		}
+	}
+}
+`
+
+// ListAllOrgUsers uses organization.usersOrError which returns all org members
+// including the owner (who may not appear in the root usersOrError query).
+func ListAllOrgUsers(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *ListAllOrgUsersResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "ListAllOrgUsers",
+		Query:  ListAllOrgUsers_Operation,
+	}
+
+	data_ = &ListAllOrgUsersResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -19334,6 +19715,9 @@ mutation UpdateCustomMetric ($customMetricId: String!, $displayName: String, $de
 			}
 		}
 		... on CustomMetricError {
+			message
+		}
+		... on PythonError {
 			message
 		}
 	}

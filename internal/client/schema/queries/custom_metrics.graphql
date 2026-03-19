@@ -25,6 +25,9 @@ mutation CreateCustomMetric($metadataKey: String!, $displayName: String, $descri
     ... on CustomMetricError {
       message
     }
+    ... on PythonError {
+      message
+    }
   }
 }
 
@@ -44,6 +47,9 @@ mutation UpdateCustomMetric($customMetricId: String!, $displayName: String, $des
     ... on CustomMetricError {
       message
     }
+    ... on PythonError {
+      message
+    }
   }
 }
 
@@ -54,6 +60,9 @@ mutation DeleteCustomMetric($customMetricId: String!) {
       customMetricId
     }
     ... on CustomMetricError {
+      message
+    }
+    ... on PythonError {
       message
     }
   }

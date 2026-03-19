@@ -247,6 +247,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						"all_runs": schema.BoolAttribute{
 							Description: "When true, the policy applies to all runs.",
 							Optional:    true,
+							Computed:    true,
 							Validators: []validator.Bool{
 								boolvalidator.ConflictsWith(
 									path.MatchRelative().AtParent().AtName("tags"),
@@ -287,10 +288,12 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						"on_success": schema.BoolAttribute{
 							Description: "Alert on run success.",
 							Optional:    true,
+							Computed:    true,
 						},
 						"on_failure": schema.BoolAttribute{
 							Description: "Alert on run failure.",
 							Optional:    true,
+							Computed:    true,
 						},
 						"on_timeout_hours": schema.Int64Attribute{
 							Description: "Alert when a run exceeds this many hours.",
@@ -309,6 +312,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						"all_locations": schema.BoolAttribute{
 							Description: "When true, the policy applies to all code locations.",
 							Optional:    true,
+							Computed:    true,
 							Validators: []validator.Bool{
 								boolvalidator.ConflictsWith(
 									path.MatchRelative().AtParent().AtName("location_name"),
@@ -334,6 +338,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						"all_schedules_and_sensors": schema.BoolAttribute{
 							Description: "When true, the policy applies to all schedules and sensors.",
 							Optional:    true,
+							Computed:    true,
 							Validators: []validator.Bool{
 								boolvalidator.ConflictsWith(
 									path.MatchRelative().AtParent().AtName("code_locations"),
@@ -364,10 +369,12 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						"include_schedules": schema.BoolAttribute{
 							Description: "Include schedules in monitoring.",
 							Optional:    true,
+							Computed:    true,
 						},
 						"include_sensors": schema.BoolAttribute{
 							Description: "Include sensors in monitoring.",
 							Optional:    true,
+							Computed:    true,
 						},
 						"min_consecutive_failures": schema.Int64Attribute{
 							Description: "Minimum number of consecutive failures before alerting.",
