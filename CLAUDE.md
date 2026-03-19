@@ -182,13 +182,20 @@ Resources and data sources are self-documenting via the Terraform registry (gene
 
 ### 9. Final checks
 
+These mirror the CI jobs that run on every PR. All must pass before merging.
+
 ```bash
-go build ./...                    # must compile
-go vet ./internal/provider/...    # no new errors
-go mod tidy                       # keep go.sum clean after any new dependency
-make fmt                          # consistent formatting
-make dev-plan                     # smoke-test against the real API using integration/main.tf
+go build ./...                                   # CI: Build
+go vet ./...                                     # CI: Vet
+gofmt -l . && [ -z "$(gofmt -l .)" ]            # CI: Format — output must be empty
+go test ./internal/client/... ./internal/resources/... ./internal/datasources/... -v -timeout 120s  # CI: Unit Tests
+go mod tidy && git diff --exit-code go.mod go.sum          # CI: Module Tidy
+make generate && git diff --exit-code internal/client/schema/generated.go  # CI: Generated Code
+make dev-plan                                    # smoke-test against the real API using integration/main.tf
 ```
+
+If you modified any `.graphql` file, `make generate` is required — `generated.go` must not be dirty.
+If you added or removed any Go dependency, `go mod tidy` is required — `go.mod`/`go.sum` must not be dirty.
 
 **Never commit** `.env` or `dev.tfrc` — both are gitignored and contain credentials or local paths.
 
