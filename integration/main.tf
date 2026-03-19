@@ -244,6 +244,13 @@ data "dagsterplus_alert_policy" "asset_health" {
   depends_on  = [dagsterplus_alert_policy.asset_health]
 }
 
+data "dagsterplus_alert_policy" "code_location" {
+  deployment  = dagsterplus_alert_policy.code_location.deployment
+  name        = dagsterplus_alert_policy.code_location.name
+  policy_type = "code_location"
+  depends_on  = [dagsterplus_alert_policy.code_location]
+}
+
 data "dagsterplus_custom_metric" "test" {
   metadata_key = dagsterplus_custom_metric.test.metadata_key
   depends_on   = [dagsterplus_custom_metric.test]

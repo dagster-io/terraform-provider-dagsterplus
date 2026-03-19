@@ -193,6 +193,12 @@ func TestIntegration(t *testing.T) {
 					resource.TestCheckResourceAttr("data.dagsterplus_alert_policy.asset_health", "enabled", "true"),
 					resource.TestCheckResourceAttr("data.dagsterplus_alert_policy.asset_health", "asset.0.all_assets", "true"),
 					resource.TestCheckResourceAttrSet("data.dagsterplus_alert_policy.asset_health", "id"),
+					resource.TestCheckResourceAttr("data.dagsterplus_alert_policy.code_location", "name", "acc-tf-code-location-alerts"),
+					resource.TestCheckResourceAttr("data.dagsterplus_alert_policy.code_location", "deployment", "acc-tf-test"),
+					resource.TestCheckResourceAttr("data.dagsterplus_alert_policy.code_location", "policy_type", "code_location"),
+					resource.TestCheckResourceAttr("data.dagsterplus_alert_policy.code_location", "enabled", "true"),
+					resource.TestCheckResourceAttr("data.dagsterplus_alert_policy.code_location", "code_location.0.location_name", "acc-tf-code-location"),
+					resource.TestCheckResourceAttrSet("data.dagsterplus_alert_policy.code_location", "id"),
 
 					resource.TestCheckResourceAttr("data.dagsterplus_custom_metric.test", "metadata_key", "acc_tf_integration_metric"),
 					resource.TestCheckResourceAttr("data.dagsterplus_custom_metric.test", "display_name", "Acc TF Integration Metric"),
