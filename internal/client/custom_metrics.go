@@ -36,6 +36,8 @@ func (c *Client) CreateCustomMetric(ctx context.Context, metadataKey, displayNam
 		}, nil
 	case *schema.CreateCustomMetricCreateCustomMetricCustomMetricError:
 		return nil, fmt.Errorf("CreateCustomMetric: %s", r.Message)
+	case *schema.CreateCustomMetricCreateCustomMetricPythonError:
+		return nil, fmt.Errorf("CreateCustomMetric: %s", r.Message)
 	default:
 		return nil, fmt.Errorf("CreateCustomMetric: unexpected result type %T", resp.CreateCustomMetric)
 	}
@@ -60,6 +62,8 @@ func (c *Client) UpdateCustomMetric(ctx context.Context, customMetricID, display
 		}, nil
 	case *schema.UpdateCustomMetricUpdateCustomMetricCustomMetricError:
 		return nil, fmt.Errorf("UpdateCustomMetric: %s", r.Message)
+	case *schema.UpdateCustomMetricUpdateCustomMetricPythonError:
+		return nil, fmt.Errorf("UpdateCustomMetric: %s", r.Message)
 	default:
 		return nil, fmt.Errorf("UpdateCustomMetric: unexpected result type %T", resp.UpdateCustomMetric)
 	}
@@ -77,6 +81,8 @@ func (c *Client) DeleteCustomMetric(ctx context.Context, customMetricID string) 
 		_ = r
 		return nil
 	case *schema.DeleteCustomMetricDeleteCustomMetricCustomMetricError:
+		return fmt.Errorf("DeleteCustomMetric: %s", r.Message)
+	case *schema.DeleteCustomMetricDeleteCustomMetricPythonError:
 		return fmt.Errorf("DeleteCustomMetric: %s", r.Message)
 	default:
 		return fmt.Errorf("DeleteCustomMetric: unexpected result type %T", resp.DeleteCustomMetric)

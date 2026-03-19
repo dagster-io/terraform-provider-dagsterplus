@@ -87,28 +87,18 @@ func (d *userDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-	users, err := d.client.ListUsers(ctx)
+	u, err := d.client.GetUserByEmail(ctx, config.Email.ValueString())
 	if err != nil {
-		resp.Diagnostics.AddError("Error reading users", err.Error())
+		resp.Diagnostics.AddError("Error reading user", err.Error())
 		return
 	}
 
-	for _, u := range users {
-		if u.Email == config.Email.ValueString() {
-			resp.Diagnostics.Append(resp.State.Set(ctx, userDataSourceModel{
-				ID:                types.StringValue(u.ID),
-				Email:             types.StringValue(u.Email),
-				Name:              types.StringValue(u.Name),
-				Role:              types.StringValue(u.Role),
-				Picture:           types.StringValue(u.Picture),
-				IsScimProvisioned: types.BoolValue(u.IsScimProvisioned),
-			})...)
-			return
-		}
-	}
-
-	resp.Diagnostics.AddError(
-		"User not found",
-		fmt.Sprintf("No user with email %q found in the organization.", config.Email.ValueString()),
-	)
+	resp.Diagnostics.Append(resp.State.Set(ctx, userDataSourceModel{
+		ID:                types.StringValue(u.ID),
+		Email:             types.StringValue(u.Email),
+		Name:              types.StringValue(u.Name),
+		Role:              types.StringValue(u.Role),
+		Picture:           types.StringValue(u.Picture),
+		IsScimProvisioned: types.BoolValue(u.IsScimProvisioned),
+	})...)
 }

@@ -29,6 +29,25 @@ query ListUsers {
   }
 }
 
+# ListAllOrgUsers uses organization.usersOrError which returns all org members
+# including the owner (who may not appear in the root usersOrError query).
+query ListAllOrgUsers {
+  organization {
+    usersOrError {
+      __typename
+      ... on DagsterCloudUserList {
+        users {
+          userId
+          email
+          name
+          picture
+          isScimProvisioned
+        }
+      }
+    }
+  }
+}
+
 mutation AddUser($email: String!) {
   addUserToOrganization(email: $email) {
     __typename

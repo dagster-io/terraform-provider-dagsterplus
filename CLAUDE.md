@@ -37,16 +37,17 @@ set -a && . ./.env && set +a && TF_ACC=1 go test ./internal/provider/... -run Te
 
 ### Local development workflow
 
-`local/main.tf` is a scratch Terraform config used to manually test resources against the real API. The provider binary is loaded from the repo root via `dev.tfrc` (a local dev override).
+`integration/main.tf` is a scratch Terraform config used to manually test resources against the real API. The provider binary is loaded from the repo root via `dev.tfrc` (a local dev override).
 
 ```bash
-make dev-setup    # build binary + write dev.tfrc (run once, or after binary changes)
-make dev-plan     # terraform plan against local/main.tf (sources .env automatically)
-make dev-apply    # terraform apply (sources .env automatically)
-make dev-destroy  # terraform destroy (sources .env automatically)
+make dev-setup         # build binary + write dev.tfrc (run once, or after binary changes)
+make dev-plan          # terraform plan against integration/main.tf (sources .env automatically)
+make dev-apply         # terraform apply (sources .env automatically)
+make dev-destroy       # terraform destroy (sources .env automatically)
+make dev-integration   # apply → no-drift plan → destroy → no-drift plan (full integration cycle)
 ```
 
-When adding a new resource, add a representative example block to `local/main.tf` so it can be exercised with `make dev-plan` before writing acceptance tests.
+When adding a new resource, add a representative example block to `integration/main.tf` so it can be exercised with `make dev-plan` before writing acceptance tests.
 
 ---
 
@@ -186,7 +187,7 @@ go build ./...                    # must compile
 go vet ./internal/provider/...    # no new errors
 go mod tidy                       # keep go.sum clean after any new dependency
 make fmt                          # consistent formatting
-make dev-plan                     # smoke-test against the real API using local/main.tf
+make dev-plan                     # smoke-test against the real API using integration/main.tf
 ```
 
 **Never commit** `.env` or `dev.tfrc` — both are gitignored and contain credentials or local paths.

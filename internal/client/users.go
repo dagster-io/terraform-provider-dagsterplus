@@ -62,6 +62,46 @@ func (c *Client) GetUser(ctx context.Context, id string) (*User, error) {
 	return nil, fmt.Errorf("GetUser: user %q not found", id)
 }
 
+// GetUserByEmail retrieves a user by email address.
+// It first searches the results of ListUsers; if not found there (e.g. for the
+// org owner who was not added via the invite flow), it falls back to the
+// organization-level user list which includes all members.
+func (c *Client) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	users, err := c.ListUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for i := range users {
+		if users[i].Email == email {
+			return &users[i], nil
+		}
+	}
+
+	// Fallback: the org owner (and any other user not returned by the root
+	// usersOrError query) may appear in organization.usersOrError.
+	resp, err := schema.ListAllOrgUsers(ctx, c.gqlClient(""))
+	if err != nil {
+		return nil, fmt.Errorf("GetUserByEmail fallback: %w", err)
+	}
+	switch r := resp.Organization.UsersOrError.(type) {
+	case *schema.ListAllOrgUsersOrganizationDagsterCloudOrganizationUsersOrErrorDagsterCloudUserList:
+		for _, u := range r.Users {
+			if u.Email == email {
+				return &User{
+					ID:                fmt.Sprintf("%d", u.UserId),
+					Email:             u.Email,
+					Name:              u.Name,
+					Picture:           u.Picture,
+					IsScimProvisioned: u.IsScimProvisioned,
+				}, nil
+			}
+		}
+		return nil, fmt.Errorf("GetUserByEmail: user %q not found", email)
+	default:
+		return nil, fmt.Errorf("GetUserByEmail: unexpected result type %T from organization.usersOrError", r)
+	}
+}
+
 // ListUsers returns all members of the organization.
 func (c *Client) ListUsers(ctx context.Context) ([]User, error) {
 	resp, err := schema.ListUsers(ctx, c.gqlClient(""))

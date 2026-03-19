@@ -88,12 +88,16 @@ dev-setup: build
 
 .PHONY: dev-plan
 dev-plan:
-	$(TF) -chdir=local plan
+	$(TF) -chdir=integration plan
 
 .PHONY: dev-apply
 dev-apply:
-	$(TF) -chdir=local apply -auto-approve
+	$(TF) -chdir=integration apply -auto-approve
 
 .PHONY: dev-destroy
 dev-destroy:
-	$(TF) -chdir=local destroy
+	$(TF) -chdir=integration destroy
+
+.PHONY: dev-integration
+dev-integration:
+	set -a && . ./.env && set +a && TF_ACC=1 TF_ACC_PROVIDER_NAMESPACE=dagster-io go test ./internal/provider/... -run TestIntegration -v -timeout 30m
