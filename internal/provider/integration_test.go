@@ -21,6 +21,20 @@ func TestIntegration(t *testing.T) {
 		t.Skip("TF_ACC not set; skipping integration test")
 	}
 
+	// integration/main.tf declares source = "dagster-io/dagsterplus". The test
+	// framework's reattach provider defaults to the "hashicorp" namespace, so we
+	// must override it to match the source address and ensure the in-process server
+	// is used instead of downloading the provider from the registry.
+	t.Setenv(resource.EnvTfAccProviderNamespace, "dagster-io")
+
+	// The integration test requires a pre-existing non-owner org member to exercise
+	// the dagsterplus_user resource and data source. The org creator cannot be added
+	// via AddUser, so a separate test user is required.
+	testUserEmail := os.Getenv("DAGSTER_CLOUD_TEST_USER_EMAIL")
+	if testUserEmail == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_USER_EMAIL must be set to run the integration test (must be a non-owner org member)")
+	}
+
 	repoRoot, err := filepath.Abs("../..")
 	if err != nil {
 		t.Fatalf("cannot resolve repo root: %v", err)
@@ -32,6 +46,9 @@ func TestIntegration(t *testing.T) {
 			{
 				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 				ConfigFile:               config.StaticFile(filepath.Join(repoRoot, "integration", "main.tf")),
+				ConfigVariables: config.Variables{
+					"test_user_email": config.StringVariable(testUserEmail),
+				},
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PostApplyPostRefresh: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
@@ -43,7 +60,7 @@ func TestIntegration(t *testing.T) {
 					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "id"),
 
 					// User
-					resource.TestCheckResourceAttr("dagsterplus_user.dennis", "email", "dennis@dagsterlabs.com"),
+					resource.TestCheckResourceAttr("dagsterplus_user.dennis", "email", testUserEmail),
 					resource.TestCheckResourceAttrSet("dagsterplus_user.dennis", "id"),
 
 					// Roles
@@ -151,7 +168,7 @@ func TestIntegration(t *testing.T) {
 					resource.TestCheckResourceAttrSet("dagsterplus_secret.db_password", "id"),
 
 					// Data sources — verify read path matches what the resources created
-					resource.TestCheckResourceAttr("data.dagsterplus_user.dennis", "email", "dennis@dagsterlabs.com"),
+					resource.TestCheckResourceAttr("data.dagsterplus_user.dennis", "email", testUserEmail),
 					resource.TestCheckResourceAttrSet("data.dagsterplus_user.dennis", "id"),
 
 					resource.TestCheckResourceAttr("data.dagsterplus_deployment.test", "name", "acc-tf-test"),

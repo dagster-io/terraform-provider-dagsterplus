@@ -26,7 +26,7 @@ func TestSecretFromModel_Basic(t *testing.T) {
 		LocationNames:                 locs,
 	}
 
-	s := secretFromModel(m)
+	s := secretFromModel(context.Background(), m)
 
 	if s.SecretName != "MY_API_KEY" {
 		t.Errorf("expected SecretName MY_API_KEY, got %q", s.SecretName)
@@ -65,7 +65,7 @@ func TestSecretFromModel_NullLocationNames(t *testing.T) {
 		LocationNames: types.ListNull(types.StringType),
 	}
 
-	s := secretFromModel(m)
+	s := secretFromModel(context.Background(), m)
 	if len(s.LocationNames) != 0 {
 		t.Errorf("expected empty LocationNames for null list, got %v", s.LocationNames)
 	}
@@ -156,7 +156,7 @@ func TestSecretRoundTrip(t *testing.T) {
 		t.Fatalf("SecretToModel diags: %v", diags)
 	}
 
-	s := secretFromModel(model)
+	s := secretFromModel(ctx, model)
 	s.ID = original.ID // secretFromModel does not carry the ID
 
 	if s.ID != original.ID {
