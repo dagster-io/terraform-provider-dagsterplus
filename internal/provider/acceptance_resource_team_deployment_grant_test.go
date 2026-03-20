@@ -49,9 +49,12 @@ func TestAccTeamDeploymentGrantResource_basic(t *testing.T) {
 
 // TestAccTeamDeploymentGrantResource_locationGrants tests that per-location grants
 // are created, updated, and imported correctly.
+// A real code location is created first because the API only persists location grants
+// for locations that actually exist in the deployment.
 func TestAccTeamDeploymentGrantResource_locationGrants(t *testing.T) {
 	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
 	locName := "acc-tf-loc-" + acctest.RandStringFromCharSet(8, acctest.CharSetAlpha)
+	deployment := testAccDeployment()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -60,7 +63,7 @@ func TestAccTeamDeploymentGrantResource_locationGrants(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create with a location grant
 			{
-				Config: providerConfig() + testAccTeamDeploymentGrantWithLocationConfig(rName, testAccDeployment(), "VIEWER", locName, "LAUNCHER"),
+				Config: providerConfig() + testAccTeamDeploymentGrantWithLocationConfig(rName, deployment, "VIEWER", locName, "LAUNCHER"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("dagsterplus_team_deployment_grant.test", "grant", "VIEWER"),
 					resource.TestCheckResourceAttr("dagsterplus_team_deployment_grant.test", "location_grants.#", "1"),
@@ -70,7 +73,7 @@ func TestAccTeamDeploymentGrantResource_locationGrants(t *testing.T) {
 			},
 			// Update location grant level
 			{
-				Config: providerConfig() + testAccTeamDeploymentGrantWithLocationConfig(rName, testAccDeployment(), "VIEWER", locName, "EDITOR"),
+				Config: providerConfig() + testAccTeamDeploymentGrantWithLocationConfig(rName, deployment, "VIEWER", locName, "EDITOR"),
 				Check: resource.TestCheckResourceAttr(
 					"dagsterplus_team_deployment_grant.test", "location_grants.0.grant", "EDITOR",
 				),
@@ -144,6 +147,16 @@ resource "dagsterplus_team_deployment_grant" "test" {
 
 func testAccTeamDeploymentGrantWithLocationConfig(teamName, deployment, grant, locationName, locationGrant string) string {
 	return fmt.Sprintf(`
+resource "dagsterplus_code_location" "loc" {
+  deployment = %q
+  name       = %q
+  image      = "ghcr.io/example/repo:v1"
+
+  code_source {
+    python_file = "repo.py"
+  }
+}
+
 resource "dagsterplus_team" "test" {
   name = %q
 }
@@ -154,9 +167,9 @@ resource "dagsterplus_team_deployment_grant" "test" {
   grant      = %q
 
   location_grants {
-    location_name = %q
+    location_name = dagsterplus_code_location.loc.name
     grant         = %q
   }
 }
-`, teamName, deployment, grant, locationName, locationGrant)
+`, deployment, locationName, teamName, deployment, grant, locationGrant)
 }

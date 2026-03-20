@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -75,8 +76,9 @@ func (r *externalAssetConnectionResource) Schema(_ context.Context, _ resource.S
 				},
 			},
 			"source_config_yaml": schema.StringAttribute{
-				Description: "YAML configuration for the connection source.",
+				Description: "YAML configuration for the connection source. May contain credentials — treated as sensitive.",
 				Required:    true,
+				Sensitive:   true,
 			},
 			"cron_string": schema.StringAttribute{
 				Description: "Cron expression for the connection schedule.",
@@ -142,6 +144,10 @@ func (r *externalAssetConnectionResource) Read(ctx context.Context, req resource
 
 	conn, err := r.client.GetExternalAssetConnection(ctx, state.ID.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Error reading external asset connection", err.Error())
 		return
 	}
@@ -181,6 +187,9 @@ func (r *externalAssetConnectionResource) Delete(ctx context.Context, req resour
 	}
 
 	if err := r.client.DeleteExternalAssetConnection(ctx, state.ID.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error deleting external asset connection", err.Error())
 	}
 }

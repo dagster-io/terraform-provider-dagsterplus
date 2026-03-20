@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -102,7 +103,13 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	user, err := r.client.AddUser(ctx, plan.Email.ValueString())
+	email := plan.Email.ValueString()
+	if _, err := r.client.GetUserByEmail(ctx, email); err == nil {
+		resp.Diagnostics.AddError("Error inviting user", fmt.Sprintf("user with email %s is already registered", email))
+		return
+	}
+
+	user, err := r.client.AddUser(ctx, email)
 	if err != nil {
 		resp.Diagnostics.AddError("Error inviting user", err.Error())
 		return
@@ -126,9 +133,11 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	user, err := r.client.GetUser(ctx, state.ID.ValueString())
 	if err != nil {
-		// If the list query fails or the user isn't found, preserve existing state
-		// rather than erroring — the user may still exist and delete will use the stored ID.
-		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error reading user", err.Error())
 		return
 	}
 
@@ -154,6 +163,9 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 
 	if err := r.client.RemoveUser(ctx, state.Email.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error removing user", err.Error())
 	}
 }

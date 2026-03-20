@@ -129,6 +129,9 @@ func (r *teamMembershipResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	if err := r.client.RemoveUserFromTeam(ctx, state.TeamID.ValueString(), state.UserID.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error removing user from team", err.Error())
 	}
 }

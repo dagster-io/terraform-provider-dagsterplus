@@ -382,6 +382,9 @@ func (r *codeLocationResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	err := r.client.DeleteCodeLocation(ctx, state.DeploymentName.ValueString(), state.Name.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error deleting code location", err.Error())
 	}
 }

@@ -598,6 +598,9 @@ func (r *alertPolicyResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	if err := r.client.DeleteAlertPolicy(ctx, state.Deployment.ValueString(), state.Name.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error deleting alert policy", err.Error())
 	}
 }

@@ -142,6 +142,9 @@ func (r *agentTokenResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	if err := r.client.DeleteAgentToken(ctx, state.ID.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error deleting agent token", err.Error())
 	}
 }

@@ -190,7 +190,8 @@ func (r *teamDeploymentGrantResource) Create(ctx context.Context, req resource.C
 
 	plan.ID = types.StringValue(plan.TeamID.ValueString() + "/" + plan.Deployment.ValueString())
 	plan.Grant, plan.CustomRoleID = grantFieldsFromAPI(result.Grant, result.CustomRoleID)
-	plan.LocationGrants = locationGrantsFromClient(result.LocationGrants)
+	// The mutation response does not return locationGrants; preserve the plan values
+	// since the API accepted the mutation without error.
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -209,8 +210,11 @@ func (r *teamDeploymentGrantResource) Read(ctx context.Context, req resource.Rea
 
 	grant, err := r.client.GetTeamGrant(ctx, state.TeamID.ValueString(), "deployment", intID)
 	if err != nil {
-		// Grant was removed out-of-band; remove from state so Terraform detects drift.
-		resp.State.RemoveResource(ctx)
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error reading deployment grant", err.Error())
 		return
 	}
 
@@ -247,7 +251,8 @@ func (r *teamDeploymentGrantResource) Update(ctx context.Context, req resource.U
 	}
 
 	plan.Grant, plan.CustomRoleID = grantFieldsFromAPI(result.Grant, result.CustomRoleID)
-	plan.LocationGrants = locationGrantsFromClient(result.LocationGrants)
+	// The mutation response does not return locationGrants; preserve the plan values
+	// since the API accepted the mutation without error.
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -265,6 +270,9 @@ func (r *teamDeploymentGrantResource) Delete(ctx context.Context, req resource.D
 	}
 
 	if err := r.client.DeleteTeamGrant(ctx, state.TeamID.ValueString(), "deployment", intID); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error removing deployment grant", err.Error())
 	}
 }

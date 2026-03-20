@@ -12,12 +12,18 @@ terraform {
 
 provider "dagsterplus" {}
 
+variable "test_user_email" {
+  type        = string
+  description = "Email of a non-owner org member to use in the integration test. Set via DAGSTER_CLOUD_TEST_USER_EMAIL or TF_VAR_test_user_email."
+  default     = "dennis@dagsterlabs.com"
+}
+
 resource "dagsterplus_deployment" "test" {
   name = "acc-tf-test"
 }
 
 resource "dagsterplus_user" "dennis" {
-  email = "dennis@dagsterlabs.com"
+  email = var.test_user_email
 }
 
 resource "dagsterplus_role" "observability" {

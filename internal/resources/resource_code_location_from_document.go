@@ -123,8 +123,11 @@ func (r *codeLocationFromDocumentResource) Read(ctx context.Context, req resourc
 
 	loc, err := r.client.GetCodeLocation(ctx, state.Deployment.ValueString(), state.Name.ValueString())
 	if err != nil {
-		// Location removed out-of-band; let Terraform detect the drift.
-		resp.State.RemoveResource(ctx)
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error reading code location", err.Error())
 		return
 	}
 
@@ -192,6 +195,9 @@ func (r *codeLocationFromDocumentResource) Delete(ctx context.Context, req resou
 	}
 
 	if err := r.client.DeleteCodeLocation(ctx, state.Deployment.ValueString(), state.Name.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error deleting code location", err.Error())
 	}
 }

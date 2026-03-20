@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -116,11 +117,20 @@ func (r *userTokenResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
+	// user_id is not stored after import (the API cannot recover it).
+	// Skip the lookup so the resource remains in state for the user to manually fix.
+	if state.UserID.ValueString() == "" {
+		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
+		return
+	}
+
 	tok, err := r.client.GetUserToken(ctx, state.ID.ValueString(), state.UserID.ValueString())
 	if err != nil {
-		// If we can't list tokens (e.g. API shape mismatch), preserve existing state
-		// rather than failing — the resource still exists and delete will use the stored ID.
-		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error reading user token", err.Error())
 		return
 	}
 
@@ -144,6 +154,9 @@ func (r *userTokenResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	if err := r.client.DeleteUserToken(ctx, state.ID.ValueString(), state.UserID.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error deleting user token", err.Error())
 	}
 }
@@ -157,9 +170,6 @@ func (r *userTokenResource) ImportState(ctx context.Context, req resource.Import
 		Name:   types.StringValue(""),
 		Token:  types.StringValue(""),
 	}
-
-	// user_id is not known at import time; GetUserToken requires it, so skip the lookup.
-	_ = ctx
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }

@@ -119,7 +119,7 @@ func (r *secretResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	s, err := r.client.CreateSecret(ctx, secretFromModel(plan))
+	s, err := r.client.CreateSecret(ctx, secretFromModel(ctx, plan))
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating secret", err.Error())
 		return
@@ -170,7 +170,7 @@ func (r *secretResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	secret := secretFromModel(plan)
+	secret := secretFromModel(ctx, plan)
 	secret.ID = state.ID.ValueString()
 
 	s, err := r.client.UpdateSecret(ctx, secret)
@@ -217,10 +217,10 @@ func (r *secretResource) ImportState(ctx context.Context, req resource.ImportSta
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-func secretFromModel(m SecretResourceModel) client.Secret {
+func secretFromModel(ctx context.Context, m SecretResourceModel) client.Secret {
 	var locationNames []string
 	if !m.LocationNames.IsNull() && !m.LocationNames.IsUnknown() {
-		m.LocationNames.ElementsAs(context.Background(), &locationNames, false)
+		m.LocationNames.ElementsAs(ctx, &locationNames, false)
 	}
 	return client.Secret{
 		SecretName:                    m.SecretName.ValueString(),

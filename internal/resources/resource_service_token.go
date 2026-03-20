@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -115,10 +116,20 @@ func (r *serviceTokenResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
+	// service_user_id is not stored after import (the API cannot recover it).
+	// Skip the lookup so the resource remains in state for the user to manually fix.
+	if state.ServiceUserID.ValueString() == "" {
+		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
+		return
+	}
+
 	tok, err := r.client.GetServiceToken(ctx, state.ServiceUserID.ValueString(), state.ID.ValueString())
 	if err != nil {
-		// If the token is not found (e.g. revoked), preserve existing state.
-		resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error reading service token", err.Error())
 		return
 	}
 
@@ -161,6 +172,9 @@ func (r *serviceTokenResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	if err := r.client.RevokeServiceToken(ctx, state.ID.ValueString()); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error revoking service token", err.Error())
 	}
 }

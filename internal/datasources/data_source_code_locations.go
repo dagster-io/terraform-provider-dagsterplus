@@ -72,6 +72,14 @@ func (d *codeLocationsDataSource) Schema(_ context.Context, _ datasource.SchemaR
 							Description: "Path to the Python executable inside the container.",
 							Computed:    true,
 						},
+						"attribute": schema.StringAttribute{
+							Description: "Python attribute containing the Definitions object.",
+							Computed:    true,
+						},
+						"agent_queue": schema.StringAttribute{
+							Description: "Agent queue that runs this code location.",
+							Computed:    true,
+						},
 						"code_source": schema.SingleNestedAttribute{
 							Description: "Describes where Dagster finds the code.",
 							Computed:    true,

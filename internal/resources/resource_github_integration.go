@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -170,6 +171,9 @@ func (r *githubIntegrationResource) Update(ctx context.Context, req resource.Upd
 
 func (r *githubIntegrationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	if err := r.client.DeselectGithubInstallation(ctx); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return
+		}
 		resp.Diagnostics.AddError("Error deselecting GitHub installation", err.Error())
 	}
 }
