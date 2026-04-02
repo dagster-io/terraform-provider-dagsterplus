@@ -14,9 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: Install tfplugindocs
         run: go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
-      - run: tfplugindocs generate --provider-name dagsterplus
+      - name: Generate docs
+        run: tfplugindocs generate --provider-name dagsterplus
+      - name: Commit updated docs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: regenerate"
+          file_pattern: docs/

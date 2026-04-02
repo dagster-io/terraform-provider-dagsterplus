@@ -26,9 +26,6 @@ Thumbs.db
 # Release
 dist/
 
-# Generated docs (produced by tfplugindocs)
-docs/
-
 # Local dev workspace
 .env
 dev.tfrc
