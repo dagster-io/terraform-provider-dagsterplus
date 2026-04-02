@@ -1,6 +1,22 @@
 # Terraform Provider for Dagster+
 
+> **Early Development** — this provider is a work in progress.
+
 Manage [Dagster+](https://dagster.cloud) (Dagster Cloud) resources declaratively with Terraform.
+
+## Installation
+
+```hcl
+terraform {
+  required_providers {
+    dagsterplus = {
+      source  = "dagster-io/dagsterplus"
+    }
+  }
+}
+```
+
+The latest version is available on the [Terraform Registry](https://registry.terraform.io/providers/dagster-io/dagsterplus/latest).
 
 ## Requirements
 
