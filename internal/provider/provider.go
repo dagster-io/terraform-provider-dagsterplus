@@ -48,19 +48,21 @@ func (p *dagsterplusProvider) Schema(_ context.Context, _ provider.SchemaRequest
 		Description: "Interact with Dagster+ (Dagster Cloud) to manage deployments, code locations, and teams.",
 		Attributes: map[string]schema.Attribute{
 			"organization": schema.StringAttribute{
-				Description: "The Dagster+ organization name (e.g. 'my-org' for my-org.dagster.cloud). " +
-					"May also be set via DAGSTER_CLOUD_ORGANIZATION environment variable.",
+				Description: "The Dagster+ organization name (e.g. `my-org` for `my-org.dagster.cloud`). " +
+					"May also be set via the `DAGSTER_CLOUD_ORGANIZATION` environment variable.",
 				Optional: true,
 			},
 			"api_token": schema.StringAttribute{
-				Description: "The Dagster+ API token. " +
-					"May also be set via DAGSTER_CLOUD_API_TOKEN environment variable.",
+				Description: "A Dagster+ API token. " +
+					"May also be set via the `DAGSTER_CLOUD_API_TOKEN` environment variable. " +
+					"Generate a token at Dagster+ → Account Settings → API Tokens.",
 				Optional:  true,
 				Sensitive: true,
 			},
 			"base_url": schema.StringAttribute{
-				Description: "Override the base URL for the Dagster+ API (e.g. for on-prem or custom deployments). " +
-					"Defaults to https://{organization}.dagster.cloud.",
+				Description: "Override the base URL for the Dagster+ API. " +
+					"Defaults to `https://{organization}.dagster.cloud`. " +
+					"Only needed for on-prem or custom deployments.",
 				Optional: true,
 			},
 		},

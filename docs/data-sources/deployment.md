@@ -32,5 +32,5 @@ output "prod_deployment_type" {
 ### Read-Only
 
 - `id` (String) Deployment identifier (same as name).
-- `status` (String) The current status of the deployment (e.g. ACTIVE, PENDING_DELETION).
-- `type` (String) The deployment type: SERVERLESS, HYBRID, or BRANCH.
+- `status` (String) The current status of the deployment (e.g. `ACTIVE`, `PENDING_DELETION`).
+- `type` (String) The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.

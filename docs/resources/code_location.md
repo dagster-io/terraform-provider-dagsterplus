@@ -58,7 +58,7 @@ resource "dagsterplus_code_location" "my_package" {
 
 ### Read-Only
 
-- `id` (String) Unique identifier in the form '{deployment}/{name}'.
+- `id` (String) Unique identifier in the form `{deployment}/{name}`.
 
 <a id="nestedblock--code_source"></a>
 ### Nested Schema for `code_source`

@@ -50,7 +50,7 @@ func (d *alertPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 		Description: "Reads an existing Dagster+ alert policy from a deployment.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Unique identifier in the form {deployment}/{name}.",
+				Description: "Unique identifier in the form `{deployment}/{name}`.",
 				Computed:    true,
 			},
 			"deployment": schema.StringAttribute{

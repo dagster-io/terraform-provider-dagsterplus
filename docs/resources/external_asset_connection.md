@@ -58,7 +58,7 @@ resource "dagsterplus_external_asset_connection" "bigquery_sync" {
 ### Read-Only
 
 - `id` (String) The connection ID assigned by Dagster+.
-- `schedule_status` (String) The current schedule status: RUNNING or STOPPED.
+- `schedule_status` (String) The current schedule status: `RUNNING` or `STOPPED`.
 
 ## Import
 

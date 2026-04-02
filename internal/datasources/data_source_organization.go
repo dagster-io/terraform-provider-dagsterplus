@@ -57,7 +57,7 @@ func (d *organizationDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 				Computed:    true,
 			},
 			"status": schema.StringAttribute{
-				Description: "The organization status: ACTIVE, READ_ONLY, SUSPENDED, or PENDING_DELETION.",
+				Description: "The organization status: `ACTIVE`, `READ_ONLY`, `SUSPENDED`, or `PENDING_DELETION`.",
 				Computed:    true,
 			},
 			"account_review": schema.StringAttribute{

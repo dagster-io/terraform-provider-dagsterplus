@@ -97,7 +97,7 @@ func (r *externalAssetConnectionResource) Schema(_ context.Context, _ resource.S
 				},
 			},
 			"schedule_status": schema.StringAttribute{
-				Description: "The current schedule status: RUNNING or STOPPED.",
+				Description: "The current schedule status: `RUNNING` or `STOPPED`.",
 				Computed:    true,
 			},
 		},

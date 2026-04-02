@@ -43,4 +43,4 @@ output "github_account" {
 - `public_id` (String) The organization's public UUID.
 - `slack_team_id` (String) Slack workspace team ID of the active Slack App installation. Empty when not installed.
 - `slack_team_name` (String) Slack workspace name of the active Slack App installation. Empty when not installed.
-- `status` (String) The organization status: ACTIVE, READ_ONLY, SUSPENDED, or PENDING_DELETION.
+- `status` (String) The organization status: `ACTIVE`, `READ_ONLY`, `SUSPENDED`, or `PENDING_DELETION`.

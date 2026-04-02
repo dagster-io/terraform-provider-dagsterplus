@@ -36,4 +36,4 @@ Read-Only:
 - `id` (String) Deployment identifier (same as name).
 - `name` (String) The deployment name.
 - `status` (String) The deployment status.
-- `type` (String) The deployment type: SERVERLESS, HYBRID, or BRANCH.
+- `type` (String) The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.

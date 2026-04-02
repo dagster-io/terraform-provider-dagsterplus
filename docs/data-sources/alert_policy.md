@@ -47,7 +47,7 @@ output "event_types" {
 - `description` (String) A human-readable description of the alert policy.
 - `enabled` (Boolean) Whether the alert policy is active.
 - `event_types` (List of String) Event types that trigger the alert.
-- `id` (String) Unique identifier in the form {deployment}/{name}.
+- `id` (String) Unique identifier in the form `{deployment}/{name}`.
 - `insight_metric` (Block List) Insight metric-specific configuration (populated when policy_type = insight_metric). (see [below for nested schema](#nestedblock--insight_metric))
 - `notification_service` (Block, Read-only) The notification channel configured for this alert policy. (see [below for nested schema](#nestedblock--notification_service))
 - `run` (Block List) Run-specific configuration (populated when policy_type = run). (see [below for nested schema](#nestedblock--run))

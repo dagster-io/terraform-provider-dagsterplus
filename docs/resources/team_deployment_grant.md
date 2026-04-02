@@ -23,12 +23,12 @@ Manages a deployment-level permission grant for a Dagster+ team. Use this resour
 ### Optional
 
 - `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+- `grant` (String) Standard permission level: `VIEWER`, `LAUNCHER`, `EDITOR`, or `ADMIN`. Conflicts with custom_role_id.
 - `location_grants` (Block List) Per-code-location permission overrides within this deployment. (see [below for nested schema](#nestedblock--location_grants))
 
 ### Read-Only
 
-- `id` (String) Unique identifier in the form '{team_id}/{deployment}'.
+- `id` (String) Unique identifier in the form `{team_id}/{deployment}`.
 
 <a id="nestedblock--location_grants"></a>
 ### Nested Schema for `location_grants`
