@@ -36,14 +36,14 @@ builds:
     binary: "{{ .ProjectName }}_v{{ .Version }}"
 
 archives:
-  - format: zip
+  - formats:
+      - zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    extra_files:
-      - glob: terraform-registry-manifest.json
 
 checksum:
   extra_files:
     - glob: terraform-registry-manifest.json
+      name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
   name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
   algorithm: sha256
 
@@ -61,7 +61,8 @@ signs:
 release:
   extra_files:
     - glob: terraform-registry-manifest.json
-  draft: true
+      name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
+  # draft: true
 
 changelog:
   disable: true
