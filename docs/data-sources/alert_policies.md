@@ -47,7 +47,7 @@ Read-Only:
 - `description` (String) A human-readable description of the alert policy.
 - `enabled` (Boolean) Whether the alert policy is active.
 - `event_types` (List of String) Event types that trigger the alert.
-- `id` (String) Unique identifier in the form {deployment}/{name}.
+- `id` (String) Unique identifier in the form `{deployment}/{name}`.
 - `insight_metric` (Attributes List) Insight metric-specific configuration (populated when policy_type = insight_metric). (see [below for nested schema](#nestedatt--alert_policies--insight_metric))
 - `name` (String) The alert policy name.
 - `notification_service` (Attributes) The notification channel configured for this alert policy. (see [below for nested schema](#nestedatt--alert_policies--notification_service))

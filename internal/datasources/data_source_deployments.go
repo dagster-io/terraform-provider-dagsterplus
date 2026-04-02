@@ -51,7 +51,7 @@ func (d *deploymentsDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 							Computed:    true,
 						},
 						"type": schema.StringAttribute{
-							Description: "The deployment type: SERVERLESS, HYBRID, or BRANCH.",
+							Description: "The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.",
 							Computed:    true,
 						},
 						"status": schema.StringAttribute{

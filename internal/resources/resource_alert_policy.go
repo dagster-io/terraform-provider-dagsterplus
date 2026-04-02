@@ -138,14 +138,14 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 		Description: "Manages a Dagster+ alert policy for a specific deployment.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Unique identifier in the form {deployment}/{name}.",
+				Description: "Unique identifier in the form `{deployment}/{name}`.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"deployment": schema.StringAttribute{
-				Description: "The name of the deployment this alert policy belongs to (e.g. 'prod').",
+				Description: "The name of the deployment this alert policy belongs to (e.g. `prod`).",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -196,7 +196,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 							},
 						},
 						"asset_selection": schema.StringAttribute{
-							Description: "An asset selection string (e.g. 'tag:my-tag'). Mutually exclusive with all_assets and asset_key.",
+							Description: "An asset selection string (e.g. `tag:my-tag`). Mutually exclusive with all_assets and asset_key.",
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(
@@ -206,7 +206,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 							},
 						},
 						"asset_key": schema.StringAttribute{
-							Description: "A specific asset key path (e.g. 'my_asset' or 'group/my_asset'). Mutually exclusive with all_assets and asset_selection.",
+							Description: "A specific asset key path (e.g. `my_asset` or `group/my_asset`). Mutually exclusive with all_assets and asset_selection.",
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(
@@ -257,7 +257,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 							},
 						},
 						"tags": schema.StringAttribute{
-							Description: "Filter runs by tag in 'key=value' format.",
+							Description: "Filter runs by tag in `key=value` format.",
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(

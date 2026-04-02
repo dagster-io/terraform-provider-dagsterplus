@@ -49,7 +49,7 @@ func (d *alertPoliciesDataSource) Schema(_ context.Context, _ datasource.SchemaR
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Description: "Unique identifier in the form {deployment}/{name}.",
+							Description: "Unique identifier in the form `{deployment}/{name}`.",
 							Computed:    true,
 						},
 						"deployment": schema.StringAttribute{

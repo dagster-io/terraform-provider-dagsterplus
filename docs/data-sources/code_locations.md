@@ -44,7 +44,7 @@ Read-Only:
 - `code_source` (Attributes) Describes where Dagster finds the code. (see [below for nested schema](#nestedatt--code_locations--code_source))
 - `deployment` (String) The deployment this code location belongs to.
 - `executable_path` (String) Path to the Python executable inside the container.
-- `id` (String) Unique identifier in the form '{deployment}/{name}'.
+- `id` (String) Unique identifier in the form `{deployment}/{name}`.
 - `image` (String) The Docker image used by the code location.
 - `name` (String) The code location name.
 - `working_directory` (String) The working directory inside the container.

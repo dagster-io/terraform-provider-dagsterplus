@@ -41,7 +41,7 @@ func (r *codeLocationFromDocumentResource) Schema(_ context.Context, _ resource.
 			"Use the dagsterplus_configuration_document data source to convert a YAML document to JSON.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Unique identifier in the form '{deployment}/{name}'.",
+				Description: "Unique identifier in the form `{deployment}/{name}`.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -56,8 +56,8 @@ func (r *codeLocationFromDocumentResource) Schema(_ context.Context, _ resource.
 			},
 			"document": schema.StringAttribute{
 				Description: "The code location configuration as a JSON document. " +
-					"Must include a 'locationName' key. " +
-					"Changing the locationName within the document requires replacing this resource.",
+					"Must include a `locationName` key. " +
+					"Changing the `locationName` within the document requires replacing this resource.",
 				Required: true,
 			},
 			"name": schema.StringAttribute{

@@ -53,7 +53,7 @@ func (r *teamDeploymentGrantResource) Schema(_ context.Context, _ resource.Schem
 			"If you manage the team with dagsterplus_team, prefer the inline deployment_grant block instead.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Unique identifier in the form '{team_id}/{deployment}'.",
+				Description: "Unique identifier in the form `{team_id}/{deployment}`.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -74,7 +74,7 @@ func (r *teamDeploymentGrantResource) Schema(_ context.Context, _ resource.Schem
 				},
 			},
 			"grant": schema.StringAttribute{
-				Description: "Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.",
+				Description: "Standard permission level: `VIEWER`, `LAUNCHER`, `EDITOR`, or `ADMIN`. Conflicts with custom_role_id.",
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),

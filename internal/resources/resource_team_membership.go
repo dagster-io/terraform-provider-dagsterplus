@@ -41,7 +41,7 @@ func (r *teamMembershipResource) Schema(_ context.Context, _ resource.SchemaRequ
 			"If you manage the team with dagsterplus_team, prefer the inline member block instead.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Unique identifier in the form '{team_id}/{user_id}'.",
+				Description: "Unique identifier in the form `{team_id}/{user_id}`.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

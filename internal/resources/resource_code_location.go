@@ -68,7 +68,7 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 		Description: "Manages a Dagster+ code location within a deployment.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "Unique identifier in the form '{deployment}/{name}'.",
+				Description: "Unique identifier in the form `{deployment}/{name}`.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

@@ -22,4 +22,4 @@ Manages a single user's membership in a Dagster+ team. Use this resource when th
 
 ### Read-Only
 
-- `id` (String) Unique identifier in the form '{team_id}/{user_id}'.
+- `id` (String) Unique identifier in the form `{team_id}/{user_id}`.

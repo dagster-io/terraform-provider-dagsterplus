@@ -37,7 +37,7 @@ output "pipeline_image" {
 - `attribute` (String) Python attribute containing the Definitions object.
 - `code_source` (Block, Read-only) Describes where Dagster finds the code. (see [below for nested schema](#nestedblock--code_source))
 - `executable_path` (String) Path to the Python executable inside the container.
-- `id` (String) Unique identifier in the form '{deployment}/{name}'.
+- `id` (String) Unique identifier in the form `{deployment}/{name}`.
 - `image` (String) The Docker image used by the code location.
 - `working_directory` (String) The working directory inside the container.
 

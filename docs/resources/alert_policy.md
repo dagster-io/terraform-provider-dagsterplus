@@ -169,7 +169,7 @@ resource "dagsterplus_alert_policy" "weekly_credits" {
 
 ### Required
 
-- `deployment` (String) The name of the deployment this alert policy belongs to (e.g. 'prod').
+- `deployment` (String) The name of the deployment this alert policy belongs to (e.g. `prod`).
 - `enabled` (Boolean) Whether the alert policy is active.
 - `name` (String) The unique name of the alert policy. Changing this forces a new resource.
 - `policy_type` (String) The category of alert policy: asset, run, code_location, automation, budget, or insight_metric.
@@ -188,7 +188,7 @@ resource "dagsterplus_alert_policy" "weekly_credits" {
 ### Read-Only
 
 - `event_types` (List of String) Event types that trigger the alert. Read-only — always derived by the provider from the policy-type-specific block.
-- `id` (String) Unique identifier in the form {deployment}/{name}.
+- `id` (String) Unique identifier in the form `{deployment}/{name}`.
 
 <a id="nestedblock--asset"></a>
 ### Nested Schema for `asset`
@@ -196,8 +196,8 @@ resource "dagsterplus_alert_policy" "weekly_credits" {
 Optional:
 
 - `all_assets` (Boolean) When true, the policy applies to all assets. Mutually exclusive with asset_selection and asset_key.
-- `asset_key` (String) A specific asset key path (e.g. 'my_asset' or 'group/my_asset'). Mutually exclusive with all_assets and asset_selection.
-- `asset_selection` (String) An asset selection string (e.g. 'tag:my-tag'). Mutually exclusive with all_assets and asset_key.
+- `asset_key` (String) A specific asset key path (e.g. `my_asset` or `group/my_asset`). Mutually exclusive with all_assets and asset_selection.
+- `asset_selection` (String) An asset selection string (e.g. `tag:my-tag`). Mutually exclusive with all_assets and asset_key.
 - `health_status` (String) Trigger on a health status transition: degraded, warning, or healthy. Mutually exclusive with specific_events.
 - `specific_events` (List of String) Trigger on specific asset events. Mutually exclusive with health_status. Valid values — materializations: materialization_success, materialization_failure; asset checks: check_passed, check_warn, check_error, check_execution_failed; freshness: freshness_passing, freshness_warning, freshness_failure.
 
@@ -279,7 +279,7 @@ Optional:
 - `on_failure` (Boolean) Alert on run failure.
 - `on_success` (Boolean) Alert on run success.
 - `on_timeout_hours` (Number) Alert when a run exceeds this many hours.
-- `tags` (String) Filter runs by tag in 'key=value' format.
+- `tags` (String) Filter runs by tag in `key=value` format.
 
 ## Import
 
