@@ -78,9 +78,10 @@ func (d *codeLocationDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 				Computed:    true,
 			},
 			"container_context": schema.StringAttribute{
-				Description: "JSON-encoded container context configuration for this code location.",
-				Computed:    true,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: "JSON-encoded container context configuration for this code location. " +
+					"Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.",
+				Computed:   true,
+				CustomType: jsontypes.NormalizedType{},
 			},
 		},
 		Blocks: map[string]schema.Block{

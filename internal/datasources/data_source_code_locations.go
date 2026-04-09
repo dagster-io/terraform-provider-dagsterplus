@@ -84,9 +84,10 @@ func (d *codeLocationsDataSource) Schema(_ context.Context, _ datasource.SchemaR
 							Computed:    true,
 						},
 						"container_context": schema.StringAttribute{
-							Description: "JSON-encoded container context configuration for this code location.",
-							Computed:    true,
-							CustomType:  jsontypes.NormalizedType{},
+							Description: "JSON-encoded container context configuration for this code location. " +
+								"Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.",
+							Computed:   true,
+							CustomType: jsontypes.NormalizedType{},
 						},
 						"code_source": schema.SingleNestedAttribute{
 							Description: "Describes where Dagster finds the code.",
