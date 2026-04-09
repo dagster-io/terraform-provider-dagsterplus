@@ -74,7 +74,7 @@ resource "dagsterplus_code_location" "with_k8s" {
 - `agent_queue` (String) The agent queue to use for this code location.
 - `attribute` (String) Python attribute containing the Definitions object.
 - `code_source` (Block, Optional) Specifies where Dagster finds the code. (see [below for nested schema](#nestedblock--code_source))
-- `container_context` (String) JSON-encoded container context configuration for this code location. Supports keys such as `k8s`, `ecs`, `docker`, and `serverless`, each with platform-specific settings.
+- `container_context` (String) JSON-encoded container context configuration for this code location. Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.
 - `executable_path` (String) Path to the Python executable inside the container.
 - `git` (Block, Optional) Git-based code location. Exactly one of image or git must be specified. (see [below for nested schema](#nestedblock--git))
 - `image` (String) The Docker image to use for this code location. Exactly one of image or git must be specified.
