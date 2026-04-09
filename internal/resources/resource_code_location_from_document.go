@@ -56,8 +56,8 @@ func (r *codeLocationFromDocumentResource) Schema(_ context.Context, _ resource.
 			},
 			"document": schema.StringAttribute{
 				Description: "The code location configuration as a JSON document. " +
-					"Must include a `locationName` key. " +
-					"Changing the `locationName` within the document requires replacing this resource.",
+					"Must include a `location_name` (or `locationName`) key. " +
+					"Both snake_case and camelCase keys are accepted.",
 				Required: true,
 			},
 			"name": schema.StringAttribute{

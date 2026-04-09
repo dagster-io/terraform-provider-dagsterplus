@@ -34,25 +34,55 @@ type documentGit struct {
 	URL        string `json:"url,omitempty"`
 }
 
-// userDocument is the camelCase document format used by the dagsterplus_code_location_from_document
-// resource. This is the user-facing format and must not change to avoid breaking existing configs.
-type userDocument struct {
-	LocationName     string         `json:"locationName"`
-	Image            string         `json:"image,omitempty"`
-	CodeSource       userCodeSource `json:"codeSource"`
-	WorkingDirectory string         `json:"workingDirectory,omitempty"`
-	ExecutablePath   string         `json:"executablePath,omitempty"`
-	Attribute        string         `json:"attribute,omitempty"`
-	AgentQueue       string         `json:"agentQueue,omitempty"`
-	CommitHash       string         `json:"commitHash,omitempty"`
-	URL              string         `json:"url,omitempty"`
-	ContainerContext map[string]any `json:"containerContext,omitempty"`
+// userDocumentOut is the camelCase format used when serializing a CodeLocation back to JSON
+// for the dagsterplus_code_location_from_document resource state.
+type userDocumentOut struct {
+	LocationName     string             `json:"location_name"`
+	Image            string             `json:"image,omitempty"`
+	CodeSource       *userCodeSourceOut `json:"code_source,omitempty"`
+	WorkingDirectory string             `json:"working_directory,omitempty"`
+	ExecutablePath   string             `json:"executable_path,omitempty"`
+	Attribute        string             `json:"attribute,omitempty"`
+	AgentQueue       string             `json:"agent_queue,omitempty"`
+	CommitHash       string             `json:"commit_hash,omitempty"`
+	URL              string             `json:"url,omitempty"`
+	ContainerContext map[string]any     `json:"container_context,omitempty"`
 }
 
-type userCodeSource struct {
-	PythonFile  string `json:"pythonFile,omitempty"`
-	PackageName string `json:"packageName,omitempty"`
-	ModuleName  string `json:"moduleName,omitempty"`
+type userCodeSourceOut struct {
+	PythonFile  string `json:"python_file,omitempty"`
+	PackageName string `json:"package_name,omitempty"`
+	ModuleName  string `json:"module_name,omitempty"`
+}
+
+// docString extracts a string from a map, trying the snake_case key first, then camelCase.
+func docString(m map[string]any, snakeKey, camelKey string) string {
+	if v, ok := m[snakeKey]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	if v, ok := m[camelKey]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
+// docMap extracts a nested map from a map, trying the snake_case key first, then camelCase.
+func docMap(m map[string]any, snakeKey, camelKey string) map[string]any {
+	if v, ok := m[snakeKey]; ok {
+		if sub, ok := v.(map[string]any); ok {
+			return sub
+		}
+	}
+	if v, ok := m[camelKey]; ok {
+		if sub, ok := v.(map[string]any); ok {
+			return sub
+		}
+	}
+	return nil
 }
 
 // CodeSource describes where the code lives within a code location.
@@ -117,46 +147,57 @@ func inputToDocument(loc CodeLocationInput) locationDocument {
 	return doc
 }
 
-// ParseCodeLocationDocument parses a user-facing JSON document (camelCase keys) into a
-// CodeLocationInput and returns the location name. Used by dagsterplus_code_location_from_document.
+// ParseCodeLocationDocument parses a user-facing JSON document into a CodeLocationInput.
+// Accepts both snake_case and camelCase keys for backward compatibility.
+// Used by dagsterplus_code_location_from_document.
 func ParseCodeLocationDocument(docJSON string) (CodeLocationInput, string, error) {
-	var doc userDocument
-	if err := json.Unmarshal([]byte(docJSON), &doc); err != nil {
+	var m map[string]any
+	if err := json.Unmarshal([]byte(docJSON), &m); err != nil {
 		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: %w", err)
 	}
-	if doc.LocationName == "" {
-		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: document must include 'locationName'")
+
+	name := docString(m, "location_name", "locationName")
+	if name == "" {
+		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: document must include 'location_name' or 'locationName'")
 	}
+
 	input := CodeLocationInput{
-		Name:  doc.LocationName,
-		Image: doc.Image,
-		CodeSource: CodeSource{
-			PythonFile:  doc.CodeSource.PythonFile,
-			PackageName: doc.CodeSource.PackageName,
-			ModuleName:  doc.CodeSource.ModuleName,
-		},
-		WorkingDirectory: doc.WorkingDirectory,
-		ExecutablePath:   doc.ExecutablePath,
-		Attribute:        doc.Attribute,
-		AgentQueue:       doc.AgentQueue,
-		CommitHash:       doc.CommitHash,
-		URL:              doc.URL,
-		ContainerContext: doc.ContainerContext,
+		Name:             name,
+		Image:            docString(m, "image", "image"),
+		WorkingDirectory: docString(m, "working_directory", "workingDirectory"),
+		ExecutablePath:   docString(m, "executable_path", "executablePath"),
+		Attribute:        docString(m, "attribute", "attribute"),
+		AgentQueue:       docString(m, "agent_queue", "agentQueue"),
+		CommitHash:       docString(m, "commit_hash", "commitHash"),
+		URL:              docString(m, "url", "url"),
 	}
-	return input, doc.LocationName, nil
+
+	if cs := docMap(m, "code_source", "codeSource"); cs != nil {
+		input.CodeSource = CodeSource{
+			PythonFile:  docString(cs, "python_file", "pythonFile"),
+			PackageName: docString(cs, "package_name", "packageName"),
+			ModuleName:  docString(cs, "module_name", "moduleName"),
+		}
+	}
+
+	if git := docMap(m, "git", "git"); git != nil {
+		input.CommitHash = docString(git, "commit_hash", "commitHash")
+		input.URL = docString(git, "url", "url")
+	}
+
+	if cc := docMap(m, "container_context", "containerContext"); cc != nil {
+		input.ContainerContext = cc
+	}
+
+	return input, name, nil
 }
 
-// CodeLocationToDocument serializes a CodeLocation to the user-facing JSON document format
-// (camelCase keys). Used by dagsterplus_code_location_from_document.
+// CodeLocationToDocument serializes a CodeLocation to a snake_case JSON document.
+// Used by dagsterplus_code_location_from_document.
 func CodeLocationToDocument(loc *CodeLocation) (string, error) {
-	doc := userDocument{
-		LocationName: loc.Name,
-		Image:        loc.Image,
-		CodeSource: userCodeSource{
-			PythonFile:  loc.CodeSource.PythonFile,
-			PackageName: loc.CodeSource.PackageName,
-			ModuleName:  loc.CodeSource.ModuleName,
-		},
+	doc := userDocumentOut{
+		LocationName:     loc.Name,
+		Image:            loc.Image,
 		WorkingDirectory: loc.WorkingDirectory,
 		ExecutablePath:   loc.ExecutablePath,
 		Attribute:        loc.Attribute,
@@ -164,6 +205,13 @@ func CodeLocationToDocument(loc *CodeLocation) (string, error) {
 		CommitHash:       loc.CommitHash,
 		URL:              loc.URL,
 		ContainerContext: loc.ContainerContext,
+	}
+	if loc.CodeSource.PythonFile != "" || loc.CodeSource.PackageName != "" || loc.CodeSource.ModuleName != "" {
+		doc.CodeSource = &userCodeSourceOut{
+			PythonFile:  loc.CodeSource.PythonFile,
+			PackageName: loc.CodeSource.PackageName,
+			ModuleName:  loc.CodeSource.ModuleName,
+		}
 	}
 	b, err := json.Marshal(doc)
 	if err != nil {
