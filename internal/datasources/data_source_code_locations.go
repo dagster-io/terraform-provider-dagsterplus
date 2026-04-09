@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"encoding/json"
+
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	resources "github.com/dagster-io/terraform-provider-dagsterplus/internal/resources"
+	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -80,6 +83,11 @@ func (d *codeLocationsDataSource) Schema(_ context.Context, _ datasource.SchemaR
 							Description: "Agent queue that runs this code location.",
 							Computed:    true,
 						},
+						"container_context": schema.StringAttribute{
+							Description: "JSON-encoded container context configuration for this code location.",
+							Computed:    true,
+							CustomType:  jsontypes.NormalizedType{},
+						},
 						"code_source": schema.SingleNestedAttribute{
 							Description: "Describes where Dagster finds the code.",
 							Computed:    true,
@@ -140,19 +148,29 @@ func (d *codeLocationsDataSource) Read(ctx context.Context, req datasource.ReadR
 		CodeLocations:  make([]codeLocationDataSourceModel, len(locs)),
 	}
 	for i, cl := range locs {
-		state.CodeLocations[i] = codeLocationDataSourceModel{
+		m := codeLocationDataSourceModel{
 			ID:               types.StringValue(cl.ID),
 			DeploymentName:   types.StringValue(deployment),
 			Name:             types.StringValue(cl.Name),
 			Image:            types.StringValue(cl.Image),
 			WorkingDirectory: types.StringValue(cl.WorkingDirectory),
 			ExecutablePath:   types.StringValue(cl.ExecutablePath),
+			AgentQueue:       types.StringValue(cl.AgentQueue),
+			Attribute:        types.StringValue(cl.Attribute),
 			CodeSource: &resources.CodeSourceModel{
 				PythonFile:  resources.CodeSourceStringVal(cl.CodeSource.PythonFile),
 				PackageName: resources.CodeSourceStringVal(cl.CodeSource.PackageName),
 				ModuleName:  resources.CodeSourceStringVal(cl.CodeSource.ModuleName),
 			},
+			ContainerContext: jsontypes.NewNormalizedNull(),
 		}
+		if len(cl.ContainerContext) > 0 {
+			ccBytes, err := json.Marshal(cl.ContainerContext)
+			if err == nil {
+				m.ContainerContext = jsontypes.NewNormalizedValue(string(ccBytes))
+			}
+		}
+		state.CodeLocations[i] = m
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)

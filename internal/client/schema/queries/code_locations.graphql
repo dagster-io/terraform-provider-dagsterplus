@@ -11,8 +11,8 @@ query ListCodeLocations {
   }
 }
 
-mutation AddOrUpdateCodeLocation($location: LocationSelector!) {
-  addOrUpdateLocation(location: $location) {
+mutation AddOrUpdateCodeLocation($document: GenericScalar!) {
+  addOrUpdateLocationFromDocument(document: $document) {
     __typename
     ... on WorkspaceEntry {
       ...WorkspaceEntryFields

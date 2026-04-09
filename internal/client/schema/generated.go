@@ -218,29 +218,29 @@ func (v *AddMemberToTeamResponse) __premarshalJSON() (*__premarshalAddMemberToTe
 	return &retval, nil
 }
 
-// AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult includes the requested fields of the GraphQL interface AddOrUpdateLocationMutationResult.
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult includes the requested fields of the GraphQL interface AddOrUpdateLocationFromDocumentMutationResult.
 //
-// AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult is implemented by the following types:
-// AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError
-// AddOrUpdateCodeLocationAddOrUpdateLocationPythonError
-// AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError
-// AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry
-type AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult interface {
-	implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult()
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult is implemented by the following types:
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry
+type AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult interface {
+	implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult()
 	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
 	GetTypename() string
 }
 
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult() {
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult() {
 }
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationPythonError) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult() {
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult() {
 }
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult() {
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult() {
 }
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult() {
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry) implementsGraphQLInterfaceAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult() {
 }
 
-func __unmarshalAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult(b []byte, v *AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult) error {
+func __unmarshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult(b []byte, v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult) error {
 	if string(b) == "null" {
 		return nil
 	}
@@ -255,55 +255,55 @@ func __unmarshalAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMut
 
 	switch tn.TypeName {
 	case "InvalidLocationError":
-		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError)
+		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError)
 		return json.Unmarshal(b, *v)
 	case "PythonError":
-		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationPythonError)
+		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError)
 		return json.Unmarshal(b, *v)
 	case "UnauthorizedError":
-		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError)
+		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError)
 		return json.Unmarshal(b, *v)
 	case "WorkspaceEntry":
-		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry)
+		*v = new(AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry)
 		return json.Unmarshal(b, *v)
 	case "":
 		return fmt.Errorf(
-			"response was missing AddOrUpdateLocationMutationResult.__typename")
+			"response was missing AddOrUpdateLocationFromDocumentMutationResult.__typename")
 	default:
 		return fmt.Errorf(
-			`unexpected concrete type for AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult: "%v"`, tn.TypeName)
+			`unexpected concrete type for AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult: "%v"`, tn.TypeName)
 	}
 }
 
-func __marshalAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult(v *AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult) ([]byte, error) {
+func __marshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult(v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult) ([]byte, error) {
 
 	var typename string
 	switch v := (*v).(type) {
-	case *AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError:
+	case *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError:
 		typename = "InvalidLocationError"
 
 		result := struct {
 			TypeName string `json:"__typename"`
-			*AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError
+			*AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError
 		}{typename, v}
 		return json.Marshal(result)
-	case *AddOrUpdateCodeLocationAddOrUpdateLocationPythonError:
+	case *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError:
 		typename = "PythonError"
 
 		result := struct {
 			TypeName string `json:"__typename"`
-			*AddOrUpdateCodeLocationAddOrUpdateLocationPythonError
+			*AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError
 		}{typename, v}
 		return json.Marshal(result)
-	case *AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError:
+	case *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError:
 		typename = "UnauthorizedError"
 
 		result := struct {
 			TypeName string `json:"__typename"`
-			*AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError
+			*AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError
 		}{typename, v}
 		return json.Marshal(result)
-	case *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry:
+	case *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry:
 		typename = "WorkspaceEntry"
 
 		premarshaled, err := v.__premarshalJSON()
@@ -312,79 +312,79 @@ func __marshalAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutat
 		}
 		result := struct {
 			TypeName string `json:"__typename"`
-			*__premarshalAddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry
+			*__premarshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry
 		}{typename, premarshaled}
 		return json.Marshal(result)
 	case nil:
 		return []byte("null"), nil
 	default:
 		return nil, fmt.Errorf(
-			`unexpected concrete type for AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult: "%T"`, v)
+			`unexpected concrete type for AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult: "%T"`, v)
 	}
 }
 
-// AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError includes the requested fields of the GraphQL type InvalidLocationError.
-type AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError struct {
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError includes the requested fields of the GraphQL type InvalidLocationError.
+type AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError struct {
 	Typename string `json:"__typename"`
 }
 
-// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError.Typename, and is useful for accessing the field via an interface.
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationInvalidLocationError) GetTypename() string {
+// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError.Typename, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError) GetTypename() string {
 	return v.Typename
 }
 
-// AddOrUpdateCodeLocationAddOrUpdateLocationPythonError includes the requested fields of the GraphQL type PythonError.
-type AddOrUpdateCodeLocationAddOrUpdateLocationPythonError struct {
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError includes the requested fields of the GraphQL type PythonError.
+type AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError struct {
 	Typename string `json:"__typename"`
 }
 
-// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationPythonError.Typename, and is useful for accessing the field via an interface.
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationPythonError) GetTypename() string {
+// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError.Typename, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError) GetTypename() string {
 	return v.Typename
 }
 
-// AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
-type AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError struct {
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
+type AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError struct {
 	Typename string `json:"__typename"`
 }
 
-// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError.Typename, and is useful for accessing the field via an interface.
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationUnauthorizedError) GetTypename() string {
+// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError.Typename, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentUnauthorizedError) GetTypename() string {
 	return v.Typename
 }
 
-// AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry includes the requested fields of the GraphQL type WorkspaceEntry.
-type AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry struct {
+// AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry includes the requested fields of the GraphQL type WorkspaceEntry.
+type AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry struct {
 	Typename             string `json:"__typename"`
 	WorkspaceEntryFields `json:"-"`
 }
 
-// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry.Typename, and is useful for accessing the field via an interface.
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) GetTypename() string {
+// GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry.Typename, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry) GetTypename() string {
 	return v.Typename
 }
 
-// GetLocationName returns AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry.LocationName, and is useful for accessing the field via an interface.
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) GetLocationName() string {
+// GetLocationName returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry.LocationName, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry) GetLocationName() string {
 	return v.WorkspaceEntryFields.LocationName
 }
 
-// GetSerializedDeploymentMetadata returns AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry.SerializedDeploymentMetadata, and is useful for accessing the field via an interface.
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) GetSerializedDeploymentMetadata() string {
+// GetSerializedDeploymentMetadata returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry.SerializedDeploymentMetadata, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry) GetSerializedDeploymentMetadata() string {
 	return v.WorkspaceEntryFields.SerializedDeploymentMetadata
 }
 
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) UnmarshalJSON(b []byte) error {
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
 		return nil
 	}
 
 	var firstPass struct {
-		*AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry
+		*AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry
 		graphql.NoUnmarshalJSON
 	}
-	firstPass.AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry = v
+	firstPass.AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry = v
 
 	err := json.Unmarshal(b, &firstPass)
 	if err != nil {
@@ -399,7 +399,7 @@ func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) UnmarshalJSON
 	return nil
 }
 
-type __premarshalAddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry struct {
+type __premarshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry struct {
 	Typename string `json:"__typename"`
 
 	LocationName string `json:"locationName"`
@@ -407,7 +407,7 @@ type __premarshalAddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry struct
 	SerializedDeploymentMetadata string `json:"serializedDeploymentMetadata"`
 }
 
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) MarshalJSON() ([]byte, error) {
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry) MarshalJSON() ([]byte, error) {
 	premarshaled, err := v.__premarshalJSON()
 	if err != nil {
 		return nil, err
@@ -415,8 +415,8 @@ func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) MarshalJSON()
 	return json.Marshal(premarshaled)
 }
 
-func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) __premarshalJSON() (*__premarshalAddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry, error) {
-	var retval __premarshalAddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry) __premarshalJSON() (*__premarshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry, error) {
+	var retval __premarshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry
 
 	retval.Typename = v.Typename
 	retval.LocationName = v.WorkspaceEntryFields.LocationName
@@ -426,12 +426,12 @@ func (v *AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry) __premarshalJ
 
 // AddOrUpdateCodeLocationResponse is returned by AddOrUpdateCodeLocation on success.
 type AddOrUpdateCodeLocationResponse struct {
-	AddOrUpdateLocation AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult `json:"-"`
+	AddOrUpdateLocationFromDocument AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult `json:"-"`
 }
 
-// GetAddOrUpdateLocation returns AddOrUpdateCodeLocationResponse.AddOrUpdateLocation, and is useful for accessing the field via an interface.
-func (v *AddOrUpdateCodeLocationResponse) GetAddOrUpdateLocation() AddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult {
-	return v.AddOrUpdateLocation
+// GetAddOrUpdateLocationFromDocument returns AddOrUpdateCodeLocationResponse.AddOrUpdateLocationFromDocument, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationResponse) GetAddOrUpdateLocationFromDocument() AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult {
+	return v.AddOrUpdateLocationFromDocument
 }
 
 func (v *AddOrUpdateCodeLocationResponse) UnmarshalJSON(b []byte) error {
@@ -442,7 +442,7 @@ func (v *AddOrUpdateCodeLocationResponse) UnmarshalJSON(b []byte) error {
 
 	var firstPass struct {
 		*AddOrUpdateCodeLocationResponse
-		AddOrUpdateLocation json.RawMessage `json:"addOrUpdateLocation"`
+		AddOrUpdateLocationFromDocument json.RawMessage `json:"addOrUpdateLocationFromDocument"`
 		graphql.NoUnmarshalJSON
 	}
 	firstPass.AddOrUpdateCodeLocationResponse = v
@@ -453,14 +453,14 @@ func (v *AddOrUpdateCodeLocationResponse) UnmarshalJSON(b []byte) error {
 	}
 
 	{
-		dst := &v.AddOrUpdateLocation
-		src := firstPass.AddOrUpdateLocation
+		dst := &v.AddOrUpdateLocationFromDocument
+		src := firstPass.AddOrUpdateLocationFromDocument
 		if len(src) != 0 && string(src) != "null" {
-			err = __unmarshalAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult(
+			err = __unmarshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult(
 				src, dst)
 			if err != nil {
 				return fmt.Errorf(
-					"unable to unmarshal AddOrUpdateCodeLocationResponse.AddOrUpdateLocation: %w", err)
+					"unable to unmarshal AddOrUpdateCodeLocationResponse.AddOrUpdateLocationFromDocument: %w", err)
 			}
 		}
 	}
@@ -468,7 +468,7 @@ func (v *AddOrUpdateCodeLocationResponse) UnmarshalJSON(b []byte) error {
 }
 
 type __premarshalAddOrUpdateCodeLocationResponse struct {
-	AddOrUpdateLocation json.RawMessage `json:"addOrUpdateLocation"`
+	AddOrUpdateLocationFromDocument json.RawMessage `json:"addOrUpdateLocationFromDocument"`
 }
 
 func (v *AddOrUpdateCodeLocationResponse) MarshalJSON() ([]byte, error) {
@@ -484,14 +484,14 @@ func (v *AddOrUpdateCodeLocationResponse) __premarshalJSON() (*__premarshalAddOr
 
 	{
 
-		dst := &retval.AddOrUpdateLocation
-		src := v.AddOrUpdateLocation
+		dst := &retval.AddOrUpdateLocationFromDocument
+		src := v.AddOrUpdateLocationFromDocument
 		var err error
-		*dst, err = __marshalAddOrUpdateCodeLocationAddOrUpdateLocationAddOrUpdateLocationMutationResult(
+		*dst, err = __marshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateLocationFromDocumentMutationResult(
 			&src)
 		if err != nil {
 			return nil, fmt.Errorf(
-				"unable to marshal AddOrUpdateCodeLocationResponse.AddOrUpdateLocation: %w", err)
+				"unable to marshal AddOrUpdateCodeLocationResponse.AddOrUpdateLocationFromDocument: %w", err)
 		}
 	}
 	return &retval, nil
@@ -11211,57 +11211,6 @@ func (v *LocationScopedGrantInput) GetGrant() PermissionGrant { return v.Grant }
 // GetCustomRoleId returns LocationScopedGrantInput.CustomRoleId, and is useful for accessing the field via an interface.
 func (v *LocationScopedGrantInput) GetCustomRoleId() string { return v.CustomRoleId }
 
-type LocationSelector struct {
-	Name                   string `json:"name"`
-	Image                  string `json:"image"`
-	PythonFile             string `json:"pythonFile"`
-	PackageName            string `json:"packageName"`
-	ModuleName             string `json:"moduleName"`
-	WorkingDirectory       string `json:"workingDirectory"`
-	ExecutablePath         string `json:"executablePath"`
-	Attribute              string `json:"attribute"`
-	CommitHash             string `json:"commitHash"`
-	Url                    string `json:"url"`
-	AgentQueue             string `json:"agentQueue"`
-	AutoloadDefsModuleName string `json:"autoloadDefsModuleName"`
-}
-
-// GetName returns LocationSelector.Name, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetName() string { return v.Name }
-
-// GetImage returns LocationSelector.Image, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetImage() string { return v.Image }
-
-// GetPythonFile returns LocationSelector.PythonFile, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetPythonFile() string { return v.PythonFile }
-
-// GetPackageName returns LocationSelector.PackageName, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetPackageName() string { return v.PackageName }
-
-// GetModuleName returns LocationSelector.ModuleName, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetModuleName() string { return v.ModuleName }
-
-// GetWorkingDirectory returns LocationSelector.WorkingDirectory, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetWorkingDirectory() string { return v.WorkingDirectory }
-
-// GetExecutablePath returns LocationSelector.ExecutablePath, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetExecutablePath() string { return v.ExecutablePath }
-
-// GetAttribute returns LocationSelector.Attribute, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetAttribute() string { return v.Attribute }
-
-// GetCommitHash returns LocationSelector.CommitHash, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetCommitHash() string { return v.CommitHash }
-
-// GetUrl returns LocationSelector.Url, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetUrl() string { return v.Url }
-
-// GetAgentQueue returns LocationSelector.AgentQueue, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetAgentQueue() string { return v.AgentQueue }
-
-// GetAutoloadDefsModuleName returns LocationSelector.AutoloadDefsModuleName, and is useful for accessing the field via an interface.
-func (v *LocationSelector) GetAutoloadDefsModuleName() string { return v.AutoloadDefsModuleName }
-
 // OrganizationFields includes the GraphQL fields of DagsterCloudOrganization requested by the fragment OrganizationFields.
 type OrganizationFields struct {
 	Id            int                                                        `json:"id"`
@@ -16445,11 +16394,11 @@ func (v *__AddMemberToTeamInput) GetMemberId() int { return v.MemberId }
 
 // __AddOrUpdateCodeLocationInput is used internally by genqlient
 type __AddOrUpdateCodeLocationInput struct {
-	Location LocationSelector `json:"location"`
+	Document json.RawMessage `json:"document"`
 }
 
-// GetLocation returns __AddOrUpdateCodeLocationInput.Location, and is useful for accessing the field via an interface.
-func (v *__AddOrUpdateCodeLocationInput) GetLocation() LocationSelector { return v.Location }
+// GetDocument returns __AddOrUpdateCodeLocationInput.Document, and is useful for accessing the field via an interface.
+func (v *__AddOrUpdateCodeLocationInput) GetDocument() json.RawMessage { return v.Document }
 
 // __AddUserInput is used internally by genqlient
 type __AddUserInput struct {
@@ -17081,8 +17030,8 @@ func AddMemberToTeam(
 
 // The mutation executed by AddOrUpdateCodeLocation.
 const AddOrUpdateCodeLocation_Operation = `
-mutation AddOrUpdateCodeLocation ($location: LocationSelector!) {
-	addOrUpdateLocation(location: $location) {
+mutation AddOrUpdateCodeLocation ($document: GenericScalar!) {
+	addOrUpdateLocationFromDocument(document: $document) {
 		__typename
 		... on WorkspaceEntry {
 			... WorkspaceEntryFields
@@ -17098,13 +17047,13 @@ fragment WorkspaceEntryFields on WorkspaceEntry {
 func AddOrUpdateCodeLocation(
 	ctx_ context.Context,
 	client_ graphql.Client,
-	location LocationSelector,
+	document json.RawMessage,
 ) (data_ *AddOrUpdateCodeLocationResponse, err_ error) {
 	req_ := &graphql.Request{
 		OpName: "AddOrUpdateCodeLocation",
 		Query:  AddOrUpdateCodeLocation_Operation,
 		Variables: &__AddOrUpdateCodeLocationInput{
-			Location: location,
+			Document: document,
 		},
 	}
 
