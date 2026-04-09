@@ -117,7 +117,7 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"container_context": schema.StringAttribute{
 				Description: "JSON-encoded container context configuration for this code location. " +
-					"Supports keys such as `k8s`, `ecs`, `docker`, and `serverless`, each with platform-specific settings.",
+					"Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.",
 				Optional:   true,
 				CustomType: jsontypes.NormalizedType{},
 			},
