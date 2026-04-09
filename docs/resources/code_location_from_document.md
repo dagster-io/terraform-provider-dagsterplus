@@ -18,7 +18,7 @@ Manages a Dagster+ code location defined by a raw JSON configuration document. U
 ### Required
 
 - `deployment` (String) The name of the deployment this code location belongs to.
-- `document` (String) The code location configuration as a JSON document. Must include a `location_name` key. Changing the `location_name` within the document requires replacing this resource.
+- `document` (String) The code location configuration as a JSON document. Must include a `locationName` key. Changing the `locationName` within the document requires replacing this resource.
 
 ### Read-Only
 
