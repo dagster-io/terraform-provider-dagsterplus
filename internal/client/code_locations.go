@@ -34,6 +34,27 @@ type documentGit struct {
 	URL        string `json:"url,omitempty"`
 }
 
+// userDocument is the camelCase document format used by the dagsterplus_code_location_from_document
+// resource. This is the user-facing format and must not change to avoid breaking existing configs.
+type userDocument struct {
+	LocationName     string         `json:"locationName"`
+	Image            string         `json:"image,omitempty"`
+	CodeSource       userCodeSource `json:"codeSource"`
+	WorkingDirectory string         `json:"workingDirectory,omitempty"`
+	ExecutablePath   string         `json:"executablePath,omitempty"`
+	Attribute        string         `json:"attribute,omitempty"`
+	AgentQueue       string         `json:"agentQueue,omitempty"`
+	CommitHash       string         `json:"commitHash,omitempty"`
+	URL              string         `json:"url,omitempty"`
+	ContainerContext map[string]any `json:"containerContext,omitempty"`
+}
+
+type userCodeSource struct {
+	PythonFile  string `json:"pythonFile,omitempty"`
+	PackageName string `json:"packageName,omitempty"`
+	ModuleName  string `json:"moduleName,omitempty"`
+}
+
 // CodeSource describes where the code lives within a code location.
 type CodeSource struct {
 	PythonFile  string `json:"python_file,omitempty"`
@@ -96,44 +117,46 @@ func inputToDocument(loc CodeLocationInput) locationDocument {
 	return doc
 }
 
-// ParseCodeLocationDocument parses a JSON document into a CodeLocationInput and returns the location name.
+// ParseCodeLocationDocument parses a user-facing JSON document (camelCase keys) into a
+// CodeLocationInput and returns the location name. Used by dagsterplus_code_location_from_document.
 func ParseCodeLocationDocument(docJSON string) (CodeLocationInput, string, error) {
-	var doc locationDocument
+	var doc userDocument
 	if err := json.Unmarshal([]byte(docJSON), &doc); err != nil {
 		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: %w", err)
 	}
 	if doc.LocationName == "" {
-		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: document must include 'location_name'")
+		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: document must include 'locationName'")
 	}
 	input := CodeLocationInput{
-		Name:             doc.LocationName,
-		Image:            doc.Image,
+		Name:  doc.LocationName,
+		Image: doc.Image,
+		CodeSource: CodeSource{
+			PythonFile:  doc.CodeSource.PythonFile,
+			PackageName: doc.CodeSource.PackageName,
+			ModuleName:  doc.CodeSource.ModuleName,
+		},
 		WorkingDirectory: doc.WorkingDirectory,
 		ExecutablePath:   doc.ExecutablePath,
 		Attribute:        doc.Attribute,
 		AgentQueue:       doc.AgentQueue,
+		CommitHash:       doc.CommitHash,
+		URL:              doc.URL,
 		ContainerContext: doc.ContainerContext,
-	}
-	if doc.CodeSource != nil {
-		input.CodeSource = CodeSource{
-			PythonFile:  doc.CodeSource.PythonFile,
-			PackageName: doc.CodeSource.PackageName,
-			ModuleName:  doc.CodeSource.ModuleName,
-		}
-	}
-	if doc.Git != nil {
-		input.CommitHash = doc.Git.CommitHash
-		input.URL = doc.Git.URL
 	}
 	return input, doc.LocationName, nil
 }
 
-// CodeLocationToDocument serializes a CodeLocation to the canonical JSON document format.
+// CodeLocationToDocument serializes a CodeLocation to the user-facing JSON document format
+// (camelCase keys). Used by dagsterplus_code_location_from_document.
 func CodeLocationToDocument(loc *CodeLocation) (string, error) {
-	doc := inputToDocument(CodeLocationInput{
-		Name:             loc.Name,
-		Image:            loc.Image,
-		CodeSource:       loc.CodeSource,
+	doc := userDocument{
+		LocationName: loc.Name,
+		Image:        loc.Image,
+		CodeSource: userCodeSource{
+			PythonFile:  loc.CodeSource.PythonFile,
+			PackageName: loc.CodeSource.PackageName,
+			ModuleName:  loc.CodeSource.ModuleName,
+		},
 		WorkingDirectory: loc.WorkingDirectory,
 		ExecutablePath:   loc.ExecutablePath,
 		Attribute:        loc.Attribute,
@@ -141,7 +164,7 @@ func CodeLocationToDocument(loc *CodeLocation) (string, error) {
 		CommitHash:       loc.CommitHash,
 		URL:              loc.URL,
 		ContainerContext: loc.ContainerContext,
-	})
+	}
 	b, err := json.Marshal(doc)
 	if err != nil {
 		return "", fmt.Errorf("CodeLocationToDocument: %w", err)
