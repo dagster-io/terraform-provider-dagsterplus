@@ -185,7 +185,7 @@ func (c *Client) AddCodeLocation(ctx context.Context, deployment string, loc Cod
 		return nil, fmt.Errorf("AddCodeLocation: %w", err)
 	}
 
-	switch resp.AddOrUpdateLocationFromDocument.(type) {
+	switch r := resp.AddOrUpdateLocationFromDocument.(type) {
 	case *schema.AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry:
 		cl := &CodeLocation{
 			ID:               fmt.Sprintf("%s/%s", deployment, loc.Name),
@@ -201,6 +201,8 @@ func (c *Client) AddCodeLocation(ctx context.Context, deployment string, loc Cod
 			ContainerContext: loc.ContainerContext,
 		}
 		return cl, nil
+	case *schema.AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError:
+		return nil, fmt.Errorf("AddCodeLocation: invalid location: %s %v", r.Message, r.Errors)
 	default:
 		return nil, fmt.Errorf("AddCodeLocation: unexpected result type %T", resp.AddOrUpdateLocationFromDocument)
 	}

@@ -325,12 +325,24 @@ func __marshalAddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentAddOrUpdateL
 
 // AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError includes the requested fields of the GraphQL type InvalidLocationError.
 type AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError struct {
-	Typename string `json:"__typename"`
+	Typename string   `json:"__typename"`
+	Message  string   `json:"message"`
+	Errors   []string `json:"errors"`
 }
 
 // GetTypename returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError.Typename, and is useful for accessing the field via an interface.
 func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError) GetTypename() string {
 	return v.Typename
+}
+
+// GetMessage returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError.Message, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError) GetMessage() string {
+	return v.Message
+}
+
+// GetErrors returns AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError.Errors, and is useful for accessing the field via an interface.
+func (v *AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError) GetErrors() []string {
+	return v.Errors
 }
 
 // AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentPythonError includes the requested fields of the GraphQL type PythonError.
@@ -17035,6 +17047,10 @@ mutation AddOrUpdateCodeLocation ($document: GenericScalar!) {
 		__typename
 		... on WorkspaceEntry {
 			... WorkspaceEntryFields
+		}
+		... on InvalidLocationError {
+			message
+			errors
 		}
 	}
 }

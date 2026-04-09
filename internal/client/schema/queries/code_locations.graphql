@@ -17,6 +17,10 @@ mutation AddOrUpdateCodeLocation($document: GenericScalar!) {
     ... on WorkspaceEntry {
       ...WorkspaceEntryFields
     }
+    ... on InvalidLocationError {
+      message
+      errors
+    }
   }
 }
 
