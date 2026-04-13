@@ -159,9 +159,9 @@ func (d *codeLocationsDataSource) Read(ctx context.Context, req datasource.ReadR
 			AgentQueue:       types.StringValue(cl.AgentQueue),
 			Attribute:        types.StringValue(cl.Attribute),
 			CodeSource: &resources.CodeSourceModel{
-				PythonFile:  resources.CodeSourceStringVal(cl.CodeSource.PythonFile),
-				PackageName: resources.CodeSourceStringVal(cl.CodeSource.PackageName),
-				ModuleName:  resources.CodeSourceStringVal(cl.CodeSource.ModuleName),
+				PythonFile:  resources.OptionalStringVal(cl.CodeSource.PythonFile),
+				PackageName: resources.OptionalStringVal(cl.CodeSource.PackageName),
+				ModuleName:  resources.OptionalStringVal(cl.CodeSource.ModuleName),
 			},
 			ContainerContext: jsontypes.NewNormalizedNull(),
 		}
