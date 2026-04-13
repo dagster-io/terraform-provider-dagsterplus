@@ -179,6 +179,67 @@ resource "dagsterplus_code_location" "test" {
 	})
 }
 
+// TestAccCodeLocationResource_containerContext tests creating a code location with container_context.
+func TestAccCodeLocationResource_containerContext(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckCodeLocationDestroyed(testAccDeployment(), rName),
+		Steps: []resource.TestStep{
+			// Create with container_context
+			{
+				Config: providerConfig() + fmt.Sprintf(`
+resource "dagsterplus_code_location" "test" {
+  deployment = %q
+  name       = %q
+  image      = "ghcr.io/example/repo:latest"
+
+  code_source {
+    python_file = "repo.py"
+  }
+
+  container_context = jsonencode({
+    k8s = {
+      namespace = "dagster"
+      env_vars  = ["FOO=bar"]
+    }
+  })
+}
+`, testAccDeployment(), rName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("dagsterplus_code_location.test", "container_context"),
+				),
+			},
+			// Update container_context
+			{
+				Config: providerConfig() + fmt.Sprintf(`
+resource "dagsterplus_code_location" "test" {
+  deployment = %q
+  name       = %q
+  image      = "ghcr.io/example/repo:latest"
+
+  code_source {
+    python_file = "repo.py"
+  }
+
+  container_context = jsonencode({
+    k8s = {
+      namespace = "dagster-updated"
+      env_vars  = ["FOO=baz", "BAR=qux"]
+    }
+  })
+}
+`, testAccDeployment(), rName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("dagsterplus_code_location.test", "container_context"),
+				),
+			},
+		},
+	})
+}
+
 // TestAccCodeLocationResource_disappears verifies Terraform detects drift when the
 // code location is deleted outside of Terraform.
 func TestAccCodeLocationResource_disappears(t *testing.T) {

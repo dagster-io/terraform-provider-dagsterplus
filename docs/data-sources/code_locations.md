@@ -42,6 +42,7 @@ Read-Only:
 - `agent_queue` (String) Agent queue that runs this code location.
 - `attribute` (String) Python attribute containing the Definitions object.
 - `code_source` (Attributes) Describes where Dagster finds the code. (see [below for nested schema](#nestedatt--code_locations--code_source))
+- `container_context` (String) JSON-encoded container context configuration for this code location. Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.
 - `deployment` (String) The deployment this code location belongs to.
 - `executable_path` (String) Path to the Python executable inside the container.
 - `id` (String) Unique identifier in the form `{deployment}/{name}`.

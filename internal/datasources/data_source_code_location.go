@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"encoding/json"
+
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	resources "github.com/dagster-io/terraform-provider-dagsterplus/internal/resources"
+	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -31,6 +34,7 @@ type codeLocationDataSourceModel struct {
 	ExecutablePath   types.String               `tfsdk:"executable_path"`
 	Attribute        types.String               `tfsdk:"attribute"`
 	AgentQueue       types.String               `tfsdk:"agent_queue"`
+	ContainerContext jsontypes.Normalized       `tfsdk:"container_context"`
 }
 
 func (d *codeLocationDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -72,6 +76,12 @@ func (d *codeLocationDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"agent_queue": schema.StringAttribute{
 				Description: "The agent queue used by this code location.",
 				Computed:    true,
+			},
+			"container_context": schema.StringAttribute{
+				Description: "JSON-encoded container context configuration for this code location. " +
+					"Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.",
+				Computed:   true,
+				CustomType: jsontypes.NormalizedType{},
 			},
 		},
 		Blocks: map[string]schema.Block{
@@ -138,6 +148,13 @@ func (d *codeLocationDataSource) Read(ctx context.Context, req datasource.ReadRe
 			PackageName: resources.CodeSourceStringVal(cl.CodeSource.PackageName),
 			ModuleName:  resources.CodeSourceStringVal(cl.CodeSource.ModuleName),
 		},
+		ContainerContext: jsontypes.NewNormalizedNull(),
+	}
+	if len(cl.ContainerContext) > 0 {
+		ccBytes, err := json.Marshal(cl.ContainerContext)
+		if err == nil {
+			state.ContainerContext = jsontypes.NewNormalizedValue(string(ccBytes))
+		}
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)

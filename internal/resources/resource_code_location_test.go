@@ -3,6 +3,7 @@ package resources
 import (
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -17,9 +18,13 @@ func TestModelToInput_PythonFile(t *testing.T) {
 			PackageName: types.StringValue(""),
 			ModuleName:  types.StringValue(""),
 		},
+		ContainerContext: jsontypes.NewNormalizedNull(),
 	}
 
-	input := modelToInput(plan)
+	input, err := modelToInput(plan)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if input.Name != "my-location" {
 		t.Errorf("expected Name my-location, got %q", input.Name)
@@ -55,9 +60,13 @@ func TestModelToInput_PackageName(t *testing.T) {
 			PackageName: types.StringValue("my_dagster_package"),
 			ModuleName:  types.StringValue(""),
 		},
+		ContainerContext: jsontypes.NewNormalizedNull(),
 	}
 
-	input := modelToInput(plan)
+	input, err := modelToInput(plan)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if input.CodeSource.PackageName != "my_dagster_package" {
 		t.Errorf("expected PackageName my_dagster_package, got %q", input.CodeSource.PackageName)
@@ -81,9 +90,13 @@ func TestModelToInput_ModuleName(t *testing.T) {
 		},
 		WorkingDirectory: types.StringValue(""),
 		ExecutablePath:   types.StringValue(""),
+		ContainerContext: jsontypes.NewNormalizedNull(),
 	}
 
-	input := modelToInput(plan)
+	input, err := modelToInput(plan)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if input.CodeSource.ModuleName != "my.dagster.module" {
 		t.Errorf("expected ModuleName my.dagster.module, got %q", input.CodeSource.ModuleName)
@@ -101,14 +114,65 @@ func TestModelToInput_OptionalFieldsEmpty(t *testing.T) {
 			PackageName: types.StringValue(""),
 			ModuleName:  types.StringValue(""),
 		},
+		ContainerContext: jsontypes.NewNormalizedNull(),
 	}
 
-	input := modelToInput(plan)
+	input, err := modelToInput(plan)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if input.WorkingDirectory != "" {
 		t.Errorf("expected empty WorkingDirectory, got %q", input.WorkingDirectory)
 	}
 	if input.ExecutablePath != "" {
 		t.Errorf("expected empty ExecutablePath, got %q", input.ExecutablePath)
+	}
+}
+
+func TestModelToInput_WithContainerContext(t *testing.T) {
+	plan := codeLocationResourceModel{
+		Name:  types.StringValue("my-location"),
+		Image: types.StringValue("my-image:latest"),
+		CodeSource: CodeSourceModel{
+			PythonFile:  types.StringValue("repo.py"),
+			PackageName: types.StringValue(""),
+			ModuleName:  types.StringValue(""),
+		},
+		WorkingDirectory: types.StringValue(""),
+		ExecutablePath:   types.StringValue(""),
+		ContainerContext: jsontypes.NewNormalizedValue(`{"k8s":{"namespace":"dagster","env_vars":["FOO=bar"]}}`),
+	}
+
+	input, err := modelToInput(plan)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if input.ContainerContext == nil {
+		t.Fatal("expected ContainerContext to be non-nil")
+	}
+	k8s, ok := input.ContainerContext["k8s"].(map[string]any)
+	if !ok {
+		t.Fatal("expected k8s to be a map")
+	}
+	if k8s["namespace"] != "dagster" {
+		t.Errorf("expected namespace dagster, got %v", k8s["namespace"])
+	}
+}
+
+func TestModelToInput_ContainerContextInvalidJSON(t *testing.T) {
+	plan := codeLocationResourceModel{
+		Name:  types.StringValue("my-location"),
+		Image: types.StringValue("my-image:latest"),
+		CodeSource: CodeSourceModel{
+			PythonFile: types.StringValue("repo.py"),
+		},
+		ContainerContext: jsontypes.NewNormalizedValue(`{not valid json}`),
+	}
+
+	_, err := modelToInput(plan)
+	if err == nil {
+		t.Fatal("expected error for invalid JSON, got nil")
 	}
 }

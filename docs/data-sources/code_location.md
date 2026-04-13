@@ -36,6 +36,7 @@ output "pipeline_image" {
 - `agent_queue` (String) The agent queue used by this code location.
 - `attribute` (String) Python attribute containing the Definitions object.
 - `code_source` (Block, Read-only) Describes where Dagster finds the code. (see [below for nested schema](#nestedblock--code_source))
+- `container_context` (String) JSON-encoded container context configuration for this code location. Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.
 - `executable_path` (String) Path to the Python executable inside the container.
 - `id` (String) Unique identifier in the form `{deployment}/{name}`.
 - `image` (String) The Docker image used by the code location.

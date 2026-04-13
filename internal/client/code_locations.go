@@ -8,22 +8,119 @@ import (
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
 )
 
-// codeLocationDocument is the canonical JSON shape for a code location document.
-type codeLocationDocument struct {
-	LocationName     string     `json:"locationName"`
-	Image            string     `json:"image,omitempty"`
-	CodeSource       CodeSource `json:"codeSource"`
-	WorkingDirectory string     `json:"workingDirectory,omitempty"`
-	ExecutablePath   string     `json:"executablePath,omitempty"`
-	Attribute        string     `json:"attribute,omitempty"`
-	AgentQueue       string     `json:"agentQueue,omitempty"`
-	CommitHash       string     `json:"commitHash,omitempty"`
-	URL              string     `json:"url,omitempty"`
+// locationDocument is the snake_case document format expected by addOrUpdateLocationFromDocument.
+type locationDocument struct {
+	LocationName     string              `json:"location_name"`
+	Image            string              `json:"image,omitempty"`
+	CodeSource       *documentCodeSource `json:"code_source,omitempty"`
+	WorkingDirectory string              `json:"working_directory,omitempty"`
+	ExecutablePath   string              `json:"executable_path,omitempty"`
+	Attribute        string              `json:"attribute,omitempty"`
+	AgentQueue       string              `json:"agent_queue,omitempty"`
+	Git              *documentGit        `json:"git,omitempty"`
+	ContainerContext map[string]any      `json:"container_context,omitempty"`
 }
 
-// ParseCodeLocationDocument parses a JSON document into a CodeLocationInput and returns the location name.
+// documentCodeSource is the code_source block in the document format.
+type documentCodeSource struct {
+	PythonFile  string `json:"python_file,omitempty"`
+	PackageName string `json:"package_name,omitempty"`
+	ModuleName  string `json:"module_name,omitempty"`
+}
+
+// documentGit is the git block in the document format.
+type documentGit struct {
+	CommitHash string `json:"commit_hash,omitempty"`
+	URL        string `json:"url,omitempty"`
+}
+
+// userDocument is the camelCase document format used by dagsterplus_code_location_from_document.
+// This matches the original format to avoid breaking existing configs.
+type userDocument struct {
+	LocationName     string         `json:"locationName"`
+	Image            string         `json:"image,omitempty"`
+	CodeSource       userCodeSource `json:"codeSource"`
+	WorkingDirectory string         `json:"workingDirectory,omitempty"`
+	ExecutablePath   string         `json:"executablePath,omitempty"`
+	Attribute        string         `json:"attribute,omitempty"`
+	AgentQueue       string         `json:"agentQueue,omitempty"`
+	CommitHash       string         `json:"commitHash,omitempty"`
+	URL              string         `json:"url,omitempty"`
+	ContainerContext map[string]any `json:"containerContext,omitempty"`
+}
+
+type userCodeSource struct {
+	PythonFile  string `json:"pythonFile,omitempty"`
+	PackageName string `json:"packageName,omitempty"`
+	ModuleName  string `json:"moduleName,omitempty"`
+}
+
+// CodeSource describes where the code lives within a code location.
+type CodeSource struct {
+	PythonFile  string `json:"python_file,omitempty"`
+	PackageName string `json:"package_name,omitempty"`
+	ModuleName  string `json:"module_name,omitempty"`
+}
+
+// CodeLocation represents a Dagster+ code location.
+type CodeLocation struct {
+	ID               string
+	Name             string
+	Image            string
+	CodeSource       CodeSource
+	WorkingDirectory string
+	ExecutablePath   string
+	Attribute        string
+	AgentQueue       string
+	CommitHash       string
+	URL              string
+	ContainerContext map[string]any
+}
+
+// CodeLocationInput is the input for creating or updating a code location.
+type CodeLocationInput struct {
+	Name             string
+	Image            string
+	CodeSource       CodeSource
+	WorkingDirectory string
+	ExecutablePath   string
+	Attribute        string
+	AgentQueue       string
+	CommitHash       string
+	URL              string
+	ContainerContext map[string]any
+}
+
+func inputToDocument(loc CodeLocationInput) locationDocument {
+	doc := locationDocument{
+		LocationName:     loc.Name,
+		Image:            loc.Image,
+		WorkingDirectory: loc.WorkingDirectory,
+		ExecutablePath:   loc.ExecutablePath,
+		Attribute:        loc.Attribute,
+		AgentQueue:       loc.AgentQueue,
+		ContainerContext: loc.ContainerContext,
+	}
+	if loc.CodeSource.PythonFile != "" || loc.CodeSource.PackageName != "" || loc.CodeSource.ModuleName != "" {
+		doc.CodeSource = &documentCodeSource{
+			PythonFile:  loc.CodeSource.PythonFile,
+			PackageName: loc.CodeSource.PackageName,
+			ModuleName:  loc.CodeSource.ModuleName,
+		}
+	}
+	if loc.CommitHash != "" || loc.URL != "" {
+		doc.Git = &documentGit{
+			CommitHash: loc.CommitHash,
+			URL:        loc.URL,
+		}
+	}
+	return doc
+}
+
+// ParseCodeLocationDocument parses a camelCase JSON document into a CodeLocationInput.
+// Used by dagsterplus_code_location_from_document.
 func ParseCodeLocationDocument(docJSON string) (CodeLocationInput, string, error) {
-	var doc codeLocationDocument
+	var doc userDocument
 	if err := json.Unmarshal([]byte(docJSON), &doc); err != nil {
 		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: %w", err)
 	}
@@ -31,31 +128,42 @@ func ParseCodeLocationDocument(docJSON string) (CodeLocationInput, string, error
 		return CodeLocationInput{}, "", fmt.Errorf("ParseCodeLocationDocument: document must include 'locationName'")
 	}
 	input := CodeLocationInput{
-		Name:             doc.LocationName,
-		Image:            doc.Image,
-		CodeSource:       doc.CodeSource,
+		Name:  doc.LocationName,
+		Image: doc.Image,
+		CodeSource: CodeSource{
+			PythonFile:  doc.CodeSource.PythonFile,
+			PackageName: doc.CodeSource.PackageName,
+			ModuleName:  doc.CodeSource.ModuleName,
+		},
 		WorkingDirectory: doc.WorkingDirectory,
 		ExecutablePath:   doc.ExecutablePath,
 		Attribute:        doc.Attribute,
 		AgentQueue:       doc.AgentQueue,
 		CommitHash:       doc.CommitHash,
 		URL:              doc.URL,
+		ContainerContext: doc.ContainerContext,
 	}
 	return input, doc.LocationName, nil
 }
 
-// CodeLocationToDocument serializes a CodeLocation to the canonical JSON document format.
+// CodeLocationToDocument serializes a CodeLocation to a camelCase JSON document.
+// Used by dagsterplus_code_location_from_document.
 func CodeLocationToDocument(loc *CodeLocation) (string, error) {
-	doc := codeLocationDocument{
-		LocationName:     loc.Name,
-		Image:            loc.Image,
-		CodeSource:       loc.CodeSource,
+	doc := userDocument{
+		LocationName: loc.Name,
+		Image:        loc.Image,
+		CodeSource: userCodeSource{
+			PythonFile:  loc.CodeSource.PythonFile,
+			PackageName: loc.CodeSource.PackageName,
+			ModuleName:  loc.CodeSource.ModuleName,
+		},
 		WorkingDirectory: loc.WorkingDirectory,
 		ExecutablePath:   loc.ExecutablePath,
 		Attribute:        loc.Attribute,
 		AgentQueue:       loc.AgentQueue,
 		CommitHash:       loc.CommitHash,
 		URL:              loc.URL,
+		ContainerContext: loc.ContainerContext,
 	}
 	b, err := json.Marshal(doc)
 	if err != nil {
@@ -64,76 +172,21 @@ func CodeLocationToDocument(loc *CodeLocation) (string, error) {
 	return string(b), nil
 }
 
-// CodeSource describes where the code lives within a code location.
-type CodeSource struct {
-	PythonFile  string `json:"pythonFile,omitempty"`
-	PackageName string `json:"packageName,omitempty"`
-	ModuleName  string `json:"moduleName,omitempty"`
-}
-
-// CodeLocation represents a Dagster+ code location.
-type CodeLocation struct {
-	ID               string     `json:"id"`
-	Name             string     `json:"name"`
-	Image            string     `json:"image"`
-	CodeSource       CodeSource `json:"codeSource"`
-	WorkingDirectory string     `json:"workingDirectory"`
-	ExecutablePath   string     `json:"executablePath"`
-	Attribute        string     `json:"attribute"`
-	AgentQueue       string     `json:"agentQueue"`
-	CommitHash       string     `json:"commitHash"`
-	URL              string     `json:"url"`
-}
-
-// CodeLocationInput is the input for creating or updating a code location.
-type CodeLocationInput struct {
-	Name             string     `json:"name"`
-	Image            string     `json:"image"`
-	CodeSource       CodeSource `json:"codeSource"`
-	WorkingDirectory string     `json:"workingDirectory,omitempty"`
-	ExecutablePath   string     `json:"executablePath,omitempty"`
-	Attribute        string     `json:"attribute,omitempty"`
-	AgentQueue       string     `json:"agentQueue,omitempty"`
-	CommitHash       string     `json:"commitHash,omitempty"`
-	URL              string     `json:"url,omitempty"`
-}
-
-// serializedMetadata mirrors the JSON shape of WorkspaceEntry.serializedDeploymentMetadata.
-type serializedMetadata struct {
-	LocationName     string     `json:"locationName"`
-	Image            string     `json:"image"`
-	CodeSource       CodeSource `json:"codeSource"`
-	WorkingDirectory string     `json:"workingDirectory"`
-	ExecutablePath   string     `json:"executablePath"`
-	Attribute        string     `json:"attribute"`
-	AgentQueue       string     `json:"agentQueue"`
-	CommitHash       string     `json:"commitHash"`
-	URL              string     `json:"url"`
-}
-
 // AddCodeLocation adds a code location to a deployment.
 func (c *Client) AddCodeLocation(ctx context.Context, deployment string, loc CodeLocationInput) (*CodeLocation, error) {
-	selector := schema.LocationSelector{
-		Name:             loc.Name,
-		Image:            loc.Image,
-		PythonFile:       loc.CodeSource.PythonFile,
-		PackageName:      loc.CodeSource.PackageName,
-		ModuleName:       loc.CodeSource.ModuleName,
-		WorkingDirectory: loc.WorkingDirectory,
-		ExecutablePath:   loc.ExecutablePath,
-		Attribute:        loc.Attribute,
-		AgentQueue:       loc.AgentQueue,
-		CommitHash:       loc.CommitHash,
-		Url:              loc.URL,
+	doc := inputToDocument(loc)
+	docBytes, err := json.Marshal(doc)
+	if err != nil {
+		return nil, fmt.Errorf("AddCodeLocation: marshalling document: %w", err)
 	}
 
-	resp, err := schema.AddOrUpdateCodeLocation(ctx, c.gqlClient(deployment), selector)
+	resp, err := schema.AddOrUpdateCodeLocation(ctx, c.gqlClient(deployment), json.RawMessage(docBytes))
 	if err != nil {
 		return nil, fmt.Errorf("AddCodeLocation: %w", err)
 	}
 
-	switch resp.AddOrUpdateLocation.(type) {
-	case *schema.AddOrUpdateCodeLocationAddOrUpdateLocationWorkspaceEntry:
+	switch r := resp.AddOrUpdateLocationFromDocument.(type) {
+	case *schema.AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentWorkspaceEntry:
 		cl := &CodeLocation{
 			ID:               fmt.Sprintf("%s/%s", deployment, loc.Name),
 			Name:             loc.Name,
@@ -145,10 +198,13 @@ func (c *Client) AddCodeLocation(ctx context.Context, deployment string, loc Cod
 			AgentQueue:       loc.AgentQueue,
 			CommitHash:       loc.CommitHash,
 			URL:              loc.URL,
+			ContainerContext: loc.ContainerContext,
 		}
 		return cl, nil
+	case *schema.AddOrUpdateCodeLocationAddOrUpdateLocationFromDocumentInvalidLocationError:
+		return nil, fmt.Errorf("AddCodeLocation: invalid location: %s %v", r.Message, r.Errors)
 	default:
-		return nil, fmt.Errorf("AddCodeLocation: unexpected result type %T", resp.AddOrUpdateLocation)
+		return nil, fmt.Errorf("AddCodeLocation: unexpected result type %T", resp.AddOrUpdateLocationFromDocument)
 	}
 }
 
@@ -166,6 +222,67 @@ func (c *Client) GetCodeLocation(ctx context.Context, deployment, name string) (
 	return nil, fmt.Errorf("GetCodeLocation: code location %q not found in deployment %q", name, deployment)
 }
 
+// metadataString extracts a string value from a metadata map, returning "" if absent or wrong type.
+func metadataString(m map[string]any, key string) string {
+	if v, ok := m[key]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
+// parseSerializedMetadata parses the serializedDeploymentMetadata JSON into a CodeLocation.
+// The metadata is produced by dagster serdes and uses snake_case field names.
+func parseSerializedMetadata(deployment, raw string) (CodeLocation, error) {
+	var m map[string]any
+	if err := json.Unmarshal([]byte(raw), &m); err != nil {
+		return CodeLocation{}, err
+	}
+
+	name := metadataString(m, "location_name")
+
+	loc := CodeLocation{
+		ID:               fmt.Sprintf("%s/%s", deployment, name),
+		Name:             name,
+		Image:            metadataString(m, "image"),
+		WorkingDirectory: metadataString(m, "working_directory"),
+		ExecutablePath:   metadataString(m, "executable_path"),
+		Attribute:        metadataString(m, "attribute"),
+		CodeSource: CodeSource{
+			PythonFile:  metadataString(m, "python_file"),
+			PackageName: metadataString(m, "package_name"),
+			ModuleName:  metadataString(m, "module_name"),
+		},
+	}
+
+	// agent_queue may be a string or an AgentQueue record object.
+	if v, ok := m["agent_queue"]; ok {
+		switch aq := v.(type) {
+		case string:
+			loc.AgentQueue = aq
+		case map[string]any:
+			loc.AgentQueue = metadataString(aq, "queue_name")
+		}
+	}
+
+	// git_metadata is a nested GitMetadata record object.
+	if v, ok := m["git_metadata"]; ok {
+		if gm, ok := v.(map[string]any); ok {
+			loc.CommitHash = metadataString(gm, "commit_hash")
+			loc.URL = metadataString(gm, "url")
+		}
+	}
+
+	if v, ok := m["container_context"]; ok {
+		if cc, ok := v.(map[string]any); ok {
+			loc.ContainerContext = cc
+		}
+	}
+
+	return loc, nil
+}
+
 // ListCodeLocations returns all code locations for a deployment.
 func (c *Client) ListCodeLocations(ctx context.Context, deployment string) ([]CodeLocation, error) {
 	resp, err := schema.ListCodeLocations(ctx, c.gqlClient(deployment))
@@ -176,23 +293,15 @@ func (c *Client) ListCodeLocations(ctx context.Context, deployment string) ([]Co
 	entries := resp.Workspace.WorkspaceEntries
 	locations := make([]CodeLocation, 0, len(entries))
 	for _, e := range entries {
-		var meta serializedMetadata
-		if err := json.Unmarshal([]byte(e.WorkspaceEntryFields.SerializedDeploymentMetadata), &meta); err != nil {
+		loc, err := parseSerializedMetadata(deployment, e.WorkspaceEntryFields.SerializedDeploymentMetadata)
+		if err != nil {
 			// Skip entries with unparseable metadata rather than failing the whole list.
 			continue
 		}
-		locations = append(locations, CodeLocation{
-			ID:               fmt.Sprintf("%s/%s", deployment, e.WorkspaceEntryFields.LocationName),
-			Name:             e.WorkspaceEntryFields.LocationName,
-			Image:            meta.Image,
-			CodeSource:       meta.CodeSource,
-			WorkingDirectory: meta.WorkingDirectory,
-			ExecutablePath:   meta.ExecutablePath,
-			Attribute:        meta.Attribute,
-			AgentQueue:       meta.AgentQueue,
-			CommitHash:       meta.CommitHash,
-			URL:              meta.URL,
-		})
+		// Use the workspace entry's locationName as the authoritative name.
+		loc.Name = e.WorkspaceEntryFields.LocationName
+		loc.ID = fmt.Sprintf("%s/%s", deployment, loc.Name)
+		locations = append(locations, loc)
 	}
 	return locations, nil
 }

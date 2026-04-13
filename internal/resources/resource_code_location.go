@@ -2,10 +2,12 @@ package resources
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -47,16 +49,17 @@ type GitModel struct {
 
 // codeLocationResourceModel describes the resource data model.
 type codeLocationResourceModel struct {
-	ID               types.String    `tfsdk:"id"`
-	DeploymentName   types.String    `tfsdk:"deployment"`
-	Name             types.String    `tfsdk:"name"`
-	Image            types.String    `tfsdk:"image"`
-	CodeSource       CodeSourceModel `tfsdk:"code_source"`
-	WorkingDirectory types.String    `tfsdk:"working_directory"`
-	ExecutablePath   types.String    `tfsdk:"executable_path"`
-	Attribute        types.String    `tfsdk:"attribute"`
-	AgentQueue       types.String    `tfsdk:"agent_queue"`
-	Git              *GitModel       `tfsdk:"git"`
+	ID               types.String         `tfsdk:"id"`
+	DeploymentName   types.String         `tfsdk:"deployment"`
+	Name             types.String         `tfsdk:"name"`
+	Image            types.String         `tfsdk:"image"`
+	CodeSource       CodeSourceModel      `tfsdk:"code_source"`
+	WorkingDirectory types.String         `tfsdk:"working_directory"`
+	ExecutablePath   types.String         `tfsdk:"executable_path"`
+	Attribute        types.String         `tfsdk:"attribute"`
+	AgentQueue       types.String         `tfsdk:"agent_queue"`
+	Git              *GitModel            `tfsdk:"git"`
+	ContainerContext jsontypes.Normalized `tfsdk:"container_context"`
 }
 
 func (r *codeLocationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -111,6 +114,12 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 				Description: "The agent queue to use for this code location.",
 				Optional:    true,
 				Computed:    true,
+			},
+			"container_context": schema.StringAttribute{
+				Description: "JSON-encoded container context configuration for this code location. " +
+					"Supports keys such as `k8s`, `ecs`, and `docker`, each with platform-specific settings.",
+				Optional:   true,
+				CustomType: jsontypes.NormalizedType{},
 			},
 		},
 		Blocks: map[string]schema.Block{
@@ -190,7 +199,7 @@ func (r *codeLocationResource) Configure(_ context.Context, req resource.Configu
 	r.client = c
 }
 
-func modelToInput(plan codeLocationResourceModel) client.CodeLocationInput {
+func modelToInput(plan codeLocationResourceModel) (client.CodeLocationInput, error) {
 	input := client.CodeLocationInput{
 		Name:             plan.Name.ValueString(),
 		Image:            plan.Image.ValueString(),
@@ -208,7 +217,14 @@ func modelToInput(plan codeLocationResourceModel) client.CodeLocationInput {
 		input.CommitHash = plan.Git.CommitHash.ValueString()
 		input.URL = plan.Git.URL.ValueString()
 	}
-	return input
+	if !plan.ContainerContext.IsNull() && !plan.ContainerContext.IsUnknown() {
+		var cc map[string]any
+		if err := json.Unmarshal([]byte(plan.ContainerContext.ValueString()), &cc); err != nil {
+			return client.CodeLocationInput{}, fmt.Errorf("invalid container_context JSON: %w", err)
+		}
+		input.ContainerContext = cc
+	}
+	return input, nil
 }
 
 // CodeSourceStringVal converts an API string to a types.String, using null for
@@ -245,6 +261,14 @@ func applyCodeLocation(state *codeLocationResourceModel, cl *client.CodeLocation
 	} else {
 		state.Git = nil
 	}
+	if len(cl.ContainerContext) > 0 {
+		ccBytes, err := json.Marshal(cl.ContainerContext)
+		if err == nil {
+			state.ContainerContext = jsontypes.NewNormalizedValue(string(ccBytes))
+		}
+	} else {
+		state.ContainerContext = jsontypes.NewNormalizedNull()
+	}
 }
 
 func requireGitFields(git *GitModel, diagnostics interface{ AddError(string, string) }) bool {
@@ -275,7 +299,13 @@ func (r *codeLocationResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	cl, err := r.client.AddCodeLocation(ctx, plan.DeploymentName.ValueString(), modelToInput(plan))
+	input, err := modelToInput(plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Error building code location input", err.Error())
+		return
+	}
+
+	cl, err := r.client.AddCodeLocation(ctx, plan.DeploymentName.ValueString(), input)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating code location", err.Error())
 		return
@@ -343,6 +373,15 @@ func (r *codeLocationResource) Read(ctx context.Context, req resource.ReadReques
 			ModuleName:  CodeSourceStringVal(cs.ModuleName),
 		}
 	}
+	if len(cl.ContainerContext) > 0 {
+		ccBytes, err := json.Marshal(cl.ContainerContext)
+		if err == nil {
+			state.ContainerContext = jsontypes.NewNormalizedValue(string(ccBytes))
+		}
+	} else if !state.ContainerContext.IsNull() {
+		// API returned no container_context — clear it if previously set.
+		state.ContainerContext = jsontypes.NewNormalizedNull()
+	}
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -360,7 +399,13 @@ func (r *codeLocationResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	cl, err := r.client.UpdateCodeLocation(ctx, plan.DeploymentName.ValueString(), modelToInput(plan))
+	input, err := modelToInput(plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Error building code location input", err.Error())
+		return
+	}
+
+	cl, err := r.client.UpdateCodeLocation(ctx, plan.DeploymentName.ValueString(), input)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating code location", err.Error())
 		return
