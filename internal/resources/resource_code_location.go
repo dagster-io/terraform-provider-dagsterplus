@@ -98,22 +98,18 @@ func (r *codeLocationResource) Schema(_ context.Context, _ resource.SchemaReques
 			"working_directory": schema.StringAttribute{
 				Description: "The working directory inside the container.",
 				Optional:    true,
-				Computed:    true,
 			},
 			"executable_path": schema.StringAttribute{
 				Description: "Path to the Python executable inside the container.",
 				Optional:    true,
-				Computed:    true,
 			},
 			"attribute": schema.StringAttribute{
 				Description: "Python attribute containing the Definitions object.",
 				Optional:    true,
-				Computed:    true,
 			},
 			"agent_queue": schema.StringAttribute{
 				Description: "The agent queue to use for this code location.",
 				Optional:    true,
-				Computed:    true,
 			},
 			"container_context": schema.StringAttribute{
 				Description: "JSON-encoded container context configuration for this code location. " +
@@ -227,9 +223,9 @@ func modelToInput(plan codeLocationResourceModel) (client.CodeLocationInput, err
 	return input, nil
 }
 
-// CodeSourceStringVal converts an API string to a types.String, using null for
-// empty strings so that Optional (non-Computed) schema fields round-trip correctly.
-func CodeSourceStringVal(s string) types.String {
+// OptionalStringVal converts an API string to a types.String, returning null
+// for empty strings so Optional (non-Computed) schema fields round-trip correctly.
+func OptionalStringVal(s string) types.String {
 	if s == "" {
 		return types.StringNull()
 	}
@@ -244,14 +240,14 @@ func applyCodeLocation(state *codeLocationResourceModel, cl *client.CodeLocation
 	} else {
 		state.Image = types.StringNull()
 	}
-	state.WorkingDirectory = types.StringValue(cl.WorkingDirectory)
-	state.ExecutablePath = types.StringValue(cl.ExecutablePath)
-	state.Attribute = types.StringValue(cl.Attribute)
-	state.AgentQueue = types.StringValue(cl.AgentQueue)
+	state.WorkingDirectory = OptionalStringVal(cl.WorkingDirectory)
+	state.ExecutablePath = OptionalStringVal(cl.ExecutablePath)
+	state.Attribute = OptionalStringVal(cl.Attribute)
+	state.AgentQueue = OptionalStringVal(cl.AgentQueue)
 	state.CodeSource = CodeSourceModel{
-		PythonFile:  CodeSourceStringVal(cl.CodeSource.PythonFile),
-		PackageName: CodeSourceStringVal(cl.CodeSource.PackageName),
-		ModuleName:  CodeSourceStringVal(cl.CodeSource.ModuleName),
+		PythonFile:  OptionalStringVal(cl.CodeSource.PythonFile),
+		PackageName: OptionalStringVal(cl.CodeSource.PackageName),
+		ModuleName:  OptionalStringVal(cl.CodeSource.ModuleName),
 	}
 	if cl.CommitHash != "" || cl.URL != "" {
 		state.Git = &GitModel{
@@ -335,7 +331,6 @@ func (r *codeLocationResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	// Always update fields the API reliably returns.
 	state.ID = types.StringValue(cl.ID)
 	state.Name = types.StringValue(cl.Name)
 	if cl.Image != "" {
@@ -343,35 +338,22 @@ func (r *codeLocationResource) Read(ctx context.Context, req resource.ReadReques
 	} else {
 		state.Image = types.StringNull()
 	}
-
-	// For optional fields and code_source, only overwrite state when the API
-	// returns a non-empty value. The serialized metadata may omit or rename
-	// these fields, so preserving the stored state avoids spurious drift.
-	if cl.WorkingDirectory != "" {
-		state.WorkingDirectory = types.StringValue(cl.WorkingDirectory)
-	}
-	if cl.ExecutablePath != "" {
-		state.ExecutablePath = types.StringValue(cl.ExecutablePath)
-	}
-	if cl.Attribute != "" {
-		state.Attribute = types.StringValue(cl.Attribute)
-	}
-	if cl.AgentQueue != "" {
-		state.AgentQueue = types.StringValue(cl.AgentQueue)
-	}
+	state.WorkingDirectory = OptionalStringVal(cl.WorkingDirectory)
+	state.ExecutablePath = OptionalStringVal(cl.ExecutablePath)
+	state.Attribute = OptionalStringVal(cl.Attribute)
+	state.AgentQueue = OptionalStringVal(cl.AgentQueue)
 	if cl.CommitHash != "" || cl.URL != "" {
 		state.Git = &GitModel{
 			CommitHash: types.StringValue(cl.CommitHash),
 			URL:        types.StringValue(cl.URL),
 		}
+	} else {
+		state.Git = nil
 	}
-	cs := cl.CodeSource
-	if cs.PythonFile != "" || cs.PackageName != "" || cs.ModuleName != "" {
-		state.CodeSource = CodeSourceModel{
-			PythonFile:  CodeSourceStringVal(cs.PythonFile),
-			PackageName: CodeSourceStringVal(cs.PackageName),
-			ModuleName:  CodeSourceStringVal(cs.ModuleName),
-		}
+	state.CodeSource = CodeSourceModel{
+		PythonFile:  OptionalStringVal(cl.CodeSource.PythonFile),
+		PackageName: OptionalStringVal(cl.CodeSource.PackageName),
+		ModuleName:  OptionalStringVal(cl.CodeSource.ModuleName),
 	}
 	if len(cl.ContainerContext) > 0 {
 		ccBytes, err := json.Marshal(cl.ContainerContext)

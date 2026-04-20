@@ -144,9 +144,9 @@ func (d *codeLocationDataSource) Read(ctx context.Context, req datasource.ReadRe
 		Attribute:        types.StringValue(cl.Attribute),
 		AgentQueue:       types.StringValue(cl.AgentQueue),
 		CodeSource: &resources.CodeSourceModel{
-			PythonFile:  resources.CodeSourceStringVal(cl.CodeSource.PythonFile),
-			PackageName: resources.CodeSourceStringVal(cl.CodeSource.PackageName),
-			ModuleName:  resources.CodeSourceStringVal(cl.CodeSource.ModuleName),
+			PythonFile:  resources.OptionalStringVal(cl.CodeSource.PythonFile),
+			PackageName: resources.OptionalStringVal(cl.CodeSource.PackageName),
+			ModuleName:  resources.OptionalStringVal(cl.CodeSource.ModuleName),
 		},
 		ContainerContext: jsontypes.NewNormalizedNull(),
 	}
