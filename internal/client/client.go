@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Khan/genqlient/graphql"
@@ -21,6 +22,7 @@ func New(organization, token, baseURL string) *Client {
 	if baseURL == "" {
 		baseURL = fmt.Sprintf("https://%s.dagster.cloud", organization)
 	}
+	baseURL = strings.TrimRight(baseURL, "/")
 	return &Client{
 		Organization: organization,
 		BaseURL:      baseURL,
