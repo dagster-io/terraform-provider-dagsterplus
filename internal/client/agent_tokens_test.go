@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -66,6 +67,36 @@ func TestCreateAgentToken_UnexpectedTypename(t *testing.T) {
 	_, err := newClient(srv).CreateAgentToken(context.Background(), "my-token")
 	if err == nil {
 		t.Fatal("expected error for empty token, got nil")
+	}
+}
+
+// TestCreateAgentToken_PythonError verifies that a PythonError response produces
+// a clear error, whether the server returns it with HTTP 200 or HTTP 500.
+// Some Dagster Cloud API versions return 500 for PythonError mutation results.
+func TestCreateAgentToken_PythonError(t *testing.T) {
+	pythonErrorBody := map[string]any{
+		"createAgentToken": map[string]any{
+			"__typename": "PythonError",
+		},
+	}
+	for _, statusCode := range []int{http.StatusOK, http.StatusInternalServerError} {
+		statusCode := statusCode
+		t.Run(http.StatusText(statusCode), func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(statusCode)
+				_ = json.NewEncoder(w).Encode(map[string]any{"data": pythonErrorBody})
+			}))
+			defer srv.Close()
+
+			_, err := newClient(srv).CreateAgentToken(context.Background(), "my-token")
+			if err == nil {
+				t.Fatalf("expected error for PythonError (status %d), got nil", statusCode)
+			}
+			if strings.Contains(err.Error(), "unexpected result type") {
+				t.Errorf("PythonError should be handled explicitly, got: %v", err)
+			}
+		})
 	}
 }
 

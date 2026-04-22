@@ -32,6 +32,10 @@ func (c *Client) CreateAgentToken(ctx context.Context, name string) (*AgentToken
 			Name:  name,
 			Token: r.AgentTokenFields.Token,
 		}, nil
+	case *schema.CreateAgentTokenCreateAgentTokenPythonError:
+		return nil, fmt.Errorf("CreateAgentToken: Dagster Cloud returned an internal error; check your organization configuration or contact Dagster support")
+	case *schema.CreateAgentTokenCreateAgentTokenUnauthorizedError:
+		return nil, fmt.Errorf("CreateAgentToken: unauthorized; verify your API token has permission to create agent tokens")
 	default:
 		return nil, fmt.Errorf("CreateAgentToken: unexpected result type %T", resp.CreateAgentToken)
 	}
@@ -57,6 +61,10 @@ func (c *Client) ListAgentTokens(ctx context.Context) ([]AgentToken, error) {
 			})
 		}
 		return tokens, nil
+	case *schema.ListAgentTokensAgentTokensOrErrorPythonError:
+		return nil, fmt.Errorf("ListAgentTokens: Dagster Cloud returned an internal error; check your organization configuration or contact Dagster support")
+	case *schema.ListAgentTokensAgentTokensOrErrorUnauthorizedError:
+		return nil, fmt.Errorf("ListAgentTokens: unauthorized; verify your API token has permission to list agent tokens")
 	default:
 		return nil, fmt.Errorf("ListAgentTokens: unexpected result type %T", resp.AgentTokensOrError)
 	}
