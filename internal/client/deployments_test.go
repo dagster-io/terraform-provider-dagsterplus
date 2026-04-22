@@ -10,6 +10,7 @@ import (
 
 func mockDeployment() map[string]any {
 	return map[string]any{
+		"deploymentId":   42,
 		"deploymentName": "prod",
 		"deploymentType": "PROD",
 	}
@@ -30,6 +31,7 @@ func TestCreateDeployment_Success(t *testing.T) {
 		gqlOK(w, map[string]any{
 			"createDeployment": map[string]any{
 				"__typename":     "DagsterCloudDeployment",
+				"deploymentId":   99,
 				"deploymentName": "prod",
 				"deploymentType": "PROD",
 			},
@@ -46,6 +48,9 @@ func TestCreateDeployment_Success(t *testing.T) {
 	}
 	if dep.Type != "PROD" {
 		t.Errorf("Type = %q, want PROD", dep.Type)
+	}
+	if dep.IntID != 99 {
+		t.Errorf("IntID = %d, want 99", dep.IntID)
 	}
 }
 
@@ -99,6 +104,9 @@ func TestListDeployments_Success(t *testing.T) {
 	}
 	if deps[0].Name != "prod" {
 		t.Errorf("Name = %q, want prod", deps[0].Name)
+	}
+	if deps[0].IntID != 42 {
+		t.Errorf("IntID = %d, want 42", deps[0].IntID)
 	}
 }
 

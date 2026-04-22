@@ -3,6 +3,7 @@ package datasources
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -25,10 +26,11 @@ type deploymentDataSource struct {
 
 // deploymentDataSourceModel describes the data source data model.
 type deploymentDataSourceModel struct {
-	ID     types.String `tfsdk:"id"`
-	Name   types.String `tfsdk:"name"`
-	Type   types.String `tfsdk:"type"`
-	Status types.String `tfsdk:"status"`
+	ID           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
+	Type         types.String `tfsdk:"type"`
+	Status       types.String `tfsdk:"status"`
+	DeploymentID types.String `tfsdk:"deployment_id"`
 }
 
 func (d *deploymentDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -53,6 +55,10 @@ func (d *deploymentDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 			},
 			"status": schema.StringAttribute{
 				Description: "The current status of the deployment (e.g. `ACTIVE`, `PENDING_DELETION`).",
+				Computed:    true,
+			},
+			"deployment_id": schema.StringAttribute{
+				Description: "The numeric deployment ID as a decimal string.",
 				Computed:    true,
 			},
 		},
@@ -89,10 +95,11 @@ func (d *deploymentDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	state := deploymentDataSourceModel{
-		ID:     types.StringValue(deployment.Name),
-		Name:   types.StringValue(deployment.Name),
-		Type:   types.StringValue(deployment.Type),
-		Status: types.StringValue(deployment.Status),
+		ID:           types.StringValue(deployment.Name),
+		Name:         types.StringValue(deployment.Name),
+		Type:         types.StringValue(deployment.Type),
+		Status:       types.StringValue(deployment.Status),
+		DeploymentID: types.StringValue(strconv.FormatInt(deployment.IntID, 10)),
 	}
 
 	diags = resp.State.Set(ctx, state)

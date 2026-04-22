@@ -3,6 +3,7 @@ package datasources
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -58,6 +59,10 @@ func (d *deploymentsDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 							Description: "The deployment status.",
 							Computed:    true,
 						},
+						"deployment_id": schema.StringAttribute{
+							Description: "The numeric deployment ID as a decimal string.",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -93,9 +98,11 @@ func (d *deploymentsDataSource) Read(ctx context.Context, _ datasource.ReadReque
 	}
 	for i, dep := range deployments {
 		state.Deployments[i] = deploymentDataSourceModel{
-			ID:   types.StringValue(dep.Name),
-			Name: types.StringValue(dep.Name),
-			Type: types.StringValue(dep.Type),
+			ID:           types.StringValue(dep.Name),
+			Name:         types.StringValue(dep.Name),
+			Type:         types.StringValue(dep.Type),
+			Status:       types.StringValue(dep.Status),
+			DeploymentID: types.StringValue(strconv.FormatInt(dep.IntID, 10)),
 		}
 	}
 
