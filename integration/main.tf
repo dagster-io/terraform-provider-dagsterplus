@@ -179,6 +179,12 @@ resource "dagsterplus_service_token" "ci_bot_token" {
   description     = "Primary token for acc-tf-ci-bot"
 }
 
+resource "dagsterplus_service_user_deployment_grant" "ci_bot_test" {
+  service_user_id = dagsterplus_service_user.ci_bot.id
+  deployment      = dagsterplus_deployment.test.name
+  grant           = "LAUNCHER"
+}
+
 resource "dagsterplus_organization_settings" "org" {
   settings_json = "{}"
 }
