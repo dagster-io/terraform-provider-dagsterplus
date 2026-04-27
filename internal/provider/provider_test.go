@@ -60,6 +60,19 @@ func testAccUserEmail(t *testing.T) string {
 	return email
 }
 
+// testAccExistingUserEmail returns the email of an already-accepted org member
+// used by data source acceptance tests. Pending-invite users are not visible
+// through the API, so data source tests require a user who has already joined.
+// Set DAGSTER_CLOUD_TEST_EXISTING_USER_EMAIL; the test is skipped when absent.
+func testAccExistingUserEmail(t *testing.T) string {
+	t.Helper()
+	email := os.Getenv("DAGSTER_CLOUD_TEST_EXISTING_USER_EMAIL")
+	if email == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_EXISTING_USER_EMAIL must be set to run user data source acceptance tests")
+	}
+	return email
+}
+
 // providerConfig returns the HCL provider block for acceptance tests.
 // Credentials are read from environment variables.
 func providerConfig() string {
