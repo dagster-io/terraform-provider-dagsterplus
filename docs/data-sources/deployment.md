@@ -17,8 +17,8 @@ data "dagsterplus_deployment" "prod" {
   name = "prod"
 }
 
-output "prod_deployment_type" {
-  value = data.dagsterplus_deployment.prod.type
+output "prod_deployment_id" {
+  value = data.dagsterplus_deployment.prod.deployment_id
 }
 ```
 
@@ -31,6 +31,7 @@ output "prod_deployment_type" {
 
 ### Read-Only
 
+- `deployment_id` (String) The numeric deployment ID as a decimal string.
 - `id` (String) Deployment identifier (same as name).
 - `status` (String) The current status of the deployment (e.g. `ACTIVE`, `PENDING_DELETION`).
 - `type` (String) The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.
