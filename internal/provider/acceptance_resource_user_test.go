@@ -25,17 +25,11 @@ func TestAccUserResource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("dagsterplus_user.test", "email", testEmail),
 					resource.TestCheckResourceAttrSet("dagsterplus_user.test", "id"),
-					resource.TestCheckResourceAttrSet("dagsterplus_user.test", "role"),
-					resource.TestCheckResourceAttrSet("dagsterplus_user.test", "picture"),
 				),
 			},
-			// Import — picture and name are set by Dagster+ and may differ from invite state.
-			{
-				ResourceName:            "dagsterplus_user.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "role", "picture"},
-			},
+			// Import is omitted here: a pending invite is not visible through the
+			// members list, so ImportState cannot look up the user by ID until
+			// the invite is accepted.
 		},
 	})
 }

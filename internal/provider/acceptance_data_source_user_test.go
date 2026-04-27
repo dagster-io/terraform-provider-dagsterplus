@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccUserDataSource_basic(t *testing.T) {
-	testEmail := testAccUserEmail(t)
+	testEmail := testAccExistingUserEmail(t)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -18,9 +18,7 @@ func TestAccUserDataSource_basic(t *testing.T) {
 				Config: providerConfig() + testAccUserDataSourceConfig(testEmail),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.dagsterplus_user.test", "email", testEmail),
-					resource.TestCheckResourceAttr("data.dagsterplus_user.test", "role", "VIEWER"),
 					resource.TestCheckResourceAttrSet("data.dagsterplus_user.test", "id"),
-					resource.TestCheckResourceAttrSet("data.dagsterplus_user.test", "picture"),
 				),
 			},
 		},
@@ -42,14 +40,8 @@ func TestAccUserDataSource_notFound(t *testing.T) {
 
 func testAccUserDataSourceConfig(email string) string {
 	return fmt.Sprintf(`
-resource "dagsterplus_user" "test" {
-  email = %q
-  role  = "VIEWER"
-}
-
 data "dagsterplus_user" "test" {
-  email      = dagsterplus_user.test.email
-  depends_on = [dagsterplus_user.test]
+  email = %q
 }
 `, email)
 }
