@@ -6,8 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-04-28
+
+### Breaking Changes
+- `dagsterplus_code_location`: `working_directory`, `executable_path`, `attribute`, and `agent_queue` are no longer `Computed`. These fields were previously `Optional+Computed`, meaning Terraform would persist whatever the API returned even if the field was omitted from config. They are now `Optional`-only and will be `null` in state when not set. Users with existing state that has these fields populated from a prior computed read should set the values explicitly in their config (or run `terraform state rm` and re-import) to avoid a persistent plan diff.
+
 ### Fixed
 - Code location fields no longer incorrectly show as unknown after creation; optional fields now preserve state correctly.
+- Provider now strips trailing slashes from `base_url` to prevent request failures when the URL is supplied with a trailing `/`.
+- HTTP 500 responses containing a `PythonError` body are now handled gracefully instead of causing an opaque client error.
+- `dagsterplus_user` resource no longer removes itself from state when the invited user is in a pending-invite state; state is preserved and refreshed once the invite is accepted.
+
+### Changed
+- Acceptance tests now run in CI against the live API on every pull request.
 
 ## [0.1.3] - 2026-04-14
 
@@ -39,7 +50,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full CI pipeline (build, vet, format, unit tests, module tidy, generated code check).
 - GoReleaser-based release pipeline with GPG-signed checksums.
 
-[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.0...v0.1.1
