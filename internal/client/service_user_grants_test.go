@@ -10,7 +10,6 @@ import (
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 )
 
-
 func TestSetServiceUserGrant_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b := parseBody(t, r)
