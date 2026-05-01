@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-05-01
+
+### Added
+- `pkg/provider` package exporting a top-level `New` constructor to support the Pulumi Terraform bridge.
+
 ## [0.1.4] - 2026-04-28
 
 ### Breaking Changes
@@ -50,7 +55,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full CI pipeline (build, vet, format, unit tests, module tidy, generated code check).
 - GoReleaser-based release pipeline with GPG-signed checksums.
 
-[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.1...v0.1.2
