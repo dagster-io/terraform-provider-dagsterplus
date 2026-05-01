@@ -10,23 +10,6 @@ import (
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
 )
 
-func mockServiceUserGrantFields(deploymentId int) map[string]any {
-	return map[string]any{
-		"id": "su-id-1",
-		"organizationPermissionGrant": map[string]any{
-			"grant": "", "customRoleId": "", "deploymentScope": "ORGANIZATION", "deploymentId": 0,
-		},
-		"allBranchDeploymentsPermissionGrant": map[string]any{
-			"grant": "", "customRoleId": "", "deploymentScope": "ALL_BRANCH_DEPLOYMENTS", "deploymentId": 0,
-		},
-		"deploymentPermissionGrants": []any{
-			map[string]any{
-				"grant": "VIEWER", "customRoleId": "", "deploymentScope": "DEPLOYMENT",
-				"deploymentId": deploymentId, "locationGrants": []any{},
-			},
-		},
-	}
-}
 
 func TestSetServiceUserGrant_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
