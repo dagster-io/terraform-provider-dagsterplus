@@ -137,6 +137,7 @@ func (p *dagsterplusProvider) Resources(_ context.Context) []func() resource.Res
 		resources.NewExternalAssetConnectionResource,
 		resources.NewTeamMembershipResource,
 		resources.NewTeamDeploymentGrantResource,
+		resources.NewServiceUserDeploymentGrantResource,
 		resources.NewCodeLocationFromDocumentResource,
 	}
 }
