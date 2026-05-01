@@ -15,8 +15,8 @@ Lists all Dagster+ teams in the organization.
 ```terraform
 data "dagsterplus_teams" "all" {}
 
-output "team_names" {
-  value = [for t in data.dagsterplus_teams.all.teams : t.name]
+output "teams" {
+  value = data.dagsterplus_teams.all.teams
 }
 ```
 
