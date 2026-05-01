@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
@@ -29,9 +30,10 @@ type deploymentResource struct {
 
 // deploymentResourceModel describes the resource data model.
 type deploymentResourceModel struct {
-	ID     types.String `tfsdk:"id"`
-	Name   types.String `tfsdk:"name"`
-	Status types.String `tfsdk:"status"`
+	ID           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
+	Status       types.String `tfsdk:"status"`
+	DeploymentID types.String `tfsdk:"deployment_id"`
 }
 
 func (r *deploymentResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -58,6 +60,13 @@ func (r *deploymentResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			},
 			"status": schema.StringAttribute{
 				Description: "The current status of the deployment (e.g. ACTIVE, PENDING_DELETION).",
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"deployment_id": schema.StringAttribute{
+				Description: "The numeric deployment ID as a decimal string. Use this with GraphQL mutations such as `createOrUpdateAgentPermissions`.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -98,6 +107,7 @@ func (r *deploymentResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.ID = types.StringValue(deployment.Name)
 	plan.Name = types.StringValue(deployment.Name)
 	plan.Status = types.StringValue(deployment.Status)
+	plan.DeploymentID = types.StringValue(strconv.FormatInt(deployment.IntID, 10))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
@@ -122,6 +132,7 @@ func (r *deploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 	state.ID = types.StringValue(deployment.Name)
 	state.Name = types.StringValue(deployment.Name)
 	state.Status = types.StringValue(deployment.Status)
+	state.DeploymentID = types.StringValue(strconv.FormatInt(deployment.IntID, 10))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
@@ -153,9 +164,10 @@ func (r *deploymentResource) ImportState(ctx context.Context, req resource.Impor
 	}
 
 	state := deploymentResourceModel{
-		ID:     types.StringValue(deployment.Name),
-		Name:   types.StringValue(deployment.Name),
-		Status: types.StringValue(deployment.Status),
+		ID:           types.StringValue(deployment.Name),
+		Name:         types.StringValue(deployment.Name),
+		Status:       types.StringValue(deployment.Status),
+		DeploymentID: types.StringValue(strconv.FormatInt(deployment.IntID, 10)),
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)

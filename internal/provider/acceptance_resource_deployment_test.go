@@ -27,6 +27,7 @@ func TestAccDeploymentResource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("dagsterplus_deployment.test", "name", rName),
 					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "id"),
 					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "status"),
+					resource.TestCheckResourceAttrSet("dagsterplus_deployment.test", "deployment_id"),
 				),
 			},
 			// Import

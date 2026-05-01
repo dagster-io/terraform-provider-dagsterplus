@@ -33,6 +33,7 @@ output "deployments" {
 
 Read-Only:
 
+- `deployment_id` (String) The numeric deployment ID as a decimal string.
 - `id` (String) Deployment identifier (same as name).
 - `name` (String) The deployment name.
 - `status` (String) The deployment status.

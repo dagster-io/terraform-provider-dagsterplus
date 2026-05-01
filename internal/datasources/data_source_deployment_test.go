@@ -60,4 +60,20 @@ func TestDeploymentDataSource_Schema(t *testing.T) {
 	if idAttr.IsRequired() {
 		t.Error("id should not be Required")
 	}
+
+	// "deployment_id" must be Computed only
+	deplIDRaw, ok := resp.Schema.Attributes["deployment_id"]
+	if !ok {
+		t.Fatal("missing 'deployment_id' attribute")
+	}
+	deplIDAttr, ok := deplIDRaw.(dsschema.StringAttribute)
+	if !ok {
+		t.Fatalf("deployment_id should be StringAttribute, got %T", deplIDRaw)
+	}
+	if !deplIDAttr.IsComputed() {
+		t.Error("deployment_id should be Computed")
+	}
+	if deplIDAttr.IsRequired() {
+		t.Error("deployment_id should not be Required")
+	}
 }
