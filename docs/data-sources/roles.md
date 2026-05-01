@@ -15,8 +15,8 @@ Lists all Dagster+ custom roles in the organization.
 ```terraform
 data "dagsterplus_roles" "all" {}
 
-output "roles" {
-  value = data.dagsterplus_roles.all.roles
+output "role_names" {
+  value = [for r in data.dagsterplus_roles.all.roles : r.name]
 }
 ```
 

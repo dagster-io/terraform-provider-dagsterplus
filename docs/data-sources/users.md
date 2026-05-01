@@ -15,8 +15,8 @@ Lists all Dagster+ organization members.
 ```terraform
 data "dagsterplus_users" "all" {}
 
-output "users" {
-  value = data.dagsterplus_users.all.users
+output "user_emails" {
+  value = [for u in data.dagsterplus_users.all.users : u.email]
 }
 ```
 

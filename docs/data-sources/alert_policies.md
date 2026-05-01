@@ -17,8 +17,8 @@ data "dagsterplus_alert_policies" "prod" {
   deployment = "prod"
 }
 
-output "alert_policies" {
-  value = data.dagsterplus_alert_policies.prod.alert_policies
+output "policy_names" {
+  value = [for p in data.dagsterplus_alert_policies.prod.alert_policies : p.name]
 }
 ```
 
