@@ -51,6 +51,31 @@ When adding a new resource, add a representative example block to `integration/m
 
 ---
 
+## Breaking Change Protocol
+
+**Applies automatically whenever you modify `internal/provider/resource_*.go`, `internal/provider/data_source_*.go`, or any file under `internal/client/schema/`.**
+
+Before writing or finalising any change to those files, check your diff against this list. If **any** of the following are true, **stop immediately and ask the user to confirm before proceeding** — do not complete the change first:
+
+| Change | Why it breaks production users |
+|--------|-------------------------------|
+| Removing an attribute from a schema | Users with that attribute in `.tf` config get a plan-time error |
+| Renaming an attribute | Equivalent to removal from Terraform's perspective |
+| Changing `Optional` → `Required` | Configs that omit the field now fail |
+| Adding a new `Required` attribute without a default | Existing configs that don't supply it break |
+| Adding `RequiresReplace` to an existing attribute | Resources that were stable now silently destroy/recreate |
+| Removing a value from `stringvalidator.OneOf` | Configs using that value now fail validation |
+| Changing an attribute's type (e.g. `StringAttribute` → `ListAttribute`) | State is incompatible; `terraform refresh` corrupts state |
+| Changing a default value that alters behavior | Silent behavior change for users relying on the default |
+| Changing the import ID format (field order, delimiter, or fields) | Existing `terraform import` scripts break |
+
+When you stop, state clearly:
+1. Which change triggered the alert and in which file/attribute
+2. Why it is a breaking change for production users
+3. Ask the user whether to proceed or find a non-breaking alternative
+
+---
+
 ## Checklist: Adding a New Resource
 
 Work through these in order. Do not skip steps.
@@ -180,7 +205,18 @@ Add a row to the **Status table** for the new resource/data source. The table ha
 
 Resources and data sources are self-documenting via the Terraform registry (generated from schema descriptions and `examples/` files by `tfplugindocs`) — do not add reference tables or usage snippets to the README.
 
-### 9. Final checks
+### 9. CHANGELOG (`CHANGELOG.md`)
+
+Update the `## [Unreleased]` section for every change made. Use the appropriate heading:
+
+- `### Added` — new resources, data sources, attributes, or features
+- `### Fixed` — bug fixes
+- `### Changed` — backward-compatible behavior or implementation changes
+- `### Breaking Changes` — anything flagged by the Breaking Change Protocol above
+
+Breaking changes **must** use `### Breaking Changes` (not `### Changed`). Each bullet must name the resource, the attribute, and what the user needs to do to migrate.
+
+### 10. Final checks
 
 These mirror the CI jobs that run on every PR. All must pass before merging.
 
