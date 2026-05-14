@@ -10,9 +10,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full matrix of permission-grant resources for `team`, `user`, and `service_user` principals across four scopes (`organization`, `deployment`, `all_branch_deployments`, `branch_deployments`). Each scope is available both as an inline block on the parent resource and as a standalone `{principal}_{scope}_grant` resource for out-of-band lifecycle management.
 - `branch_deployments_grant { parent_deployment = … }` — new scope expressing grants that apply to all branch deployments of a specific parent (full) deployment. Symmetric with `deployment_grant { deployment = … }`.
 
-### Changed
-- Internal Go client refactor: removed unused `client.UpdateUserRole`; renamed `mutation UpdateUserPermissions` to `SetUserGrant` / `DeleteUserGrant`. No effect on Terraform users (HCL surface, state shape, and resource attributes are unchanged).
-
 ## [0.1.5] - 2026-05-01
 
 ### Added
