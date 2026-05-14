@@ -44,4 +44,20 @@ func TestDeploymentResource_Schema(t *testing.T) {
 	if nameAttr.IsComputed() {
 		t.Error("name should not be Computed")
 	}
+
+	// deployment_id: Computed only, UseStateForUnknown
+	deplIDRaw, ok := resp.Schema.Attributes["deployment_id"]
+	if !ok {
+		t.Fatal("missing 'deployment_id' attribute")
+	}
+	deplIDAttr, ok := deplIDRaw.(rsschema.StringAttribute)
+	if !ok {
+		t.Fatalf("deployment_id should be StringAttribute, got %T", deplIDRaw)
+	}
+	if !deplIDAttr.IsComputed() {
+		t.Error("deployment_id should be Computed")
+	}
+	if deplIDAttr.IsRequired() || deplIDAttr.IsOptional() {
+		t.Error("deployment_id should not be Required or Optional")
+	}
 }

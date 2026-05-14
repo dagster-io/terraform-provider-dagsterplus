@@ -111,3 +111,20 @@ func TestClient_GraphQLError(t *testing.T) {
 		t.Errorf("error should include GQL message, got: %v", err)
 	}
 }
+
+func TestClient_TrailingSlashBaseURL(t *testing.T) {
+	var path string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path = r.URL.Path
+		gqlOK(w, map[string]any{"deployments": []any{}})
+	}))
+	defer srv.Close()
+
+	c := client.New("test-org", "test-token", srv.URL+"/")
+	if _, err := c.ListDeployments(context.Background()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if path != "/graphql" {
+		t.Errorf("path = %q, want /graphql", path)
+	}
+}

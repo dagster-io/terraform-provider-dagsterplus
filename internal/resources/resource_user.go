@@ -312,7 +312,9 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	user, err := r.client.GetUser(ctx, state.ID.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
-			resp.State.RemoveResource(ctx)
+			// User may be in pending-invite state and not yet visible in the
+			// members list. Keep existing state rather than dropping the
+			// resource; state will refresh once the invite is accepted.
 			return
 		}
 		resp.Diagnostics.AddError("Error reading user", err.Error())

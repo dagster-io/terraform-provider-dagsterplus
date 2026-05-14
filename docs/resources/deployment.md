@@ -15,16 +15,10 @@ Manages a Dagster+ deployment.
 ```terraform
 resource "dagsterplus_deployment" "prod" {
   name = "prod"
-  type = "SERVERLESS"
-}
-
-resource "dagsterplus_deployment" "hybrid" {
-  name = "hybrid-prod"
-  type = "HYBRID"
 }
 
 output "prod_deployment_id" {
-  value = dagsterplus_deployment.prod.id
+  value = dagsterplus_deployment.prod.deployment_id
 }
 ```
 
@@ -37,6 +31,7 @@ output "prod_deployment_id" {
 
 ### Read-Only
 
+- `deployment_id` (String) The numeric deployment ID as a decimal string. Use this with GraphQL mutations such as `createOrUpdateAgentPermissions`.
 - `id` (String) Deployment identifier (same as name).
 - `status` (String) The current status of the deployment (e.g. ACTIVE, PENDING_DELETION).
 
