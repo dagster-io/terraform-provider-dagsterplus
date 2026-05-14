@@ -1,0 +1,94 @@
+fragment ServiceUserGrantsFields on ServiceUserWithScopedPermissionGrants {
+  id
+  organizationPermissionGrant {
+    grant
+    customRoleId
+    deploymentScope
+    deploymentId
+  }
+  allBranchDeploymentsPermissionGrant {
+    grant
+    customRoleId
+    deploymentScope
+    deploymentId
+  }
+  perBaseBranchDeploymentsPermissionGrants {
+    grant
+    customRoleId
+    deploymentScope
+    deploymentId
+  }
+  deploymentPermissionGrants {
+    grant
+    customRoleId
+    deploymentScope
+    deploymentId
+    locationGrants {
+      locationName
+      grant
+      customRoleId
+    }
+  }
+}
+
+query GetServiceUserGrants($serviceUserId: String!) {
+  serviceUser(serviceUserId: $serviceUserId) {
+    __typename
+    ... on ServiceUserWithScopedPermissionGrants {
+      ...ServiceUserGrantsFields
+    }
+    ... on ServiceUserNotFoundError {
+      message
+    }
+  }
+}
+
+mutation SetServiceUserGrant(
+  $serviceUserId: String!
+  $scope: PermissionDeploymentScope!
+  $grant: PermissionGrant!
+  $customRoleId: String
+  $deploymentId: Int
+  $locationGrants: [LocationScopedGrantInput!]
+) {
+  createOrUpdateServiceUserPermissions(
+    serviceUserPermission: {
+      serviceUserId: $serviceUserId
+      deploymentScope: $scope
+      grant: $grant
+      customRoleId: $customRoleId
+      deploymentId: $deploymentId
+      locationGrants: $locationGrants
+    }
+  ) {
+    __typename
+    ... on ServiceUserWithScopedPermissionGrants {
+      ...ServiceUserGrantsFields
+    }
+    ... on ServiceUserNotFoundError {
+      message
+    }
+  }
+}
+
+mutation DeleteServiceUserGrant(
+  $serviceUserId: String!
+  $scope: PermissionDeploymentScope!
+  $deploymentId: Int
+) {
+  removeServiceUserPermissions(
+    serviceUserPermission: {
+      serviceUserId: $serviceUserId
+      deploymentScope: $scope
+      deploymentId: $deploymentId
+    }
+  ) {
+    __typename
+    ... on ServiceUserWithScopedPermissionGrants {
+      id
+    }
+    ... on ServiceUserNotFoundError {
+      message
+    }
+  }
+}
