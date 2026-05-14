@@ -47,6 +47,7 @@ resource "dagsterplus_team" "analysts" {
 ### Optional
 
 - `all_branch_deployments_grant` (Block List) Permission grant for all branch deployments. At most one block is allowed. (see [below for nested schema](#nestedblock--all_branch_deployments_grant))
+- `branch_deployments_grant` (Block List) Permission grant for all branch deployments of a specific parent (full) deployment. One block per parent deployment. (see [below for nested schema](#nestedblock--branch_deployments_grant))
 - `deployment_grant` (Block List) Deployment-level permission grant for the team. One block per deployment. (see [below for nested schema](#nestedblock--deployment_grant))
 - `member` (Block List) A user who is a member of this team. One block per user. (see [below for nested schema](#nestedblock--member))
 - `organization_grant` (Block List) Organization-level permission grant for the team. At most one block is allowed. (see [below for nested schema](#nestedblock--organization_grant))
@@ -57,6 +58,19 @@ resource "dagsterplus_team" "analysts" {
 
 <a id="nestedblock--all_branch_deployments_grant"></a>
 ### Nested Schema for `all_branch_deployments_grant`
+
+Optional:
+
+- `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
+- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+
+
+<a id="nestedblock--branch_deployments_grant"></a>
+### Nested Schema for `branch_deployments_grant`
+
+Required:
+
+- `parent_deployment` (String) The name of the full (parent) deployment whose branch deployments this grant applies to.
 
 Optional:
 
