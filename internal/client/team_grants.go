@@ -7,13 +7,6 @@ import (
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
 )
 
-// LocationGrant represents a permission grant scoped to a specific code location.
-type LocationGrant struct {
-	LocationName string
-	Grant        string
-	CustomRoleID string
-}
-
 // TeamGrant represents a permission grant for a team at a specific scope.
 type TeamGrant struct {
 	TeamID          string
@@ -22,31 +15,6 @@ type TeamGrant struct {
 	Grant           string // "VIEWER" | "EDITOR" | "LAUNCHER" | "ADMIN" | "CUSTOM"
 	CustomRoleID    string // only when Grant == "CUSTOM"
 	LocationGrants  []LocationGrant
-}
-
-var grantScopeToAPI = map[string]schema.PermissionDeploymentScope{
-	"organization":           "ORGANIZATION",
-	"deployment":             "DEPLOYMENT",
-	"all_branch_deployments": "ALL_BRANCH_DEPLOYMENTS",
-	"branch_deployments":     "ALL_BRANCH_DEPLOYMENTS",
-}
-
-// scopeForGrant maps an API enum + deploymentId back to an internal scope string.
-// ALL_BRANCH_DEPLOYMENTS is ambiguous on the wire: when deploymentId is non-zero,
-// it represents a per-base-branch grant under that parent deployment.
-func scopeForGrant(deploymentScope schema.PermissionDeploymentScope, deploymentId int) string {
-	switch deploymentScope {
-	case "ORGANIZATION":
-		return "organization"
-	case "DEPLOYMENT":
-		return "deployment"
-	case "ALL_BRANCH_DEPLOYMENTS":
-		if deploymentId != 0 {
-			return "branch_deployments"
-		}
-		return "all_branch_deployments"
-	}
-	return string(deploymentScope)
 }
 
 func teamGrantFromFields(teamID string, grant schema.PermissionGrant, customRoleId string, deploymentScope schema.PermissionDeploymentScope, deploymentId int, locationGrants []schema.TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) *TeamGrant {
