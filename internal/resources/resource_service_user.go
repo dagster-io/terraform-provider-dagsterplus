@@ -447,49 +447,13 @@ func (r *serviceUserResource) ImportState(ctx context.Context, req resource.Impo
 		return
 	}
 
+	// Inline grant blocks are not auto-populated on import. Add them to your
+	// config to bring the corresponding API grants under management — the next
+	// Read will then refresh those blocks from state.
 	state := serviceUserResourceModel{
-		ID:                        types.StringValue(u.ID),
-		Name:                      types.StringValue(u.Name),
-		Description:               types.StringValue(u.Description),
-		OrganizationGrant:         []orgGrantModel{},
-		AllBranchDeploymentsGrant: []orgGrantModel{},
-		DeploymentGrant:           []deploymentGrantModel{},
-		BranchDeploymentsGrant:    []branchDeploymentsGrantModel{},
-	}
-
-	if g, err := r.client.GetServiceUserGrant(ctx, u.ID, "organization", 0); err == nil {
-		state.OrganizationGrant = []orgGrantModel{serviceUserGrantToOrgModel(g)}
-	}
-	if g, err := r.client.GetServiceUserGrant(ctx, u.ID, "all_branch_deployments", 0); err == nil {
-		state.AllBranchDeploymentsGrant = []orgGrantModel{serviceUserGrantToOrgModel(g)}
-	}
-	if depGrants, err := r.client.ListServiceUserDeploymentGrants(ctx, u.ID); err == nil {
-		for _, g := range depGrants {
-			depName, err := r.client.GetDeploymentNameByIntID(ctx, g.DeploymentID)
-			if err != nil {
-				continue
-			}
-			grantVal, customRoleIDVal := grantFieldsFromAPI(g.Grant, g.CustomRoleID)
-			state.DeploymentGrant = append(state.DeploymentGrant, deploymentGrantModel{
-				Deployment:   types.StringValue(depName),
-				Grant:        grantVal,
-				CustomRoleID: customRoleIDVal,
-			})
-		}
-	}
-	if branchGrants, err := r.client.ListServiceUserBranchDeploymentsGrants(ctx, u.ID); err == nil {
-		for _, g := range branchGrants {
-			depName, err := r.client.GetDeploymentNameByIntID(ctx, g.DeploymentID)
-			if err != nil {
-				continue
-			}
-			grantVal, customRoleIDVal := grantFieldsFromAPI(g.Grant, g.CustomRoleID)
-			state.BranchDeploymentsGrant = append(state.BranchDeploymentsGrant, branchDeploymentsGrantModel{
-				ParentDeployment: types.StringValue(depName),
-				Grant:            grantVal,
-				CustomRoleID:     customRoleIDVal,
-			})
-		}
+		ID:          types.StringValue(u.ID),
+		Name:        types.StringValue(u.Name),
+		Description: types.StringValue(u.Description),
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
