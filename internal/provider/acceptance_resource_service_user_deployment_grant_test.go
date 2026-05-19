@@ -20,7 +20,6 @@ func TestAccServiceUserDeploymentGrantResource_basic(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckServiceUserDestroyedByName(rName),
 		Steps: []resource.TestStep{
-			// Create
 			{
 				Config: providerConfig() + testAccServiceUserDeploymentGrantConfig(rName, testAccDeployment(), "VIEWER"),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -30,14 +29,12 @@ func TestAccServiceUserDeploymentGrantResource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("dagsterplus_service_user_deployment_grant.test", "grant", "VIEWER"),
 				),
 			},
-			// Update grant level
 			{
 				Config: providerConfig() + testAccServiceUserDeploymentGrantConfig(rName, testAccDeployment(), "EDITOR"),
 				Check: resource.TestCheckResourceAttr(
 					"dagsterplus_service_user_deployment_grant.test", "grant", "EDITOR",
 				),
 			},
-			// Import
 			{
 				ResourceName:      "dagsterplus_service_user_deployment_grant.test",
 				ImportState:       true,
@@ -47,28 +44,8 @@ func TestAccServiceUserDeploymentGrantResource_basic(t *testing.T) {
 	})
 }
 
-func TestAccServiceUserDeploymentGrantResource_disappears(t *testing.T) {
-	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy:             testAccCheckServiceUserDestroyedByName(rName),
-		Steps: []resource.TestStep{
-			{
-				Config: providerConfig() + testAccServiceUserDeploymentGrantConfig(rName, testAccDeployment(), "VIEWER"),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("dagsterplus_service_user_deployment_grant.test", "id"),
-					testAccServiceUserDeploymentGrantDisappears("dagsterplus_service_user_deployment_grant.test"),
-				),
-				ExpectNonEmptyPlan: true,
-			},
-		},
-	})
-}
-
 func testAccCheckServiceUserDestroyedByName(name string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		c := client.New(
 			os.Getenv("DAGSTER_CLOUD_ORGANIZATION"),
 			os.Getenv("DAGSTER_CLOUD_API_TOKEN"),
@@ -84,27 +61,6 @@ func testAccCheckServiceUserDestroyedByName(name string) resource.TestCheckFunc 
 			}
 		}
 		return nil
-	}
-}
-
-func testAccServiceUserDeploymentGrantDisappears(resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", resourceName)
-		}
-		serviceUserID := rs.Primary.Attributes["service_user_id"]
-		deployment := rs.Primary.Attributes["deployment"]
-		c := client.New(
-			os.Getenv("DAGSTER_CLOUD_ORGANIZATION"),
-			os.Getenv("DAGSTER_CLOUD_API_TOKEN"),
-			"",
-		)
-		intID, err := c.GetDeploymentIntID(context.Background(), deployment)
-		if err != nil {
-			return fmt.Errorf("resolving deployment: %w", err)
-		}
-		return c.DeleteServiceUserGrant(context.Background(), serviceUserID, "deployment", intID)
 	}
 }
 

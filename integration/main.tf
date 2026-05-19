@@ -112,6 +112,45 @@ resource "dagsterplus_team_membership" "dennis" {
   user_id = dagsterplus_user.dennis.id
 }
 
+# Standalone grant resources — exercise one per principal/scope combination.
+resource "dagsterplus_team_organization_grant" "grants_only_org" {
+  team_id = dagsterplus_team.grants_only.id
+  grant   = "VIEWER"
+}
+
+resource "dagsterplus_team_all_branch_deployments_grant" "grants_only_all_branch" {
+  team_id = dagsterplus_team.grants_only.id
+  grant   = "LAUNCHER"
+}
+
+resource "dagsterplus_team_branch_deployments_grant" "grants_only_prod_branches" {
+  team_id           = dagsterplus_team.grants_only.id
+  parent_deployment = "prod"
+  grant             = "EDITOR"
+}
+
+resource "dagsterplus_service_user_organization_grant" "ci_bot_org" {
+  service_user_id = dagsterplus_service_user.ci_bot.id
+  grant           = "VIEWER"
+}
+
+resource "dagsterplus_service_user_deployment_grant" "ci_bot_test" {
+  service_user_id = dagsterplus_service_user.ci_bot.id
+  deployment      = dagsterplus_deployment.test.name
+  grant           = "LAUNCHER"
+}
+
+resource "dagsterplus_service_user_all_branch_deployments_grant" "ci_bot_all_branch" {
+  service_user_id = dagsterplus_service_user.ci_bot.id
+  grant           = "LAUNCHER"
+}
+
+resource "dagsterplus_service_user_branch_deployments_grant" "ci_bot_prod_branches" {
+  service_user_id   = dagsterplus_service_user.ci_bot.id
+  parent_deployment = "prod"
+  grant             = "EDITOR"
+}
+
 resource "dagsterplus_alert_policy" "test_deployment" {
   deployment  = dagsterplus_deployment.test.name
   name        = "acc-tf-test-alerts"
@@ -177,12 +216,6 @@ resource "dagsterplus_service_user" "ci_bot" {
 resource "dagsterplus_service_token" "ci_bot_token" {
   service_user_id = dagsterplus_service_user.ci_bot.id
   description     = "Primary token for acc-tf-ci-bot"
-}
-
-resource "dagsterplus_service_user_deployment_grant" "ci_bot_test" {
-  service_user_id = dagsterplus_service_user.ci_bot.id
-  deployment      = dagsterplus_deployment.test.name
-  grant           = "LAUNCHER"
 }
 
 resource "dagsterplus_organization_settings" "org" {
