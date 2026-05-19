@@ -16,20 +16,6 @@ fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
   organizationPermissionGrant {
     ...ScopedGrantFields
   }
-  allBranchDeploymentsPermissionGrant {
-    ...ScopedGrantFields
-  }
-  perBaseBranchDeploymentsPermissionGrants {
-    ...ScopedGrantFields
-  }
-  deploymentPermissionGrants {
-    ...ScopedGrantFields
-    locationGrants {
-      locationName
-      grant
-      customRoleId
-    }
-  }
 }
 
 query ListUsers {
@@ -73,56 +59,9 @@ mutation AddUser($email: String!) {
   }
 }
 
-mutation SetUserGrant(
-  $email: String!
-  $scope: PermissionDeploymentScope!
-  $grant: PermissionGrant!
-  $customRoleId: String
-  $deploymentId: Int
-  $locationGrants: [LocationScopedGrantInput!]
-) {
-  createOrUpdateUserPermissions(
-    userPermission: {
-      email: $email
-      deploymentScope: $scope
-      grant: $grant
-      customRoleId: $customRoleId
-      deploymentId: $deploymentId
-      locationGrants: $locationGrants
-    }
-  ) {
+mutation UpdateUserPermissions($userPermission: CreateOrUpdateCloudUserPermissionsInput!) {
+  createOrUpdateUserPermissions(userPermission: $userPermission) {
     __typename
-    ... on DagsterCloudUserWithScopedPermissionGrants {
-      ...UserWithGrantsFields
-    }
-    ... on UserNotFoundError {
-      message
-    }
-    ... on CantRemoveAllAdminsError {
-      message
-    }
-  }
-}
-
-mutation DeleteUserGrant(
-  $email: String!
-  $scope: PermissionDeploymentScope!
-  $deploymentId: Int
-) {
-  removeUserPermissions(
-    userPermission: {
-      email: $email
-      deploymentScope: $scope
-      deploymentId: $deploymentId
-    }
-  ) {
-    __typename
-    ... on DagsterCloudUserWithScopedPermissionGrants {
-      ...UserWithGrantsFields
-    }
-    ... on UserNotFoundError {
-      message
-    }
   }
 }
 
