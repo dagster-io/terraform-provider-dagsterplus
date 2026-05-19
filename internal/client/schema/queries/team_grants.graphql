@@ -14,12 +14,6 @@ fragment TeamPermissionsFields on DagsterCloudTeamPermissions {
     deploymentScope
     deploymentId
   }
-  perBaseBranchDeploymentsPermissionGrants {
-    grant
-    customRoleId
-    deploymentScope
-    deploymentId
-  }
   deploymentPermissionGrants {
     grant
     customRoleId

@@ -121,6 +121,20 @@ func (c *Client) ListUsers(ctx context.Context) ([]User, error) {
 	}
 }
 
+// UpdateUserRole updates the organization-level role for an existing member.
+func (c *Client) UpdateUserRole(ctx context.Context, email, role string) error {
+	input := schema.CreateOrUpdateCloudUserPermissionsInput{
+		Email:           email,
+		Grant:           schema.PermissionGrant(role),
+		DeploymentScope: schema.PermissionDeploymentScopeOrganization,
+	}
+	_, err := schema.UpdateUserPermissions(ctx, c.gqlClient(""), input)
+	if err != nil {
+		return fmt.Errorf("UpdateUserRole: %w", err)
+	}
+	return nil
+}
+
 // RemoveUser removes a member from the organization by email.
 func (c *Client) RemoveUser(ctx context.Context, email string) error {
 	_, err := schema.RemoveUser(ctx, c.gqlClient(""), email)

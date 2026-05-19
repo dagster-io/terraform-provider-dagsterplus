@@ -12,12 +12,6 @@ fragment ServiceUserGrantsFields on ServiceUserWithScopedPermissionGrants {
     deploymentScope
     deploymentId
   }
-  perBaseBranchDeploymentsPermissionGrants {
-    grant
-    customRoleId
-    deploymentScope
-    deploymentId
-  }
   deploymentPermissionGrants {
     grant
     customRoleId
@@ -36,9 +30,6 @@ query GetServiceUserGrants($serviceUserId: String!) {
     __typename
     ... on ServiceUserWithScopedPermissionGrants {
       ...ServiceUserGrantsFields
-    }
-    ... on ServiceUserNotFoundError {
-      message
     }
   }
 }

@@ -641,21 +641,6 @@ func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsD
 	return v.UserWithGrantsFields.OrganizationPermissionGrant
 }
 
-// GetAllBranchDeploymentsPermissionGrant returns AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
-func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants) GetAllBranchDeploymentsPermissionGrant() UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
-// GetDeploymentPermissionGrants returns AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
-func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants) GetDeploymentPermissionGrants() []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.DeploymentPermissionGrants
-}
-
 func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -685,12 +670,6 @@ type __premarshalAddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWit
 	User UserWithGrantsFieldsUserDagsterCloudUser `json:"user"`
 
 	OrganizationPermissionGrant UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant `json:"organizationPermissionGrant"`
-
-	AllBranchDeploymentsPermissionGrant UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
-
-	PerBaseBranchDeploymentsPermissionGrants []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
-	DeploymentPermissionGrants []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
 func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsDagsterCloudUserWithScopedPermissionGrants) MarshalJSON() ([]byte, error) {
@@ -706,9 +685,6 @@ func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsD
 
 	retval.User = v.UserWithGrantsFields.User
 	retval.OrganizationPermissionGrant = v.UserWithGrantsFields.OrganizationPermissionGrant
-	retval.AllBranchDeploymentsPermissionGrant = v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-	retval.DeploymentPermissionGrants = v.UserWithGrantsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
 
@@ -3391,6 +3367,43 @@ func (v *CreateOrUpdateAlertPolicyResponse) __premarshalJSON() (*__premarshalCre
 		}
 	}
 	return &retval, nil
+}
+
+type CreateOrUpdateCloudUserPermissionsInput struct {
+	Email                string                     `json:"email"`
+	DeploymentId         int                        `json:"deploymentId"`
+	Grant                PermissionGrant            `json:"grant"`
+	CustomRoleId         string                     `json:"customRoleId"`
+	LocationGrants       []LocationScopedGrantInput `json:"locationGrants"`
+	DeploymentScope      PermissionDeploymentScope  `json:"deploymentScope"`
+	OwnerDefinitionsRole GrantInput                 `json:"ownerDefinitionsRole"`
+}
+
+// GetEmail returns CreateOrUpdateCloudUserPermissionsInput.Email, and is useful for accessing the field via an interface.
+func (v *CreateOrUpdateCloudUserPermissionsInput) GetEmail() string { return v.Email }
+
+// GetDeploymentId returns CreateOrUpdateCloudUserPermissionsInput.DeploymentId, and is useful for accessing the field via an interface.
+func (v *CreateOrUpdateCloudUserPermissionsInput) GetDeploymentId() int { return v.DeploymentId }
+
+// GetGrant returns CreateOrUpdateCloudUserPermissionsInput.Grant, and is useful for accessing the field via an interface.
+func (v *CreateOrUpdateCloudUserPermissionsInput) GetGrant() PermissionGrant { return v.Grant }
+
+// GetCustomRoleId returns CreateOrUpdateCloudUserPermissionsInput.CustomRoleId, and is useful for accessing the field via an interface.
+func (v *CreateOrUpdateCloudUserPermissionsInput) GetCustomRoleId() string { return v.CustomRoleId }
+
+// GetLocationGrants returns CreateOrUpdateCloudUserPermissionsInput.LocationGrants, and is useful for accessing the field via an interface.
+func (v *CreateOrUpdateCloudUserPermissionsInput) GetLocationGrants() []LocationScopedGrantInput {
+	return v.LocationGrants
+}
+
+// GetDeploymentScope returns CreateOrUpdateCloudUserPermissionsInput.DeploymentScope, and is useful for accessing the field via an interface.
+func (v *CreateOrUpdateCloudUserPermissionsInput) GetDeploymentScope() PermissionDeploymentScope {
+	return v.DeploymentScope
+}
+
+// GetOwnerDefinitionsRole returns CreateOrUpdateCloudUserPermissionsInput.OwnerDefinitionsRole, and is useful for accessing the field via an interface.
+func (v *CreateOrUpdateCloudUserPermissionsInput) GetOwnerDefinitionsRole() GrantInput {
+	return v.OwnerDefinitionsRole
 }
 
 // CreateOrUpdateTeamCreateOrUpdateTeamCreateOrUpdateTeamMutationResult includes the requested fields of the GraphQL interface CreateOrUpdateTeamMutationResult.
@@ -7669,365 +7682,6 @@ func (v *DeleteTeamResponse) __premarshalJSON() (*__premarshalDeleteTeamResponse
 	return &retval, nil
 }
 
-// DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError includes the requested fields of the GraphQL type CantRemoveAllAdminsError.
-// The GraphQL type's documentation follows.
-//
-// This error should only be raised if a user attempts to remove all organization
-// admins from their org.
-type DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError struct {
-	Typename string `json:"__typename"`
-}
-
-// GetTypename returns DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError.Typename, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError) GetTypename() string {
-	return v.Typename
-}
-
-// DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants includes the requested fields of the GraphQL type DagsterCloudUserWithScopedPermissionGrants.
-type DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants struct {
-	Typename             string `json:"__typename"`
-	UserWithGrantsFields `json:"-"`
-}
-
-// GetTypename returns DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants.Typename, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetTypename() string {
-	return v.Typename
-}
-
-// GetUser returns DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants.User, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetUser() UserWithGrantsFieldsUserDagsterCloudUser {
-	return v.UserWithGrantsFields.User
-}
-
-// GetOrganizationPermissionGrant returns DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants.OrganizationPermissionGrant, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetOrganizationPermissionGrant() UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.OrganizationPermissionGrant
-}
-
-// GetAllBranchDeploymentsPermissionGrant returns DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetAllBranchDeploymentsPermissionGrant() UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
-// GetDeploymentPermissionGrants returns DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetDeploymentPermissionGrants() []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.DeploymentPermissionGrants
-}
-
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(
-		b, &v.UserWithGrantsFields)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type __premarshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants struct {
-	Typename string `json:"__typename"`
-
-	User UserWithGrantsFieldsUserDagsterCloudUser `json:"user"`
-
-	OrganizationPermissionGrant UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant `json:"organizationPermissionGrant"`
-
-	AllBranchDeploymentsPermissionGrant UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
-
-	PerBaseBranchDeploymentsPermissionGrants []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
-	DeploymentPermissionGrants []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
-}
-
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) __premarshalJSON() (*__premarshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants, error) {
-	var retval __premarshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-
-	retval.Typename = v.Typename
-	retval.User = v.UserWithGrantsFields.User
-	retval.OrganizationPermissionGrant = v.UserWithGrantsFields.OrganizationPermissionGrant
-	retval.AllBranchDeploymentsPermissionGrant = v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-	retval.DeploymentPermissionGrants = v.UserWithGrantsFields.DeploymentPermissionGrants
-	return &retval, nil
-}
-
-// DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError includes the requested fields of the GraphQL interface DagsterCloudUserWithScopedPermissionGrantsOrError.
-//
-// DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError is implemented by the following types:
-// DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError
-// DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-// DeleteUserGrantRemoveUserPermissionsPythonError
-// DeleteUserGrantRemoveUserPermissionsUnauthorizedError
-// DeleteUserGrantRemoveUserPermissionsUserLimitError
-// DeleteUserGrantRemoveUserPermissionsUserNotFoundError
-type DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError interface {
-	implementsGraphQLInterfaceDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError()
-	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
-	GetTypename() string
-}
-
-func (v *DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError) implementsGraphQLInterfaceDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants) implementsGraphQLInterfaceDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *DeleteUserGrantRemoveUserPermissionsPythonError) implementsGraphQLInterfaceDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *DeleteUserGrantRemoveUserPermissionsUnauthorizedError) implementsGraphQLInterfaceDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *DeleteUserGrantRemoveUserPermissionsUserLimitError) implementsGraphQLInterfaceDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *DeleteUserGrantRemoveUserPermissionsUserNotFoundError) implementsGraphQLInterfaceDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-
-func __unmarshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(b []byte, v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError) error {
-	if string(b) == "null" {
-		return nil
-	}
-
-	var tn struct {
-		TypeName string `json:"__typename"`
-	}
-	err := json.Unmarshal(b, &tn)
-	if err != nil {
-		return err
-	}
-
-	switch tn.TypeName {
-	case "CantRemoveAllAdminsError":
-		*v = new(DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError)
-		return json.Unmarshal(b, *v)
-	case "DagsterCloudUserWithScopedPermissionGrants":
-		*v = new(DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants)
-		return json.Unmarshal(b, *v)
-	case "PythonError":
-		*v = new(DeleteUserGrantRemoveUserPermissionsPythonError)
-		return json.Unmarshal(b, *v)
-	case "UnauthorizedError":
-		*v = new(DeleteUserGrantRemoveUserPermissionsUnauthorizedError)
-		return json.Unmarshal(b, *v)
-	case "UserLimitError":
-		*v = new(DeleteUserGrantRemoveUserPermissionsUserLimitError)
-		return json.Unmarshal(b, *v)
-	case "UserNotFoundError":
-		*v = new(DeleteUserGrantRemoveUserPermissionsUserNotFoundError)
-		return json.Unmarshal(b, *v)
-	case "":
-		return fmt.Errorf(
-			"response was missing DagsterCloudUserWithScopedPermissionGrantsOrError.__typename")
-	default:
-		return fmt.Errorf(
-			`unexpected concrete type for DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError: "%v"`, tn.TypeName)
-	}
-}
-
-func __marshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(v *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError) ([]byte, error) {
-
-	var typename string
-	switch v := (*v).(type) {
-	case *DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError:
-		typename = "CantRemoveAllAdminsError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*DeleteUserGrantRemoveUserPermissionsCantRemoveAllAdminsError
-		}{typename, v}
-		return json.Marshal(result)
-	case *DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants:
-		typename = "DagsterCloudUserWithScopedPermissionGrants"
-
-		premarshaled, err := v.__premarshalJSON()
-		if err != nil {
-			return nil, err
-		}
-		result := struct {
-			TypeName string `json:"__typename"`
-			*__premarshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-		}{typename, premarshaled}
-		return json.Marshal(result)
-	case *DeleteUserGrantRemoveUserPermissionsPythonError:
-		typename = "PythonError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*DeleteUserGrantRemoveUserPermissionsPythonError
-		}{typename, v}
-		return json.Marshal(result)
-	case *DeleteUserGrantRemoveUserPermissionsUnauthorizedError:
-		typename = "UnauthorizedError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*DeleteUserGrantRemoveUserPermissionsUnauthorizedError
-		}{typename, v}
-		return json.Marshal(result)
-	case *DeleteUserGrantRemoveUserPermissionsUserLimitError:
-		typename = "UserLimitError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*DeleteUserGrantRemoveUserPermissionsUserLimitError
-		}{typename, v}
-		return json.Marshal(result)
-	case *DeleteUserGrantRemoveUserPermissionsUserNotFoundError:
-		typename = "UserNotFoundError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*DeleteUserGrantRemoveUserPermissionsUserNotFoundError
-		}{typename, v}
-		return json.Marshal(result)
-	case nil:
-		return []byte("null"), nil
-	default:
-		return nil, fmt.Errorf(
-			`unexpected concrete type for DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError: "%T"`, v)
-	}
-}
-
-// DeleteUserGrantRemoveUserPermissionsPythonError includes the requested fields of the GraphQL type PythonError.
-type DeleteUserGrantRemoveUserPermissionsPythonError struct {
-	Typename string `json:"__typename"`
-}
-
-// GetTypename returns DeleteUserGrantRemoveUserPermissionsPythonError.Typename, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsPythonError) GetTypename() string { return v.Typename }
-
-// DeleteUserGrantRemoveUserPermissionsUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
-type DeleteUserGrantRemoveUserPermissionsUnauthorizedError struct {
-	Typename string `json:"__typename"`
-}
-
-// GetTypename returns DeleteUserGrantRemoveUserPermissionsUnauthorizedError.Typename, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsUnauthorizedError) GetTypename() string {
-	return v.Typename
-}
-
-// DeleteUserGrantRemoveUserPermissionsUserLimitError includes the requested fields of the GraphQL type UserLimitError.
-type DeleteUserGrantRemoveUserPermissionsUserLimitError struct {
-	Typename string `json:"__typename"`
-}
-
-// GetTypename returns DeleteUserGrantRemoveUserPermissionsUserLimitError.Typename, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsUserLimitError) GetTypename() string { return v.Typename }
-
-// DeleteUserGrantRemoveUserPermissionsUserNotFoundError includes the requested fields of the GraphQL type UserNotFoundError.
-// The GraphQL type's documentation follows.
-//
-// This error should only be raised after authorization to view the user is checked to
-// not leak info about the users.
-type DeleteUserGrantRemoveUserPermissionsUserNotFoundError struct {
-	Typename string `json:"__typename"`
-	Message  string `json:"message"`
-}
-
-// GetTypename returns DeleteUserGrantRemoveUserPermissionsUserNotFoundError.Typename, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsUserNotFoundError) GetTypename() string {
-	return v.Typename
-}
-
-// GetMessage returns DeleteUserGrantRemoveUserPermissionsUserNotFoundError.Message, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantRemoveUserPermissionsUserNotFoundError) GetMessage() string { return v.Message }
-
-// DeleteUserGrantResponse is returned by DeleteUserGrant on success.
-type DeleteUserGrantResponse struct {
-	RemoveUserPermissions DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError `json:"-"`
-}
-
-// GetRemoveUserPermissions returns DeleteUserGrantResponse.RemoveUserPermissions, and is useful for accessing the field via an interface.
-func (v *DeleteUserGrantResponse) GetRemoveUserPermissions() DeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError {
-	return v.RemoveUserPermissions
-}
-
-func (v *DeleteUserGrantResponse) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*DeleteUserGrantResponse
-		RemoveUserPermissions json.RawMessage `json:"removeUserPermissions"`
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.DeleteUserGrantResponse = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	{
-		dst := &v.RemoveUserPermissions
-		src := firstPass.RemoveUserPermissions
-		if len(src) != 0 && string(src) != "null" {
-			err = __unmarshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(
-				src, dst)
-			if err != nil {
-				return fmt.Errorf(
-					"unable to unmarshal DeleteUserGrantResponse.RemoveUserPermissions: %w", err)
-			}
-		}
-	}
-	return nil
-}
-
-type __premarshalDeleteUserGrantResponse struct {
-	RemoveUserPermissions json.RawMessage `json:"removeUserPermissions"`
-}
-
-func (v *DeleteUserGrantResponse) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *DeleteUserGrantResponse) __premarshalJSON() (*__premarshalDeleteUserGrantResponse, error) {
-	var retval __premarshalDeleteUserGrantResponse
-
-	{
-
-		dst := &retval.RemoveUserPermissions
-		src := v.RemoveUserPermissions
-		var err error
-		*dst, err = __marshalDeleteUserGrantRemoveUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(
-			&src)
-		if err != nil {
-			return nil, fmt.Errorf(
-				"unable to marshal DeleteUserGrantResponse.RemoveUserPermissions: %w", err)
-		}
-	}
-	return &retval, nil
-}
-
 // An enumeration.
 type DeploymentAgentType string
 
@@ -8957,17 +8611,11 @@ func (v *GetServiceUserGrantsServiceUserPythonError) GetTypename() string { retu
 // Error when service user is not found.
 type GetServiceUserGrantsServiceUserServiceUserNotFoundError struct {
 	Typename string `json:"__typename"`
-	Message  string `json:"message"`
 }
 
 // GetTypename returns GetServiceUserGrantsServiceUserServiceUserNotFoundError.Typename, and is useful for accessing the field via an interface.
 func (v *GetServiceUserGrantsServiceUserServiceUserNotFoundError) GetTypename() string {
 	return v.Typename
-}
-
-// GetMessage returns GetServiceUserGrantsServiceUserServiceUserNotFoundError.Message, and is useful for accessing the field via an interface.
-func (v *GetServiceUserGrantsServiceUserServiceUserNotFoundError) GetMessage() string {
-	return v.Message
 }
 
 // GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants includes the requested fields of the GraphQL type ServiceUserWithScopedPermissionGrants.
@@ -8997,11 +8645,6 @@ func (v *GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants) G
 // GetAllBranchDeploymentsPermissionGrant returns GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
 func (v *GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants) GetAllBranchDeploymentsPermissionGrant() ServiceUserGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
 	return v.ServiceUserGrantsFields.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.ServiceUserGrantsFields.PerBaseBranchDeploymentsPermissionGrants
 }
 
 // GetDeploymentPermissionGrants returns GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
@@ -9043,8 +8686,6 @@ type __premarshalGetServiceUserGrantsServiceUserServiceUserWithScopedPermissionG
 
 	AllBranchDeploymentsPermissionGrant ServiceUserGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
 
-	PerBaseBranchDeploymentsPermissionGrants []ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
 	DeploymentPermissionGrants []ServiceUserGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
@@ -9063,7 +8704,6 @@ func (v *GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants) _
 	retval.Id = v.ServiceUserGrantsFields.Id
 	retval.OrganizationPermissionGrant = v.ServiceUserGrantsFields.OrganizationPermissionGrant
 	retval.AllBranchDeploymentsPermissionGrant = v.ServiceUserGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.ServiceUserGrantsFields.PerBaseBranchDeploymentsPermissionGrants
 	retval.DeploymentPermissionGrants = v.ServiceUserGrantsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
@@ -9438,6 +9078,17 @@ type GetVersionResponse struct {
 
 // GetVersion returns GetVersionResponse.Version, and is useful for accessing the field via an interface.
 func (v *GetVersionResponse) GetVersion() string { return v.Version }
+
+type GrantInput struct {
+	Grant        PermissionGrant `json:"grant"`
+	CustomRoleId string          `json:"customRoleId"`
+}
+
+// GetGrant returns GrantInput.Grant, and is useful for accessing the field via an interface.
+func (v *GrantInput) GetGrant() PermissionGrant { return v.Grant }
+
+// GetCustomRoleId returns GrantInput.CustomRoleId, and is useful for accessing the field via an interface.
+func (v *GrantInput) GetCustomRoleId() string { return v.CustomRoleId }
 
 // Possible comparison operators for an insights alert type, used to
 // determine when to trigger an alert based on the value of the metric.
@@ -11376,11 +11027,6 @@ func (v *ListTeamGrantsTeamPermissionsDagsterCloudTeamPermissions) GetAllBranchD
 	return v.TeamPermissionsFields.AllBranchDeploymentsPermissionGrant
 }
 
-// GetPerBaseBranchDeploymentsPermissionGrants returns ListTeamGrantsTeamPermissionsDagsterCloudTeamPermissions.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *ListTeamGrantsTeamPermissionsDagsterCloudTeamPermissions) GetPerBaseBranchDeploymentsPermissionGrants() []TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.TeamPermissionsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
 // GetDeploymentPermissionGrants returns ListTeamGrantsTeamPermissionsDagsterCloudTeamPermissions.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
 func (v *ListTeamGrantsTeamPermissionsDagsterCloudTeamPermissions) GetDeploymentPermissionGrants() []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
 	return v.TeamPermissionsFields.DeploymentPermissionGrants
@@ -11418,8 +11064,6 @@ type __premarshalListTeamGrantsTeamPermissionsDagsterCloudTeamPermissions struct
 
 	AllBranchDeploymentsPermissionGrant TeamPermissionsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
 
-	PerBaseBranchDeploymentsPermissionGrants []TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
 	DeploymentPermissionGrants []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
@@ -11437,7 +11081,6 @@ func (v *ListTeamGrantsTeamPermissionsDagsterCloudTeamPermissions) __premarshalJ
 	retval.Team = v.TeamPermissionsFields.Team
 	retval.OrganizationPermissionGrant = v.TeamPermissionsFields.OrganizationPermissionGrant
 	retval.AllBranchDeploymentsPermissionGrant = v.TeamPermissionsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.TeamPermissionsFields.PerBaseBranchDeploymentsPermissionGrants
 	retval.DeploymentPermissionGrants = v.TeamPermissionsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
@@ -12031,21 +11674,6 @@ func (v *ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDa
 	return v.UserWithGrantsFields.OrganizationPermissionGrant
 }
 
-// GetAllBranchDeploymentsPermissionGrant returns ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
-func (v *ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants) GetAllBranchDeploymentsPermissionGrant() UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
-// GetDeploymentPermissionGrants returns ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
-func (v *ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants) GetDeploymentPermissionGrants() []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.DeploymentPermissionGrants
-}
-
 func (v *ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -12075,12 +11703,6 @@ type __premarshalListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrant
 	User UserWithGrantsFieldsUserDagsterCloudUser `json:"user"`
 
 	OrganizationPermissionGrant UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant `json:"organizationPermissionGrant"`
-
-	AllBranchDeploymentsPermissionGrant UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
-
-	PerBaseBranchDeploymentsPermissionGrants []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
-	DeploymentPermissionGrants []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
 func (v *ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDagsterCloudUserWithScopedPermissionGrants) MarshalJSON() ([]byte, error) {
@@ -12096,9 +11718,6 @@ func (v *ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrantsUsersDa
 
 	retval.User = v.UserWithGrantsFields.User
 	retval.OrganizationPermissionGrant = v.UserWithGrantsFields.OrganizationPermissionGrant
-	retval.AllBranchDeploymentsPermissionGrant = v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-	retval.DeploymentPermissionGrants = v.UserWithGrantsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
 
@@ -13874,11 +13493,10 @@ func (v *SelectGithubInstallationSelectInstallationUnauthorizedError) GetTypenam
 //
 // GraphQL type for a service user with their permission grants.
 type ServiceUserGrantsFields struct {
-	Id                                       string                                                                                             `json:"id"`
-	OrganizationPermissionGrant              ServiceUserGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant                `json:"organizationPermissionGrant"`
-	AllBranchDeploymentsPermissionGrant      ServiceUserGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant        `json:"allBranchDeploymentsPermissionGrant"`
-	PerBaseBranchDeploymentsPermissionGrants []ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-	DeploymentPermissionGrants               []ServiceUserGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant               `json:"deploymentPermissionGrants"`
+	Id                                  string                                                                                      `json:"id"`
+	OrganizationPermissionGrant         ServiceUserGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant         `json:"organizationPermissionGrant"`
+	AllBranchDeploymentsPermissionGrant ServiceUserGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
+	DeploymentPermissionGrants          []ServiceUserGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant        `json:"deploymentPermissionGrants"`
 }
 
 // GetId returns ServiceUserGrantsFields.Id, and is useful for accessing the field via an interface.
@@ -13892,11 +13510,6 @@ func (v *ServiceUserGrantsFields) GetOrganizationPermissionGrant() ServiceUserGr
 // GetAllBranchDeploymentsPermissionGrant returns ServiceUserGrantsFields.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
 func (v *ServiceUserGrantsFields) GetAllBranchDeploymentsPermissionGrant() ServiceUserGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
 	return v.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns ServiceUserGrantsFields.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *ServiceUserGrantsFields) GetPerBaseBranchDeploymentsPermissionGrants() []ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.PerBaseBranchDeploymentsPermissionGrants
 }
 
 // GetDeploymentPermissionGrants returns ServiceUserGrantsFields.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
@@ -14022,37 +13635,6 @@ func (v *ServiceUserGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPer
 
 // GetDeploymentId returns ServiceUserGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
 func (v *ServiceUserGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
-	return v.DeploymentId
-}
-
-// ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
-// The GraphQL type's documentation follows.
-//
-// If the deploymentId is null, then this represents an organization grant.
-type ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	Grant           PermissionGrant           `json:"grant"`
-	CustomRoleId    string                    `json:"customRoleId"`
-	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
-	DeploymentId    int                       `json:"deploymentId"`
-}
-
-// GetGrant returns ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
-func (v *ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
-	return v.Grant
-}
-
-// GetCustomRoleId returns ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.CustomRoleId, and is useful for accessing the field via an interface.
-func (v *ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetCustomRoleId() string {
-	return v.CustomRoleId
-}
-
-// GetDeploymentScope returns ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
-func (v *ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
-	return v.DeploymentScope
-}
-
-// GetDeploymentId returns ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
-func (v *ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
 	return v.DeploymentId
 }
 
@@ -14971,11 +14553,6 @@ func (v *SetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceUserWithS
 	return v.ServiceUserGrantsFields.AllBranchDeploymentsPermissionGrant
 }
 
-// GetPerBaseBranchDeploymentsPermissionGrants returns SetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceUserWithScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *SetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceUserWithScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.ServiceUserGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
 // GetDeploymentPermissionGrants returns SetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceUserWithScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
 func (v *SetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceUserWithScopedPermissionGrants) GetDeploymentPermissionGrants() []ServiceUserGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
 	return v.ServiceUserGrantsFields.DeploymentPermissionGrants
@@ -15015,8 +14592,6 @@ type __premarshalSetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceU
 
 	AllBranchDeploymentsPermissionGrant ServiceUserGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
 
-	PerBaseBranchDeploymentsPermissionGrants []ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
 	DeploymentPermissionGrants []ServiceUserGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
@@ -15035,7 +14610,6 @@ func (v *SetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceUserWithS
 	retval.Id = v.ServiceUserGrantsFields.Id
 	retval.OrganizationPermissionGrant = v.ServiceUserGrantsFields.OrganizationPermissionGrant
 	retval.AllBranchDeploymentsPermissionGrant = v.ServiceUserGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.ServiceUserGrantsFields.PerBaseBranchDeploymentsPermissionGrants
 	retval.DeploymentPermissionGrants = v.ServiceUserGrantsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
@@ -15365,11 +14939,6 @@ func (v *SetTeamGrantCreateOrUpdateTeamPermissionCreateOrUpdateTeamPermissionSuc
 	return v.TeamPermissionsFields.AllBranchDeploymentsPermissionGrant
 }
 
-// GetPerBaseBranchDeploymentsPermissionGrants returns SetTeamGrantCreateOrUpdateTeamPermissionCreateOrUpdateTeamPermissionSuccessTeamPermissionsDagsterCloudTeamPermissions.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *SetTeamGrantCreateOrUpdateTeamPermissionCreateOrUpdateTeamPermissionSuccessTeamPermissionsDagsterCloudTeamPermissions) GetPerBaseBranchDeploymentsPermissionGrants() []TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.TeamPermissionsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
 // GetDeploymentPermissionGrants returns SetTeamGrantCreateOrUpdateTeamPermissionCreateOrUpdateTeamPermissionSuccessTeamPermissionsDagsterCloudTeamPermissions.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
 func (v *SetTeamGrantCreateOrUpdateTeamPermissionCreateOrUpdateTeamPermissionSuccessTeamPermissionsDagsterCloudTeamPermissions) GetDeploymentPermissionGrants() []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
 	return v.TeamPermissionsFields.DeploymentPermissionGrants
@@ -15407,8 +14976,6 @@ type __premarshalSetTeamGrantCreateOrUpdateTeamPermissionCreateOrUpdateTeamPermi
 
 	AllBranchDeploymentsPermissionGrant TeamPermissionsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
 
-	PerBaseBranchDeploymentsPermissionGrants []TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
 	DeploymentPermissionGrants []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
@@ -15426,7 +14993,6 @@ func (v *SetTeamGrantCreateOrUpdateTeamPermissionCreateOrUpdateTeamPermissionSuc
 	retval.Team = v.TeamPermissionsFields.Team
 	retval.OrganizationPermissionGrant = v.TeamPermissionsFields.OrganizationPermissionGrant
 	retval.AllBranchDeploymentsPermissionGrant = v.TeamPermissionsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.TeamPermissionsFields.PerBaseBranchDeploymentsPermissionGrants
 	retval.DeploymentPermissionGrants = v.TeamPermissionsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
@@ -15532,377 +15098,6 @@ func (v *SetTeamGrantResponse) __premarshalJSON() (*__premarshalSetTeamGrantResp
 	return &retval, nil
 }
 
-// SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError includes the requested fields of the GraphQL type CantRemoveAllAdminsError.
-// The GraphQL type's documentation follows.
-//
-// This error should only be raised if a user attempts to remove all organization
-// admins from their org.
-type SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError struct {
-	Typename string `json:"__typename"`
-	Message  string `json:"message"`
-}
-
-// GetTypename returns SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError.Typename, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError) GetTypename() string {
-	return v.Typename
-}
-
-// GetMessage returns SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError.Message, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError) GetMessage() string {
-	return v.Message
-}
-
-// SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants includes the requested fields of the GraphQL type DagsterCloudUserWithScopedPermissionGrants.
-type SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants struct {
-	Typename             string `json:"__typename"`
-	UserWithGrantsFields `json:"-"`
-}
-
-// GetTypename returns SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants.Typename, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetTypename() string {
-	return v.Typename
-}
-
-// GetUser returns SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants.User, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetUser() UserWithGrantsFieldsUserDagsterCloudUser {
-	return v.UserWithGrantsFields.User
-}
-
-// GetOrganizationPermissionGrant returns SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants.OrganizationPermissionGrant, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetOrganizationPermissionGrant() UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.OrganizationPermissionGrant
-}
-
-// GetAllBranchDeploymentsPermissionGrant returns SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetAllBranchDeploymentsPermissionGrant() UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
-// GetDeploymentPermissionGrants returns SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetDeploymentPermissionGrants() []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.UserWithGrantsFields.DeploymentPermissionGrants
-}
-
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(
-		b, &v.UserWithGrantsFields)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type __premarshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants struct {
-	Typename string `json:"__typename"`
-
-	User UserWithGrantsFieldsUserDagsterCloudUser `json:"user"`
-
-	OrganizationPermissionGrant UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant `json:"organizationPermissionGrant"`
-
-	AllBranchDeploymentsPermissionGrant UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
-
-	PerBaseBranchDeploymentsPermissionGrants []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
-	DeploymentPermissionGrants []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
-}
-
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) __premarshalJSON() (*__premarshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants, error) {
-	var retval __premarshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-
-	retval.Typename = v.Typename
-	retval.User = v.UserWithGrantsFields.User
-	retval.OrganizationPermissionGrant = v.UserWithGrantsFields.OrganizationPermissionGrant
-	retval.AllBranchDeploymentsPermissionGrant = v.UserWithGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-	retval.DeploymentPermissionGrants = v.UserWithGrantsFields.DeploymentPermissionGrants
-	return &retval, nil
-}
-
-// SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError includes the requested fields of the GraphQL interface DagsterCloudUserWithScopedPermissionGrantsOrError.
-//
-// SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError is implemented by the following types:
-// SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError
-// SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-// SetUserGrantCreateOrUpdateUserPermissionsPythonError
-// SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError
-// SetUserGrantCreateOrUpdateUserPermissionsUserLimitError
-// SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError
-type SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError interface {
-	implementsGraphQLInterfaceSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError()
-	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
-	GetTypename() string
-}
-
-func (v *SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError) implementsGraphQLInterfaceSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) implementsGraphQLInterfaceSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *SetUserGrantCreateOrUpdateUserPermissionsPythonError) implementsGraphQLInterfaceSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError) implementsGraphQLInterfaceSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *SetUserGrantCreateOrUpdateUserPermissionsUserLimitError) implementsGraphQLInterfaceSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-func (v *SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError) implementsGraphQLInterfaceSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
-}
-
-func __unmarshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(b []byte, v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError) error {
-	if string(b) == "null" {
-		return nil
-	}
-
-	var tn struct {
-		TypeName string `json:"__typename"`
-	}
-	err := json.Unmarshal(b, &tn)
-	if err != nil {
-		return err
-	}
-
-	switch tn.TypeName {
-	case "CantRemoveAllAdminsError":
-		*v = new(SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError)
-		return json.Unmarshal(b, *v)
-	case "DagsterCloudUserWithScopedPermissionGrants":
-		*v = new(SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants)
-		return json.Unmarshal(b, *v)
-	case "PythonError":
-		*v = new(SetUserGrantCreateOrUpdateUserPermissionsPythonError)
-		return json.Unmarshal(b, *v)
-	case "UnauthorizedError":
-		*v = new(SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError)
-		return json.Unmarshal(b, *v)
-	case "UserLimitError":
-		*v = new(SetUserGrantCreateOrUpdateUserPermissionsUserLimitError)
-		return json.Unmarshal(b, *v)
-	case "UserNotFoundError":
-		*v = new(SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError)
-		return json.Unmarshal(b, *v)
-	case "":
-		return fmt.Errorf(
-			"response was missing DagsterCloudUserWithScopedPermissionGrantsOrError.__typename")
-	default:
-		return fmt.Errorf(
-			`unexpected concrete type for SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError: "%v"`, tn.TypeName)
-	}
-}
-
-func __marshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(v *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError) ([]byte, error) {
-
-	var typename string
-	switch v := (*v).(type) {
-	case *SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError:
-		typename = "CantRemoveAllAdminsError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*SetUserGrantCreateOrUpdateUserPermissionsCantRemoveAllAdminsError
-		}{typename, v}
-		return json.Marshal(result)
-	case *SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants:
-		typename = "DagsterCloudUserWithScopedPermissionGrants"
-
-		premarshaled, err := v.__premarshalJSON()
-		if err != nil {
-			return nil, err
-		}
-		result := struct {
-			TypeName string `json:"__typename"`
-			*__premarshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants
-		}{typename, premarshaled}
-		return json.Marshal(result)
-	case *SetUserGrantCreateOrUpdateUserPermissionsPythonError:
-		typename = "PythonError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*SetUserGrantCreateOrUpdateUserPermissionsPythonError
-		}{typename, v}
-		return json.Marshal(result)
-	case *SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError:
-		typename = "UnauthorizedError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError
-		}{typename, v}
-		return json.Marshal(result)
-	case *SetUserGrantCreateOrUpdateUserPermissionsUserLimitError:
-		typename = "UserLimitError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*SetUserGrantCreateOrUpdateUserPermissionsUserLimitError
-		}{typename, v}
-		return json.Marshal(result)
-	case *SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError:
-		typename = "UserNotFoundError"
-
-		result := struct {
-			TypeName string `json:"__typename"`
-			*SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError
-		}{typename, v}
-		return json.Marshal(result)
-	case nil:
-		return []byte("null"), nil
-	default:
-		return nil, fmt.Errorf(
-			`unexpected concrete type for SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError: "%T"`, v)
-	}
-}
-
-// SetUserGrantCreateOrUpdateUserPermissionsPythonError includes the requested fields of the GraphQL type PythonError.
-type SetUserGrantCreateOrUpdateUserPermissionsPythonError struct {
-	Typename string `json:"__typename"`
-}
-
-// GetTypename returns SetUserGrantCreateOrUpdateUserPermissionsPythonError.Typename, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsPythonError) GetTypename() string {
-	return v.Typename
-}
-
-// SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
-type SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError struct {
-	Typename string `json:"__typename"`
-}
-
-// GetTypename returns SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError.Typename, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsUnauthorizedError) GetTypename() string {
-	return v.Typename
-}
-
-// SetUserGrantCreateOrUpdateUserPermissionsUserLimitError includes the requested fields of the GraphQL type UserLimitError.
-type SetUserGrantCreateOrUpdateUserPermissionsUserLimitError struct {
-	Typename string `json:"__typename"`
-}
-
-// GetTypename returns SetUserGrantCreateOrUpdateUserPermissionsUserLimitError.Typename, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsUserLimitError) GetTypename() string {
-	return v.Typename
-}
-
-// SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError includes the requested fields of the GraphQL type UserNotFoundError.
-// The GraphQL type's documentation follows.
-//
-// This error should only be raised after authorization to view the user is checked to
-// not leak info about the users.
-type SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError struct {
-	Typename string `json:"__typename"`
-	Message  string `json:"message"`
-}
-
-// GetTypename returns SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError.Typename, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError) GetTypename() string {
-	return v.Typename
-}
-
-// GetMessage returns SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError.Message, and is useful for accessing the field via an interface.
-func (v *SetUserGrantCreateOrUpdateUserPermissionsUserNotFoundError) GetMessage() string {
-	return v.Message
-}
-
-// SetUserGrantResponse is returned by SetUserGrant on success.
-type SetUserGrantResponse struct {
-	CreateOrUpdateUserPermissions SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError `json:"-"`
-}
-
-// GetCreateOrUpdateUserPermissions returns SetUserGrantResponse.CreateOrUpdateUserPermissions, and is useful for accessing the field via an interface.
-func (v *SetUserGrantResponse) GetCreateOrUpdateUserPermissions() SetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError {
-	return v.CreateOrUpdateUserPermissions
-}
-
-func (v *SetUserGrantResponse) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*SetUserGrantResponse
-		CreateOrUpdateUserPermissions json.RawMessage `json:"createOrUpdateUserPermissions"`
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.SetUserGrantResponse = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	{
-		dst := &v.CreateOrUpdateUserPermissions
-		src := firstPass.CreateOrUpdateUserPermissions
-		if len(src) != 0 && string(src) != "null" {
-			err = __unmarshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(
-				src, dst)
-			if err != nil {
-				return fmt.Errorf(
-					"unable to unmarshal SetUserGrantResponse.CreateOrUpdateUserPermissions: %w", err)
-			}
-		}
-	}
-	return nil
-}
-
-type __premarshalSetUserGrantResponse struct {
-	CreateOrUpdateUserPermissions json.RawMessage `json:"createOrUpdateUserPermissions"`
-}
-
-func (v *SetUserGrantResponse) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *SetUserGrantResponse) __premarshalJSON() (*__premarshalSetUserGrantResponse, error) {
-	var retval __premarshalSetUserGrantResponse
-
-	{
-
-		dst := &retval.CreateOrUpdateUserPermissions
-		src := v.CreateOrUpdateUserPermissions
-		var err error
-		*dst, err = __marshalSetUserGrantCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(
-			&src)
-		if err != nil {
-			return nil, fmt.Errorf(
-				"unable to marshal SetUserGrantResponse.CreateOrUpdateUserPermissions: %w", err)
-		}
-	}
-	return &retval, nil
-}
-
 // TeamFields includes the GraphQL fields of DagsterCloudTeam requested by the fragment TeamFields.
 type TeamFields struct {
 	Id   string `json:"id"`
@@ -15917,11 +15112,10 @@ func (v *TeamFields) GetName() string { return v.Name }
 
 // TeamPermissionsFields includes the GraphQL fields of DagsterCloudTeamPermissions requested by the fragment TeamPermissionsFields.
 type TeamPermissionsFields struct {
-	Team                                     TeamPermissionsFieldsTeamDagsterCloudTeam                                                        `json:"team"`
-	OrganizationPermissionGrant              TeamPermissionsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant                `json:"organizationPermissionGrant"`
-	AllBranchDeploymentsPermissionGrant      TeamPermissionsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant        `json:"allBranchDeploymentsPermissionGrant"`
-	PerBaseBranchDeploymentsPermissionGrants []TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-	DeploymentPermissionGrants               []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant               `json:"deploymentPermissionGrants"`
+	Team                                TeamPermissionsFieldsTeamDagsterCloudTeam                                                 `json:"team"`
+	OrganizationPermissionGrant         TeamPermissionsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant         `json:"organizationPermissionGrant"`
+	AllBranchDeploymentsPermissionGrant TeamPermissionsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
+	DeploymentPermissionGrants          []TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant        `json:"deploymentPermissionGrants"`
 }
 
 // GetTeam returns TeamPermissionsFields.Team, and is useful for accessing the field via an interface.
@@ -15935,11 +15129,6 @@ func (v *TeamPermissionsFields) GetOrganizationPermissionGrant() TeamPermissions
 // GetAllBranchDeploymentsPermissionGrant returns TeamPermissionsFields.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
 func (v *TeamPermissionsFields) GetAllBranchDeploymentsPermissionGrant() TeamPermissionsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
 	return v.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns TeamPermissionsFields.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *TeamPermissionsFields) GetPerBaseBranchDeploymentsPermissionGrants() []TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.PerBaseBranchDeploymentsPermissionGrants
 }
 
 // GetDeploymentPermissionGrants returns TeamPermissionsFields.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
@@ -16065,37 +15254,6 @@ func (v *TeamPermissionsFieldsOrganizationPermissionGrantDagsterCloudScopedPermi
 
 // GetDeploymentId returns TeamPermissionsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
 func (v *TeamPermissionsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
-	return v.DeploymentId
-}
-
-// TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
-// The GraphQL type's documentation follows.
-//
-// If the deploymentId is null, then this represents an organization grant.
-type TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	Grant           PermissionGrant           `json:"grant"`
-	CustomRoleId    string                    `json:"customRoleId"`
-	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
-	DeploymentId    int                       `json:"deploymentId"`
-}
-
-// GetGrant returns TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
-func (v *TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
-	return v.Grant
-}
-
-// GetCustomRoleId returns TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.CustomRoleId, and is useful for accessing the field via an interface.
-func (v *TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetCustomRoleId() string {
-	return v.CustomRoleId
-}
-
-// GetDeploymentScope returns TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
-func (v *TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
-	return v.DeploymentScope
-}
-
-// GetDeploymentId returns TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
-func (v *TeamPermissionsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
 	return v.DeploymentId
 }
 
@@ -17787,6 +16945,276 @@ func __marshalUpdateServiceUserUpdateServiceUserUpdateServiceUserResult(v *Updat
 	}
 }
 
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError includes the requested fields of the GraphQL type CantRemoveAllAdminsError.
+// The GraphQL type's documentation follows.
+//
+// This error should only be raised if a user attempts to remove all organization
+// admins from their org.
+type UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError) GetTypename() string {
+	return v.Typename
+}
+
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants includes the requested fields of the GraphQL type DagsterCloudUserWithScopedPermissionGrants.
+type UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) GetTypename() string {
+	return v.Typename
+}
+
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError includes the requested fields of the GraphQL interface DagsterCloudUserWithScopedPermissionGrantsOrError.
+//
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError is implemented by the following types:
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError
+type UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError interface {
+	implementsGraphQLInterfaceUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+}
+
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError) implementsGraphQLInterfaceUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
+}
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants) implementsGraphQLInterfaceUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
+}
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError) implementsGraphQLInterfaceUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
+}
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError) implementsGraphQLInterfaceUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
+}
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError) implementsGraphQLInterfaceUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
+}
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError) implementsGraphQLInterfaceUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError() {
+}
+
+func __unmarshalUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(b []byte, v *UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "CantRemoveAllAdminsError":
+		*v = new(UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError)
+		return json.Unmarshal(b, *v)
+	case "DagsterCloudUserWithScopedPermissionGrants":
+		*v = new(UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants)
+		return json.Unmarshal(b, *v)
+	case "PythonError":
+		*v = new(UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError)
+		return json.Unmarshal(b, *v)
+	case "UnauthorizedError":
+		*v = new(UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError)
+		return json.Unmarshal(b, *v)
+	case "UserLimitError":
+		*v = new(UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError)
+		return json.Unmarshal(b, *v)
+	case "UserNotFoundError":
+		*v = new(UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing DagsterCloudUserWithScopedPermissionGrantsOrError.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(v *UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError:
+		typename = "CantRemoveAllAdminsError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateUserPermissionsCreateOrUpdateUserPermissionsCantRemoveAllAdminsError
+		}{typename, v}
+		return json.Marshal(result)
+	case *UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants:
+		typename = "DagsterCloudUserWithScopedPermissionGrants"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrants
+		}{typename, v}
+		return json.Marshal(result)
+	case *UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError:
+		typename = "PythonError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError
+		}{typename, v}
+		return json.Marshal(result)
+	case *UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError:
+		typename = "UnauthorizedError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError
+		}{typename, v}
+		return json.Marshal(result)
+	case *UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError:
+		typename = "UserLimitError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError
+		}{typename, v}
+		return json.Marshal(result)
+	case *UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError:
+		typename = "UserNotFoundError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError: "%T"`, v)
+	}
+}
+
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError includes the requested fields of the GraphQL type PythonError.
+type UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsPythonError) GetTypename() string {
+	return v.Typename
+}
+
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
+type UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsUnauthorizedError) GetTypename() string {
+	return v.Typename
+}
+
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError includes the requested fields of the GraphQL type UserLimitError.
+type UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsUserLimitError) GetTypename() string {
+	return v.Typename
+}
+
+// UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError includes the requested fields of the GraphQL type UserNotFoundError.
+// The GraphQL type's documentation follows.
+//
+// This error should only be raised after authorization to view the user is checked to
+// not leak info about the users.
+type UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateUserPermissionsCreateOrUpdateUserPermissionsUserNotFoundError) GetTypename() string {
+	return v.Typename
+}
+
+// UpdateUserPermissionsResponse is returned by UpdateUserPermissions on success.
+type UpdateUserPermissionsResponse struct {
+	CreateOrUpdateUserPermissions UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError `json:"-"`
+}
+
+// GetCreateOrUpdateUserPermissions returns UpdateUserPermissionsResponse.CreateOrUpdateUserPermissions, and is useful for accessing the field via an interface.
+func (v *UpdateUserPermissionsResponse) GetCreateOrUpdateUserPermissions() UpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError {
+	return v.CreateOrUpdateUserPermissions
+}
+
+func (v *UpdateUserPermissionsResponse) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateUserPermissionsResponse
+		CreateOrUpdateUserPermissions json.RawMessage `json:"createOrUpdateUserPermissions"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateUserPermissionsResponse = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.CreateOrUpdateUserPermissions
+		src := firstPass.CreateOrUpdateUserPermissions
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal UpdateUserPermissionsResponse.CreateOrUpdateUserPermissions: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalUpdateUserPermissionsResponse struct {
+	CreateOrUpdateUserPermissions json.RawMessage `json:"createOrUpdateUserPermissions"`
+}
+
+func (v *UpdateUserPermissionsResponse) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateUserPermissionsResponse) __premarshalJSON() (*__premarshalUpdateUserPermissionsResponse, error) {
+	var retval __premarshalUpdateUserPermissionsResponse
+
+	{
+
+		dst := &retval.CreateOrUpdateUserPermissions
+		src := v.CreateOrUpdateUserPermissions
+		var err error
+		*dst, err = __marshalUpdateUserPermissionsCreateOrUpdateUserPermissionsDagsterCloudUserWithScopedPermissionGrantsOrError(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal UpdateUserPermissionsResponse.CreateOrUpdateUserPermissions: %w", err)
+		}
+	}
+	return &retval, nil
+}
+
 // UserTokenFields includes the GraphQL fields of DagsterCloudUserToken requested by the fragment UserTokenFields.
 type UserTokenFields struct {
 	Id          int                                 `json:"id"`
@@ -17817,11 +17245,8 @@ func (v *UserTokenFieldsUserDagsterCloudUser) GetUserId() int { return v.UserId 
 
 // UserWithGrantsFields includes the GraphQL fields of DagsterCloudUserWithScopedPermissionGrants requested by the fragment UserWithGrantsFields.
 type UserWithGrantsFields struct {
-	User                                     UserWithGrantsFieldsUserDagsterCloudUser                                                        `json:"user"`
-	OrganizationPermissionGrant              UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant                `json:"organizationPermissionGrant"`
-	AllBranchDeploymentsPermissionGrant      UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant        `json:"allBranchDeploymentsPermissionGrant"`
-	PerBaseBranchDeploymentsPermissionGrants []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-	DeploymentPermissionGrants               []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant               `json:"deploymentPermissionGrants"`
+	User                        UserWithGrantsFieldsUserDagsterCloudUser                                         `json:"user"`
+	OrganizationPermissionGrant UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant `json:"organizationPermissionGrant"`
 }
 
 // GetUser returns UserWithGrantsFields.User, and is useful for accessing the field via an interface.
@@ -17830,214 +17255,6 @@ func (v *UserWithGrantsFields) GetUser() UserWithGrantsFieldsUserDagsterCloudUse
 // GetOrganizationPermissionGrant returns UserWithGrantsFields.OrganizationPermissionGrant, and is useful for accessing the field via an interface.
 func (v *UserWithGrantsFields) GetOrganizationPermissionGrant() UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant {
 	return v.OrganizationPermissionGrant
-}
-
-// GetAllBranchDeploymentsPermissionGrant returns UserWithGrantsFields.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFields) GetAllBranchDeploymentsPermissionGrant() UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
-	return v.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFields) GetPerBaseBranchDeploymentsPermissionGrants() []UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.PerBaseBranchDeploymentsPermissionGrants
-}
-
-// GetDeploymentPermissionGrants returns UserWithGrantsFields.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFields) GetDeploymentPermissionGrants() []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.DeploymentPermissionGrants
-}
-
-// UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
-// The GraphQL type's documentation follows.
-//
-// If the deploymentId is null, then this represents an organization grant.
-type UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant struct {
-	ScopedGrantFields `json:"-"`
-}
-
-// GetGrant returns UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
-	return v.ScopedGrantFields.Grant
-}
-
-// GetCustomRoleId returns UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant.CustomRoleId, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) GetCustomRoleId() string {
-	return v.ScopedGrantFields.CustomRoleId
-}
-
-// GetDeploymentScope returns UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
-	return v.ScopedGrantFields.DeploymentScope
-}
-
-// GetDeploymentId returns UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
-	return v.ScopedGrantFields.DeploymentId
-}
-
-func (v *UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(
-		b, &v.ScopedGrantFields)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type __premarshalUserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant struct {
-	Grant PermissionGrant `json:"grant"`
-
-	CustomRoleId string `json:"customRoleId"`
-
-	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
-
-	DeploymentId int `json:"deploymentId"`
-}
-
-func (v *UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *UserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) __premarshalJSON() (*__premarshalUserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant, error) {
-	var retval __premarshalUserWithGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant
-
-	retval.Grant = v.ScopedGrantFields.Grant
-	retval.CustomRoleId = v.ScopedGrantFields.CustomRoleId
-	retval.DeploymentScope = v.ScopedGrantFields.DeploymentScope
-	retval.DeploymentId = v.ScopedGrantFields.DeploymentId
-	return &retval, nil
-}
-
-// UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
-// The GraphQL type's documentation follows.
-//
-// If the deploymentId is null, then this represents an organization grant.
-type UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	ScopedGrantFields `json:"-"`
-	LocationGrants    []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant `json:"locationGrants"`
-}
-
-// GetLocationGrants returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.LocationGrants, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetLocationGrants() []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant {
-	return v.LocationGrants
-}
-
-// GetGrant returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
-	return v.ScopedGrantFields.Grant
-}
-
-// GetCustomRoleId returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.CustomRoleId, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetCustomRoleId() string {
-	return v.ScopedGrantFields.CustomRoleId
-}
-
-// GetDeploymentScope returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
-	return v.ScopedGrantFields.DeploymentScope
-}
-
-// GetDeploymentId returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
-	return v.ScopedGrantFields.DeploymentId
-}
-
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(
-		b, &v.ScopedGrantFields)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type __premarshalUserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	LocationGrants []UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant `json:"locationGrants"`
-
-	Grant PermissionGrant `json:"grant"`
-
-	CustomRoleId string `json:"customRoleId"`
-
-	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
-
-	DeploymentId int `json:"deploymentId"`
-}
-
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) __premarshalJSON() (*__premarshalUserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant, error) {
-	var retval __premarshalUserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant
-
-	retval.LocationGrants = v.LocationGrants
-	retval.Grant = v.ScopedGrantFields.Grant
-	retval.CustomRoleId = v.ScopedGrantFields.CustomRoleId
-	retval.DeploymentScope = v.ScopedGrantFields.DeploymentScope
-	retval.DeploymentId = v.ScopedGrantFields.DeploymentId
-	return &retval, nil
-}
-
-// UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant includes the requested fields of the GraphQL type LocationScopedGrant.
-type UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant struct {
-	LocationName string          `json:"locationName"`
-	Grant        PermissionGrant `json:"grant"`
-	CustomRoleId string          `json:"customRoleId"`
-}
-
-// GetLocationName returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant.LocationName, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) GetLocationName() string {
-	return v.LocationName
-}
-
-// GetGrant returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant.Grant, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) GetGrant() PermissionGrant {
-	return v.Grant
-}
-
-// GetCustomRoleId returns UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant.CustomRoleId, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) GetCustomRoleId() string {
-	return v.CustomRoleId
 }
 
 // UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
@@ -18113,87 +17330,6 @@ func (v *UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermis
 
 func (v *UserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant) __premarshalJSON() (*__premarshalUserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant, error) {
 	var retval __premarshalUserWithGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant
-
-	retval.Grant = v.ScopedGrantFields.Grant
-	retval.CustomRoleId = v.ScopedGrantFields.CustomRoleId
-	retval.DeploymentScope = v.ScopedGrantFields.DeploymentScope
-	retval.DeploymentId = v.ScopedGrantFields.DeploymentId
-	return &retval, nil
-}
-
-// UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
-// The GraphQL type's documentation follows.
-//
-// If the deploymentId is null, then this represents an organization grant.
-type UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	ScopedGrantFields `json:"-"`
-}
-
-// GetGrant returns UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
-	return v.ScopedGrantFields.Grant
-}
-
-// GetCustomRoleId returns UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.CustomRoleId, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetCustomRoleId() string {
-	return v.ScopedGrantFields.CustomRoleId
-}
-
-// GetDeploymentScope returns UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
-	return v.ScopedGrantFields.DeploymentScope
-}
-
-// GetDeploymentId returns UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
-func (v *UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
-	return v.ScopedGrantFields.DeploymentId
-}
-
-func (v *UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(
-		b, &v.ScopedGrantFields)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type __premarshalUserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	Grant PermissionGrant `json:"grant"`
-
-	CustomRoleId string `json:"customRoleId"`
-
-	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
-
-	DeploymentId int `json:"deploymentId"`
-}
-
-func (v *UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *UserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) __premarshalJSON() (*__premarshalUserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant, error) {
-	var retval __premarshalUserWithGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant
 
 	retval.Grant = v.ScopedGrantFields.Grant
 	retval.CustomRoleId = v.ScopedGrantFields.CustomRoleId
@@ -18548,22 +17684,6 @@ type __DeleteTeamInput struct {
 // GetTeamId returns __DeleteTeamInput.TeamId, and is useful for accessing the field via an interface.
 func (v *__DeleteTeamInput) GetTeamId() string { return v.TeamId }
 
-// __DeleteUserGrantInput is used internally by genqlient
-type __DeleteUserGrantInput struct {
-	Email        string                    `json:"email"`
-	Scope        PermissionDeploymentScope `json:"scope"`
-	DeploymentId int                       `json:"deploymentId"`
-}
-
-// GetEmail returns __DeleteUserGrantInput.Email, and is useful for accessing the field via an interface.
-func (v *__DeleteUserGrantInput) GetEmail() string { return v.Email }
-
-// GetScope returns __DeleteUserGrantInput.Scope, and is useful for accessing the field via an interface.
-func (v *__DeleteUserGrantInput) GetScope() PermissionDeploymentScope { return v.Scope }
-
-// GetDeploymentId returns __DeleteUserGrantInput.DeploymentId, and is useful for accessing the field via an interface.
-func (v *__DeleteUserGrantInput) GetDeploymentId() int { return v.DeploymentId }
-
 // __GetExternalAssetConnectionInput is used internally by genqlient
 type __GetExternalAssetConnectionInput struct {
 	Id string `json:"id"`
@@ -18774,34 +17894,6 @@ func (v *__SetTeamGrantInput) GetDeploymentId() int { return v.DeploymentId }
 // GetLocationGrants returns __SetTeamGrantInput.LocationGrants, and is useful for accessing the field via an interface.
 func (v *__SetTeamGrantInput) GetLocationGrants() []LocationScopedGrantInput { return v.LocationGrants }
 
-// __SetUserGrantInput is used internally by genqlient
-type __SetUserGrantInput struct {
-	Email          string                     `json:"email"`
-	Scope          PermissionDeploymentScope  `json:"scope"`
-	Grant          PermissionGrant            `json:"grant"`
-	CustomRoleId   string                     `json:"customRoleId"`
-	DeploymentId   int                        `json:"deploymentId"`
-	LocationGrants []LocationScopedGrantInput `json:"locationGrants"`
-}
-
-// GetEmail returns __SetUserGrantInput.Email, and is useful for accessing the field via an interface.
-func (v *__SetUserGrantInput) GetEmail() string { return v.Email }
-
-// GetScope returns __SetUserGrantInput.Scope, and is useful for accessing the field via an interface.
-func (v *__SetUserGrantInput) GetScope() PermissionDeploymentScope { return v.Scope }
-
-// GetGrant returns __SetUserGrantInput.Grant, and is useful for accessing the field via an interface.
-func (v *__SetUserGrantInput) GetGrant() PermissionGrant { return v.Grant }
-
-// GetCustomRoleId returns __SetUserGrantInput.CustomRoleId, and is useful for accessing the field via an interface.
-func (v *__SetUserGrantInput) GetCustomRoleId() string { return v.CustomRoleId }
-
-// GetDeploymentId returns __SetUserGrantInput.DeploymentId, and is useful for accessing the field via an interface.
-func (v *__SetUserGrantInput) GetDeploymentId() int { return v.DeploymentId }
-
-// GetLocationGrants returns __SetUserGrantInput.LocationGrants, and is useful for accessing the field via an interface.
-func (v *__SetUserGrantInput) GetLocationGrants() []LocationScopedGrantInput { return v.LocationGrants }
-
 // __UpdateCustomMetricInput is used internally by genqlient
 type __UpdateCustomMetricInput struct {
 	CustomMetricId string `json:"customMetricId"`
@@ -18942,6 +18034,16 @@ func (v *__UpdateServiceUserInput) GetName() string { return v.Name }
 // GetDescription returns __UpdateServiceUserInput.Description, and is useful for accessing the field via an interface.
 func (v *__UpdateServiceUserInput) GetDescription() string { return v.Description }
 
+// __UpdateUserPermissionsInput is used internally by genqlient
+type __UpdateUserPermissionsInput struct {
+	UserPermission CreateOrUpdateCloudUserPermissionsInput `json:"userPermission"`
+}
+
+// GetUserPermission returns __UpdateUserPermissionsInput.UserPermission, and is useful for accessing the field via an interface.
+func (v *__UpdateUserPermissionsInput) GetUserPermission() CreateOrUpdateCloudUserPermissionsInput {
+	return v.UserPermission
+}
+
 // The mutation executed by AddMemberToTeam.
 const AddMemberToTeam_Operation = `
 mutation AddMemberToTeam ($teamId: String!, $memberId: Int!) {
@@ -19045,20 +18147,6 @@ fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
 	}
 	organizationPermissionGrant {
 		... ScopedGrantFields
-	}
-	allBranchDeploymentsPermissionGrant {
-		... ScopedGrantFields
-	}
-	perBaseBranchDeploymentsPermissionGrants {
-		... ScopedGrantFields
-	}
-	deploymentPermissionGrants {
-		... ScopedGrantFields
-		locationGrants {
-			locationName
-			grant
-			customRoleId
-		}
 	}
 }
 fragment ScopedGrantFields on DagsterCloudScopedPermissionGrant {
@@ -20087,82 +19175,6 @@ func DeleteTeamGrant(
 	return data_, err_
 }
 
-// The mutation executed by DeleteUserGrant.
-const DeleteUserGrant_Operation = `
-mutation DeleteUserGrant ($email: String!, $scope: PermissionDeploymentScope!, $deploymentId: Int) {
-	removeUserPermissions(userPermission: {email:$email,deploymentScope:$scope,deploymentId:$deploymentId}) {
-		__typename
-		... on DagsterCloudUserWithScopedPermissionGrants {
-			... UserWithGrantsFields
-		}
-		... on UserNotFoundError {
-			message
-		}
-	}
-}
-fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
-	user {
-		userId
-		email
-		name
-		picture
-		isScimProvisioned
-	}
-	organizationPermissionGrant {
-		... ScopedGrantFields
-	}
-	allBranchDeploymentsPermissionGrant {
-		... ScopedGrantFields
-	}
-	perBaseBranchDeploymentsPermissionGrants {
-		... ScopedGrantFields
-	}
-	deploymentPermissionGrants {
-		... ScopedGrantFields
-		locationGrants {
-			locationName
-			grant
-			customRoleId
-		}
-	}
-}
-fragment ScopedGrantFields on DagsterCloudScopedPermissionGrant {
-	grant
-	customRoleId
-	deploymentScope
-	deploymentId
-}
-`
-
-func DeleteUserGrant(
-	ctx_ context.Context,
-	client_ graphql.Client,
-	email string,
-	scope PermissionDeploymentScope,
-	deploymentId int,
-) (data_ *DeleteUserGrantResponse, err_ error) {
-	req_ := &graphql.Request{
-		OpName: "DeleteUserGrant",
-		Query:  DeleteUserGrant_Operation,
-		Variables: &__DeleteUserGrantInput{
-			Email:        email,
-			Scope:        scope,
-			DeploymentId: deploymentId,
-		},
-	}
-
-	data_ = &DeleteUserGrantResponse{}
-	resp_ := &graphql.Response{Data: data_}
-
-	err_ = client_.MakeRequest(
-		ctx_,
-		req_,
-		resp_,
-	)
-
-	return data_, err_
-}
-
 // The mutation executed by DeselectGithubInstallation.
 const DeselectGithubInstallation_Operation = `
 mutation DeselectGithubInstallation {
@@ -20465,9 +19477,6 @@ query GetServiceUserGrants ($serviceUserId: String!) {
 		... on ServiceUserWithScopedPermissionGrants {
 			... ServiceUserGrantsFields
 		}
-		... on ServiceUserNotFoundError {
-			message
-		}
 	}
 }
 fragment ServiceUserGrantsFields on ServiceUserWithScopedPermissionGrants {
@@ -20479,12 +19488,6 @@ fragment ServiceUserGrantsFields on ServiceUserWithScopedPermissionGrants {
 		deploymentId
 	}
 	allBranchDeploymentsPermissionGrant {
-		grant
-		customRoleId
-		deploymentScope
-		deploymentId
-	}
-	perBaseBranchDeploymentsPermissionGrants {
 		grant
 		customRoleId
 		deploymentScope
@@ -21110,12 +20113,6 @@ fragment TeamPermissionsFields on DagsterCloudTeamPermissions {
 		deploymentScope
 		deploymentId
 	}
-	perBaseBranchDeploymentsPermissionGrants {
-		grant
-		customRoleId
-		deploymentScope
-		deploymentId
-	}
 	deploymentPermissionGrants {
 		grant
 		customRoleId
@@ -21291,20 +20288,6 @@ fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
 	}
 	organizationPermissionGrant {
 		... ScopedGrantFields
-	}
-	allBranchDeploymentsPermissionGrant {
-		... ScopedGrantFields
-	}
-	perBaseBranchDeploymentsPermissionGrants {
-		... ScopedGrantFields
-	}
-	deploymentPermissionGrants {
-		... ScopedGrantFields
-		locationGrants {
-			locationName
-			grant
-			customRoleId
-		}
 	}
 }
 fragment ScopedGrantFields on DagsterCloudScopedPermissionGrant {
@@ -21778,12 +20761,6 @@ fragment ServiceUserGrantsFields on ServiceUserWithScopedPermissionGrants {
 		deploymentScope
 		deploymentId
 	}
-	perBaseBranchDeploymentsPermissionGrants {
-		grant
-		customRoleId
-		deploymentScope
-		deploymentId
-	}
 	deploymentPermissionGrants {
 		grant
 		customRoleId
@@ -21861,12 +20838,6 @@ fragment TeamPermissionsFields on DagsterCloudTeamPermissions {
 		deploymentScope
 		deploymentId
 	}
-	perBaseBranchDeploymentsPermissionGrants {
-		grant
-		customRoleId
-		deploymentScope
-		deploymentId
-	}
 	deploymentPermissionGrants {
 		grant
 		customRoleId
@@ -21905,91 +20876,6 @@ func SetTeamGrant(
 	}
 
 	data_ = &SetTeamGrantResponse{}
-	resp_ := &graphql.Response{Data: data_}
-
-	err_ = client_.MakeRequest(
-		ctx_,
-		req_,
-		resp_,
-	)
-
-	return data_, err_
-}
-
-// The mutation executed by SetUserGrant.
-const SetUserGrant_Operation = `
-mutation SetUserGrant ($email: String!, $scope: PermissionDeploymentScope!, $grant: PermissionGrant!, $customRoleId: String, $deploymentId: Int, $locationGrants: [LocationScopedGrantInput!]) {
-	createOrUpdateUserPermissions(userPermission: {email:$email,deploymentScope:$scope,grant:$grant,customRoleId:$customRoleId,deploymentId:$deploymentId,locationGrants:$locationGrants}) {
-		__typename
-		... on DagsterCloudUserWithScopedPermissionGrants {
-			... UserWithGrantsFields
-		}
-		... on UserNotFoundError {
-			message
-		}
-		... on CantRemoveAllAdminsError {
-			message
-		}
-	}
-}
-fragment UserWithGrantsFields on DagsterCloudUserWithScopedPermissionGrants {
-	user {
-		userId
-		email
-		name
-		picture
-		isScimProvisioned
-	}
-	organizationPermissionGrant {
-		... ScopedGrantFields
-	}
-	allBranchDeploymentsPermissionGrant {
-		... ScopedGrantFields
-	}
-	perBaseBranchDeploymentsPermissionGrants {
-		... ScopedGrantFields
-	}
-	deploymentPermissionGrants {
-		... ScopedGrantFields
-		locationGrants {
-			locationName
-			grant
-			customRoleId
-		}
-	}
-}
-fragment ScopedGrantFields on DagsterCloudScopedPermissionGrant {
-	grant
-	customRoleId
-	deploymentScope
-	deploymentId
-}
-`
-
-func SetUserGrant(
-	ctx_ context.Context,
-	client_ graphql.Client,
-	email string,
-	scope PermissionDeploymentScope,
-	grant PermissionGrant,
-	customRoleId string,
-	deploymentId int,
-	locationGrants []LocationScopedGrantInput,
-) (data_ *SetUserGrantResponse, err_ error) {
-	req_ := &graphql.Request{
-		OpName: "SetUserGrant",
-		Query:  SetUserGrant_Operation,
-		Variables: &__SetUserGrantInput{
-			Email:          email,
-			Scope:          scope,
-			Grant:          grant,
-			CustomRoleId:   customRoleId,
-			DeploymentId:   deploymentId,
-			LocationGrants: locationGrants,
-		},
-	}
-
-	data_ = &SetUserGrantResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -22318,6 +21204,40 @@ func UpdateServiceUser(
 	}
 
 	data_ = &UpdateServiceUserResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateUserPermissions.
+const UpdateUserPermissions_Operation = `
+mutation UpdateUserPermissions ($userPermission: CreateOrUpdateCloudUserPermissionsInput!) {
+	createOrUpdateUserPermissions(userPermission: $userPermission) {
+		__typename
+	}
+}
+`
+
+func UpdateUserPermissions(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	userPermission CreateOrUpdateCloudUserPermissionsInput,
+) (data_ *UpdateUserPermissionsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateUserPermissions",
+		Query:  UpdateUserPermissions_Operation,
+		Variables: &__UpdateUserPermissionsInput{
+			UserPermission: userPermission,
+		},
+	}
+
+	data_ = &UpdateUserPermissionsResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

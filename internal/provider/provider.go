@@ -136,18 +136,8 @@ func (p *dagsterplusProvider) Resources(_ context.Context) []func() resource.Res
 		resources.NewCustomMetricResource,
 		resources.NewExternalAssetConnectionResource,
 		resources.NewTeamMembershipResource,
-		resources.NewTeamOrganizationGrantResource,
 		resources.NewTeamDeploymentGrantResource,
-		resources.NewTeamAllBranchDeploymentsGrantResource,
-		resources.NewTeamBranchDeploymentsGrantResource,
-		resources.NewUserOrganizationGrantResource,
-		resources.NewUserDeploymentGrantResource,
-		resources.NewUserAllBranchDeploymentsGrantResource,
-		resources.NewUserBranchDeploymentsGrantResource,
-		resources.NewServiceUserOrganizationGrantResource,
 		resources.NewServiceUserDeploymentGrantResource,
-		resources.NewServiceUserAllBranchDeploymentsGrantResource,
-		resources.NewServiceUserBranchDeploymentsGrantResource,
 		resources.NewCodeLocationFromDocumentResource,
 	}
 }
