@@ -79,6 +79,25 @@ func TestSetServiceUserGrant_NotFound(t *testing.T) {
 	}
 }
 
+func TestSetServiceUserGrant_UnexpectedTypename(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gqlOK(w, map[string]any{
+			"createOrUpdateServiceUserPermissions": map[string]any{
+				"__typename": "UnauthorizedError",
+				"message":    "unauthorized",
+			},
+		})
+	}))
+	defer srv.Close()
+
+	_, err := newClient(srv).SetServiceUserGrant(context.Background(), client.ServiceUserGrant{
+		ServiceUserID: "su-id-1", DeploymentScope: "deployment", DeploymentID: 42, Grant: "VIEWER",
+	})
+	if err == nil {
+		t.Fatal("expected error for unexpected typename, got nil")
+	}
+}
+
 func TestGetServiceUserGrant_Found(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b := parseBody(t, r)

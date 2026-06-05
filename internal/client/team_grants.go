@@ -7,13 +7,6 @@ import (
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
 )
 
-// LocationGrant represents a permission grant scoped to a specific code location.
-type LocationGrant struct {
-	LocationName string
-	Grant        string
-	CustomRoleID string
-}
-
 // TeamGrant represents a permission grant for a team at a specific scope.
 type TeamGrant struct {
 	TeamID          string
@@ -24,23 +17,8 @@ type TeamGrant struct {
 	LocationGrants  []LocationGrant
 }
 
-var grantScopeToAPI = map[string]schema.PermissionDeploymentScope{
-	"organization":           "ORGANIZATION",
-	"deployment":             "DEPLOYMENT",
-	"all_branch_deployments": "ALL_BRANCH_DEPLOYMENTS",
-}
-
-var apiToGrantScope = map[schema.PermissionDeploymentScope]string{
-	"ORGANIZATION":           "organization",
-	"DEPLOYMENT":             "deployment",
-	"ALL_BRANCH_DEPLOYMENTS": "all_branch_deployments",
-}
-
 func teamGrantFromFields(teamID string, grant schema.PermissionGrant, customRoleId string, deploymentScope schema.PermissionDeploymentScope, deploymentId int, locationGrants []schema.TeamPermissionsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) *TeamGrant {
-	scope := apiToGrantScope[deploymentScope]
-	if scope == "" {
-		scope = string(deploymentScope)
-	}
+	scope := scopeForGrant(deploymentScope, deploymentId)
 	lgs := make([]LocationGrant, len(locationGrants))
 	for i, lg := range locationGrants {
 		lgs[i] = LocationGrant{
@@ -74,6 +52,12 @@ func findGrantInFields(f schema.TeamPermissionsFields, deploymentScope string, d
 			return nil
 		}
 		return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil)
+	case "branch_deployments":
+		for _, g := range f.PerBaseBranchDeploymentsPermissionGrants {
+			if int64(g.DeploymentId) == deploymentID {
+				return teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil)
+			}
+		}
 	default:
 		for _, g := range f.DeploymentPermissionGrants {
 			if int64(g.DeploymentId) == deploymentID {
@@ -150,6 +134,26 @@ func (c *Client) ListTeamDeploymentGrants(ctx context.Context, teamID string) ([
 		var grants []TeamGrant
 		for _, g := range tp.TeamPermissionsFields.DeploymentPermissionGrants {
 			grants = append(grants, *teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants))
+		}
+		return grants, nil
+	}
+	return nil, nil
+}
+
+// ListTeamBranchDeploymentsGrants returns all per-base-branch grants for a given team ID.
+func (c *Client) ListTeamBranchDeploymentsGrants(ctx context.Context, teamID string) ([]TeamGrant, error) {
+	resp, err := schema.ListTeamGrants(ctx, c.gqlClient(""))
+	if err != nil {
+		return nil, fmt.Errorf("ListTeamBranchDeploymentsGrants: %w", err)
+	}
+
+	for _, tp := range resp.TeamPermissions {
+		if tp.TeamPermissionsFields.Team.Id != teamID {
+			continue
+		}
+		var grants []TeamGrant
+		for _, g := range tp.TeamPermissionsFields.PerBaseBranchDeploymentsPermissionGrants {
+			grants = append(grants, *teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil))
 		}
 		return grants, nil
 	}

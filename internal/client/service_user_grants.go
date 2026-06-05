@@ -18,10 +18,7 @@ type ServiceUserGrant struct {
 }
 
 func serviceUserGrantFromFields(serviceUserID string, grant schema.PermissionGrant, customRoleId string, deploymentScope schema.PermissionDeploymentScope, deploymentId int, locationGrants []schema.ServiceUserGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrantLocationGrantsLocationScopedGrant) *ServiceUserGrant {
-	scope := apiToGrantScope[deploymentScope]
-	if scope == "" {
-		scope = string(deploymentScope)
-	}
+	scope := scopeForGrant(deploymentScope, deploymentId)
 	lgs := make([]LocationGrant, len(locationGrants))
 	for i, lg := range locationGrants {
 		lgs[i] = LocationGrant{
@@ -54,6 +51,12 @@ func findServiceUserGrantInFields(f schema.ServiceUserGrantsFields, serviceUserI
 			return nil
 		}
 		return serviceUserGrantFromFields(serviceUserID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil)
+	case "branch_deployments":
+		for _, g := range f.PerBaseBranchDeploymentsPermissionGrants {
+			if int64(g.DeploymentId) == deploymentID {
+				return serviceUserGrantFromFields(serviceUserID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil)
+			}
+		}
 	default:
 		for _, g := range f.DeploymentPermissionGrants {
 			if int64(g.DeploymentId) == deploymentID {
@@ -93,6 +96,8 @@ func (c *Client) SetServiceUserGrant(ctx context.Context, grant ServiceUserGrant
 			return nil, fmt.Errorf("SetServiceUserGrant: grant not found in response")
 		}
 		return g, nil
+	case *schema.SetServiceUserGrantCreateOrUpdateServiceUserPermissionsServiceUserNotFoundError:
+		return nil, fmt.Errorf("SetServiceUserGrant: %s", r.Message)
 	default:
 		return nil, fmt.Errorf("SetServiceUserGrant: unexpected result type %T", resp.CreateOrUpdateServiceUserPermissions)
 	}
@@ -112,8 +117,46 @@ func (c *Client) GetServiceUserGrant(ctx context.Context, serviceUserID, deploym
 			return nil, fmt.Errorf("GetServiceUserGrant: grant for service user %q scope %q not found", serviceUserID, deploymentScope)
 		}
 		return g, nil
-	default:
+	case *schema.GetServiceUserGrantsServiceUserServiceUserNotFoundError:
 		return nil, fmt.Errorf("GetServiceUserGrant: service user %q not found", serviceUserID)
+	default:
+		return nil, fmt.Errorf("GetServiceUserGrant: unexpected result type %T", resp.ServiceUser)
+	}
+}
+
+// ListServiceUserDeploymentGrants returns all deployment-scoped grants for a service user.
+func (c *Client) ListServiceUserDeploymentGrants(ctx context.Context, serviceUserID string) ([]ServiceUserGrant, error) {
+	resp, err := schema.GetServiceUserGrants(ctx, c.gqlClient(""), serviceUserID)
+	if err != nil {
+		return nil, fmt.Errorf("ListServiceUserDeploymentGrants: %w", err)
+	}
+	switch r := resp.ServiceUser.(type) {
+	case *schema.GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants:
+		var grants []ServiceUserGrant
+		for _, g := range r.ServiceUserGrantsFields.DeploymentPermissionGrants {
+			grants = append(grants, *serviceUserGrantFromFields(serviceUserID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants))
+		}
+		return grants, nil
+	default:
+		return nil, fmt.Errorf("ListServiceUserDeploymentGrants: service user %q not found", serviceUserID)
+	}
+}
+
+// ListServiceUserBranchDeploymentsGrants returns all per-base-branch grants for a service user.
+func (c *Client) ListServiceUserBranchDeploymentsGrants(ctx context.Context, serviceUserID string) ([]ServiceUserGrant, error) {
+	resp, err := schema.GetServiceUserGrants(ctx, c.gqlClient(""), serviceUserID)
+	if err != nil {
+		return nil, fmt.Errorf("ListServiceUserBranchDeploymentsGrants: %w", err)
+	}
+	switch r := resp.ServiceUser.(type) {
+	case *schema.GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants:
+		var grants []ServiceUserGrant
+		for _, g := range r.ServiceUserGrantsFields.PerBaseBranchDeploymentsPermissionGrants {
+			grants = append(grants, *serviceUserGrantFromFields(serviceUserID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil))
+		}
+		return grants, nil
+	default:
+		return nil, fmt.Errorf("ListServiceUserBranchDeploymentsGrants: service user %q not found", serviceUserID)
 	}
 }
 

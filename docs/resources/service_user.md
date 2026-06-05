@@ -28,11 +28,58 @@ resource "dagsterplus_service_user" "ci_bot" {
 
 ### Optional
 
+- `all_branch_deployments_grant` (Block List) Permission grant for the service user across all branch deployments. At most one block is allowed. (see [below for nested schema](#nestedblock--all_branch_deployments_grant))
+- `branch_deployments_grant` (Block List) Permission grant across all branch deployments of a specific parent (full) deployment. One block per parent deployment. (see [below for nested schema](#nestedblock--branch_deployments_grant))
+- `deployment_grant` (Block List) Deployment-level permission grant for the service user. One block per deployment. (see [below for nested schema](#nestedblock--deployment_grant))
 - `description` (String) An optional description for the service user.
+- `organization_grant` (Block List) Organization-level permission grant for the service user. At most one block is allowed. (see [below for nested schema](#nestedblock--organization_grant))
 
 ### Read-Only
 
 - `id` (String) The service user ID assigned by Dagster+.
+
+<a id="nestedblock--all_branch_deployments_grant"></a>
+### Nested Schema for `all_branch_deployments_grant`
+
+Optional:
+
+- `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
+- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+
+
+<a id="nestedblock--branch_deployments_grant"></a>
+### Nested Schema for `branch_deployments_grant`
+
+Required:
+
+- `parent_deployment` (String) The name of the full (parent) deployment whose branch deployments this grant applies to.
+
+Optional:
+
+- `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
+- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+
+
+<a id="nestedblock--deployment_grant"></a>
+### Nested Schema for `deployment_grant`
+
+Required:
+
+- `deployment` (String) The name of the deployment to grant access to.
+
+Optional:
+
+- `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
+- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+
+
+<a id="nestedblock--organization_grant"></a>
+### Nested Schema for `organization_grant`
+
+Optional:
+
+- `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
+- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
 
 ## Import
 
