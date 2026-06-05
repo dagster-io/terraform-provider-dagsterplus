@@ -43,7 +43,26 @@ func (r *serviceUserResource) Metadata(_ context.Context, req resource.MetadataR
 }
 
 func (r *serviceUserResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	grantBlock := schema.NestedBlockObject{
+	orgGrantBlock := schema.NestedBlockObject{
+		Attributes: map[string]schema.Attribute{
+			"grant": schema.StringAttribute{
+				Description: "Organization-level permission. Only ADMIN is accepted at the API level; for any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id.",
+				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("ADMIN"),
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+				},
+			},
+			"custom_role_id": schema.StringAttribute{
+				Description: "The ID of a custom role to assign. Conflicts with grant.",
+				Optional:    true,
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),
+				},
+			},
+		},
+	}
+	deploymentScopeGrantBlock := schema.NestedBlockObject{
 		Attributes: map[string]schema.Attribute{
 			"grant": schema.StringAttribute{
 				Description: "Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.",
@@ -88,11 +107,11 @@ func (r *serviceUserResource) Schema(_ context.Context, _ resource.SchemaRequest
 		Blocks: map[string]schema.Block{
 			"organization_grant": schema.ListNestedBlock{
 				Description:  "Organization-level permission grant for the service user. At most one block is allowed.",
-				NestedObject: grantBlock,
+				NestedObject: orgGrantBlock,
 			},
 			"all_branch_deployments_grant": schema.ListNestedBlock{
 				Description:  "Permission grant for the service user across all branch deployments. At most one block is allowed.",
-				NestedObject: grantBlock,
+				NestedObject: deploymentScopeGrantBlock,
 			},
 			"deployment_grant": schema.ListNestedBlock{
 				Description: "Deployment-level permission grant for the service user. One block per deployment.",
