@@ -133,16 +133,9 @@ resource "dagsterplus_service_user" "inline" {
   deployment_grant {
     deployment = dagsterplus_deployment.test.name
     grant      = "VIEWER"
-
-    # Per-code-location override; only valid inside deployment_grant.
-    # (Asserted in test plan section C3 — note location_grants don't
-    # round-trip through the mutation response so the second plan should
-    # still be no-op.)
-    # location_grants are currently inline only — uncomment when ready:
-    # location_grants {
-    #   location_name = dagsterplus_code_location.test.name
-    #   grant         = "EDITOR"
-    # }
+    # Note: location_grants are NOT supported inside the inline
+    # deployment_grant block; use the standalone *_deployment_grant
+    # resource if you need per-location overrides.
   }
 
   all_branch_deployments_grant {
