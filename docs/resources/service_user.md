@@ -79,7 +79,7 @@ Optional:
 Optional:
 
 - `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+- `grant` (String) Organization-level permission. Only ADMIN is accepted at the API level; for any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id.
 
 ## Import
 
