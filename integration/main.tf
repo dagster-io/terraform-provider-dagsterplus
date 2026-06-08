@@ -18,6 +18,10 @@ variable "test_user_email" {
   default     = "dennis@dagsterlabs.com"
 }
 
+# ---------------------------------------------------------------------------
+# Dependencies for the grant tests.
+# ---------------------------------------------------------------------------
+
 resource "dagsterplus_deployment" "test" {
   name = "acc-tf-test"
 }
@@ -27,54 +31,15 @@ resource "dagsterplus_user" "dennis" {
 }
 
 resource "dagsterplus_role" "observability" {
-  name      = "acc-tf-observability"
-  role_type = "deployment"
-
+  name        = "acc-tf-observability"
+  role_type   = "deployment"
   permissions = ["edit_alerts", "edit_all_catalog_views"]
 }
 
 resource "dagsterplus_role" "org_admin" {
-  name      = "acc-tf-org-admin"
-  role_type = "organization"
-
+  name        = "acc-tf-org-admin"
+  role_type   = "organization"
   permissions = ["edit_users_and_teams", "edit_custom_roles", "read_audit_log"]
-}
-
-resource "dagsterplus_team" "data_engineering" {
-  name = "acc-tf-data-engineering"
-
-  organization_grant {
-    custom_role_id = dagsterplus_role.org_admin.id
-  }
-
-  member {
-    user_id = dagsterplus_user.dennis.id
-  }
-}
-
-resource "dagsterplus_team" "data_engineering_2" {
-  name = "acc-tf-data-engineering-2"
-
-  deployment_grant {
-    deployment     = "prod"
-    custom_role_id = dagsterplus_role.observability.id
-  }
-
-  all_branch_deployments_grant {
-    custom_role_id = dagsterplus_role.observability.id
-  }
-
-  member {
-    user_id = dagsterplus_user.dennis.id
-  }
-}
-
-resource "dagsterplus_agent_token" "test" {
-  name = "acc-tf-agent-token"
-}
-
-resource "dagsterplus_user_token" "test" {
-  name = "acc-tf-user-token"
 }
 
 resource "dagsterplus_code_location" "test" {
@@ -90,26 +55,182 @@ resource "dagsterplus_code_location" "test" {
   executable_path   = "/usr/bin/python3"
 }
 
-resource "dagsterplus_deployment_settings" "test" {
-  deployment    = dagsterplus_deployment.test.name
-  settings_json = jsonencode({ run_queue = { max_concurrent_runs = 5 } })
+# ---------------------------------------------------------------------------
+# Team A: inline grant blocks — all 4 scopes.
+# Exercises the inline lifecycle code paths on dagsterplus_team.
+# ---------------------------------------------------------------------------
+
+resource "dagsterplus_team" "inline" {
+  name = "acc-tf-team-inline"
+
+  organization_grant {
+    custom_role_id = dagsterplus_role.org_admin.id
+  }
+
+  deployment_grant {
+    deployment     = dagsterplus_deployment.test.name
+    custom_role_id = dagsterplus_role.observability.id
+  }
+
+  all_branch_deployments_grant {
+    grant = "LAUNCHER"
+  }
+
+  branch_deployments_grant {
+    parent_deployment = dagsterplus_deployment.test.name
+    grant             = "EDITOR"
+  }
+
+  member {
+    user_id = dagsterplus_user.dennis.id
+  }
 }
 
-# Standalone team used to test team_deployment_grant and team_membership
-# as separate resources (no inline grants or members).
-resource "dagsterplus_team" "grants_only" {
-  name = "acc-tf-grants-only"
+# ---------------------------------------------------------------------------
+# Team B: standalone grant resources — all 4 scopes.
+# Exercises the standalone {team}_*_grant resources.
+# ---------------------------------------------------------------------------
+
+resource "dagsterplus_team" "standalone" {
+  name = "acc-tf-team-standalone"
 }
 
-resource "dagsterplus_team_deployment_grant" "test" {
-  team_id        = dagsterplus_team.grants_only.id
+resource "dagsterplus_team_organization_grant" "standalone" {
+  team_id = dagsterplus_team.standalone.id
+  grant   = "ADMIN"
+}
+
+resource "dagsterplus_team_deployment_grant" "standalone" {
+  team_id        = dagsterplus_team.standalone.id
   deployment     = dagsterplus_deployment.test.name
   custom_role_id = dagsterplus_role.observability.id
 }
 
-resource "dagsterplus_team_membership" "dennis" {
-  team_id = dagsterplus_team.grants_only.id
+resource "dagsterplus_team_all_branch_deployments_grant" "standalone" {
+  team_id = dagsterplus_team.standalone.id
+  grant   = "LAUNCHER"
+}
+
+resource "dagsterplus_team_branch_deployments_grant" "standalone" {
+  team_id           = dagsterplus_team.standalone.id
+  parent_deployment = dagsterplus_deployment.test.name
+  grant             = "EDITOR"
+}
+
+# ---------------------------------------------------------------------------
+# Service user A: inline grant blocks — all 4 scopes, including location_grants
+# inside the deployment_grant block to exercise per-location overrides.
+# ---------------------------------------------------------------------------
+
+resource "dagsterplus_service_user" "inline" {
+  name        = "acc-tf-bot-inline"
+  description = "Service user with inline grants"
+
+  organization_grant {
+    custom_role_id = dagsterplus_role.org_admin.id
+  }
+
+  deployment_grant {
+    deployment = dagsterplus_deployment.test.name
+    grant      = "VIEWER"
+    # Note: location_grants are NOT supported inside the inline
+    # deployment_grant block; use the standalone *_deployment_grant
+    # resource if you need per-location overrides.
+  }
+
+  all_branch_deployments_grant {
+    grant = "LAUNCHER"
+  }
+
+  branch_deployments_grant {
+    parent_deployment = dagsterplus_deployment.test.name
+    grant             = "EDITOR"
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Service user B: standalone grant resources — all 4 scopes.
+# ---------------------------------------------------------------------------
+
+resource "dagsterplus_service_user" "standalone" {
+  name        = "acc-tf-bot-standalone"
+  description = "Service user with standalone grants"
+}
+
+resource "dagsterplus_service_user_organization_grant" "standalone" {
+  service_user_id = dagsterplus_service_user.standalone.id
+  grant           = "ADMIN"
+}
+
+resource "dagsterplus_service_user_deployment_grant" "standalone" {
+  service_user_id = dagsterplus_service_user.standalone.id
+  deployment      = dagsterplus_deployment.test.name
+  custom_role_id  = dagsterplus_role.observability.id
+}
+
+resource "dagsterplus_service_user_all_branch_deployments_grant" "standalone" {
+  service_user_id = dagsterplus_service_user.standalone.id
+  grant           = "LAUNCHER"
+}
+
+resource "dagsterplus_service_user_branch_deployments_grant" "standalone" {
+  service_user_id   = dagsterplus_service_user.standalone.id
+  parent_deployment = dagsterplus_deployment.test.name
+  grant             = "EDITOR"
+}
+
+# ---------------------------------------------------------------------------
+# User (dennis): standalone grant resources — all 4 scopes.
+#
+# Note: inline grant blocks on dagsterplus_user are intentionally NOT
+# exercised here — they share the same model as the service_user inline
+# path above. To smoke-test inline-on-user, follow test plan section B1
+# (swap to inline blocks temporarily).
+# ---------------------------------------------------------------------------
+
+resource "dagsterplus_user_organization_grant" "dennis" {
   user_id = dagsterplus_user.dennis.id
+  grant   = "ADMIN"
+}
+
+resource "dagsterplus_user_deployment_grant" "dennis" {
+  user_id    = dagsterplus_user.dennis.id
+  deployment = dagsterplus_deployment.test.name
+  grant      = "EDITOR"
+}
+
+resource "dagsterplus_user_all_branch_deployments_grant" "dennis" {
+  user_id = dagsterplus_user.dennis.id
+  grant   = "LAUNCHER"
+}
+
+resource "dagsterplus_user_branch_deployments_grant" "dennis" {
+  user_id           = dagsterplus_user.dennis.id
+  parent_deployment = dagsterplus_deployment.test.name
+  grant             = "EDITOR"
+}
+
+# ---------------------------------------------------------------------------
+# Non-grant resources — kept here to exercise the rest of the provider
+# surface from a single integration entry point.
+# ---------------------------------------------------------------------------
+
+resource "dagsterplus_team_membership" "dennis" {
+  team_id = dagsterplus_team.standalone.id
+  user_id = dagsterplus_user.dennis.id
+}
+
+resource "dagsterplus_agent_token" "test" {
+  name = "acc-tf-agent-token"
+}
+
+resource "dagsterplus_user_token" "test" {
+  name = "acc-tf-user-token"
+}
+
+resource "dagsterplus_deployment_settings" "test" {
+  deployment    = dagsterplus_deployment.test.name
+  settings_json = jsonencode({ run_queue = { max_concurrent_runs = 5 } })
 }
 
 resource "dagsterplus_alert_policy" "test_deployment" {
@@ -179,12 +300,6 @@ resource "dagsterplus_service_token" "ci_bot_token" {
   description     = "Primary token for acc-tf-ci-bot"
 }
 
-resource "dagsterplus_service_user_deployment_grant" "ci_bot_test" {
-  service_user_id = dagsterplus_service_user.ci_bot.id
-  deployment      = dagsterplus_deployment.test.name
-  grant           = "LAUNCHER"
-}
-
 resource "dagsterplus_organization_settings" "org" {
   settings_json = "{}"
 }
@@ -196,8 +311,8 @@ resource "dagsterplus_secret" "db_password" {
 }
 
 # ---------------------------------------------------------------------------
-# Data sources — read back every resource created above to exercise the
-# data source read path independently from the resource create path.
+# Data sources — read back representative resources to exercise the data
+# source read path independently from the resource create path.
 # ---------------------------------------------------------------------------
 
 data "dagsterplus_user" "dennis" {
@@ -220,9 +335,9 @@ data "dagsterplus_role" "org_admin" {
   depends_on = [dagsterplus_role.org_admin]
 }
 
-data "dagsterplus_team" "data_engineering" {
-  name       = dagsterplus_team.data_engineering.name
-  depends_on = [dagsterplus_team.data_engineering]
+data "dagsterplus_team" "inline" {
+  name       = dagsterplus_team.inline.name
+  depends_on = [dagsterplus_team.inline]
 }
 
 data "dagsterplus_agent_token" "test" {
@@ -291,9 +406,8 @@ data "dagsterplus_deployments" "all" {
 
 data "dagsterplus_teams" "all" {
   depends_on = [
-    dagsterplus_team.data_engineering,
-    dagsterplus_team.data_engineering_2,
-    dagsterplus_team.grants_only,
+    dagsterplus_team.inline,
+    dagsterplus_team.standalone,
   ]
 }
 

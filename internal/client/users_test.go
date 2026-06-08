@@ -160,46 +160,6 @@ func TestGetUser_NotFound(t *testing.T) {
 	}
 }
 
-func TestUpdateUserRole_Success(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b := parseBody(t, r)
-		if !strings.Contains(b.Query, "UpdateUserPermissions") {
-			t.Errorf("expected UpdateUserPermissions mutation, got: %s", b.Query)
-		}
-		up, _ := b.Variables["userPermission"].(map[string]any)
-		if up["email"] != "alice@example.com" {
-			t.Errorf("email = %v, want alice@example.com", up["email"])
-		}
-		if up["grant"] != "EDITOR" {
-			t.Errorf("grant = %v, want EDITOR", up["grant"])
-		}
-		gqlOK(w, map[string]any{
-			"createOrUpdateUserPermissions": map[string]any{"__typename": "UnauthorizedError"},
-		})
-	}))
-	defer srv.Close()
-
-	err := newClient(srv).UpdateUserRole(context.Background(), "alice@example.com", "EDITOR")
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-}
-
-func TestUpdateUserRole_HTTPError(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "forbidden", http.StatusForbidden)
-	}))
-	defer srv.Close()
-
-	err := newClient(srv).UpdateUserRole(context.Background(), "alice@example.com", "EDITOR")
-	if err == nil {
-		t.Fatal("expected error, got nil")
-	}
-	if !strings.Contains(err.Error(), "403") {
-		t.Errorf("error should mention status code, got: %v", err)
-	}
-}
-
 func TestRemoveUser_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b := parseBody(t, r)

@@ -38,17 +38,24 @@ type deploymentGrantModel struct {
 	CustomRoleID types.String `tfsdk:"custom_role_id"`
 }
 
+type branchDeploymentsGrantModel struct {
+	ParentDeployment types.String `tfsdk:"parent_deployment"`
+	Grant            types.String `tfsdk:"grant"`
+	CustomRoleID     types.String `tfsdk:"custom_role_id"`
+}
+
 type memberModel struct {
 	UserID types.String `tfsdk:"user_id"`
 }
 
 type teamResourceModel struct {
-	ID                        types.String           `tfsdk:"id"`
-	Name                      types.String           `tfsdk:"name"`
-	OrganizationGrant         []orgGrantModel        `tfsdk:"organization_grant"`
-	AllBranchDeploymentsGrant []orgGrantModel        `tfsdk:"all_branch_deployments_grant"`
-	DeploymentGrant           []deploymentGrantModel `tfsdk:"deployment_grant"`
-	Members                   []memberModel          `tfsdk:"member"`
+	ID                        types.String                  `tfsdk:"id"`
+	Name                      types.String                  `tfsdk:"name"`
+	OrganizationGrant         []orgGrantModel               `tfsdk:"organization_grant"`
+	AllBranchDeploymentsGrant []orgGrantModel               `tfsdk:"all_branch_deployments_grant"`
+	DeploymentGrant           []deploymentGrantModel        `tfsdk:"deployment_grant"`
+	BranchDeploymentsGrant    []branchDeploymentsGrantModel `tfsdk:"branch_deployments_grant"`
+	Members                   []memberModel                 `tfsdk:"member"`
 }
 
 func (r *teamResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -77,10 +84,10 @@ func (r *teamResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"grant": schema.StringAttribute{
-							Description: "Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.",
+							Description: "Organization-level permission. Only ADMIN is accepted at the API level; for any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id.",
 							Optional:    true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+								stringvalidator.OneOf("ADMIN"),
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
 							},
 						},
@@ -122,6 +129,32 @@ func (r *teamResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 					Attributes: map[string]schema.Attribute{
 						"deployment": schema.StringAttribute{
 							Description: "The name of the deployment to grant access to.",
+							Required:    true,
+						},
+						"grant": schema.StringAttribute{
+							Description: "Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.",
+							Optional:    true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+							},
+						},
+						"custom_role_id": schema.StringAttribute{
+							Description: "The ID of a custom role to assign. Conflicts with grant.",
+							Optional:    true,
+							Validators: []validator.String{
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),
+							},
+						},
+					},
+				},
+			},
+			"branch_deployments_grant": schema.ListNestedBlock{
+				Description: "Permission grant for all branch deployments of a specific parent (full) deployment. One block per parent deployment.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"parent_deployment": schema.StringAttribute{
+							Description: "The name of the full (parent) deployment whose branch deployments this grant applies to.",
 							Required:    true,
 						},
 						"grant": schema.StringAttribute{
@@ -240,6 +273,26 @@ func (r *teamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		plan.DeploymentGrant[i] = g
 	}
 
+	for i, g := range plan.BranchDeploymentsGrant {
+		intID, err := r.client.GetDeploymentIntID(ctx, g.ParentDeployment.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error resolving parent deployment", err.Error())
+			return
+		}
+		grantStr, customRoleID := resolveGrantFields(g.Grant, g.CustomRoleID)
+		if _, err := r.client.SetTeamGrant(ctx, client.TeamGrant{
+			TeamID:          team.ID,
+			DeploymentScope: "branch_deployments",
+			DeploymentID:    intID,
+			Grant:           grantStr,
+			CustomRoleID:    customRoleID,
+		}); err != nil {
+			resp.Diagnostics.AddError("Error setting branch deployments grant", err.Error())
+			return
+		}
+		plan.BranchDeploymentsGrant[i] = g
+	}
+
 	for _, m := range plan.Members {
 		if err := r.client.AddUserToTeam(ctx, team.ID, m.UserID.ValueString()); err != nil {
 			resp.Diagnostics.AddError("Error adding member to team", err.Error())
@@ -308,6 +361,26 @@ func (r *teamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 			Deployment:   existing.Deployment,
 			Grant:        grantVal,
 			CustomRoleID: customRoleIDVal,
+		})
+	}
+
+	// Rebuild branch deployments grants from API, preserving parent_deployment names from prior state.
+	prevBranchGrants := state.BranchDeploymentsGrant
+	state.BranchDeploymentsGrant = nil
+	for _, existing := range prevBranchGrants {
+		intID, err := r.client.GetDeploymentIntID(ctx, existing.ParentDeployment.ValueString())
+		if err != nil {
+			continue
+		}
+		g, err := r.client.GetTeamGrant(ctx, state.ID.ValueString(), "branch_deployments", intID)
+		if err != nil {
+			continue
+		}
+		grantVal, customRoleIDVal := grantFieldsFromAPI(g.Grant, g.CustomRoleID)
+		state.BranchDeploymentsGrant = append(state.BranchDeploymentsGrant, branchDeploymentsGrantModel{
+			ParentDeployment: existing.ParentDeployment,
+			Grant:            grantVal,
+			CustomRoleID:     customRoleIDVal,
 		})
 	}
 
@@ -423,6 +496,44 @@ func (r *teamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		plan.DeploymentGrant[i] = g
 	}
 
+	// Sync branch_deployments_grant blocks: delete removed, upsert remaining.
+	planBranchParents := make(map[string]bool, len(plan.BranchDeploymentsGrant))
+	for _, g := range plan.BranchDeploymentsGrant {
+		planBranchParents[g.ParentDeployment.ValueString()] = true
+	}
+	for _, g := range state.BranchDeploymentsGrant {
+		if !planBranchParents[g.ParentDeployment.ValueString()] {
+			intID, err := r.client.GetDeploymentIntID(ctx, g.ParentDeployment.ValueString())
+			if err != nil {
+				resp.Diagnostics.AddError("Error resolving parent deployment", err.Error())
+				return
+			}
+			if err := r.client.DeleteTeamGrant(ctx, plan.ID.ValueString(), "branch_deployments", intID); err != nil {
+				resp.Diagnostics.AddError("Error removing branch deployments grant", err.Error())
+				return
+			}
+		}
+	}
+	for i, g := range plan.BranchDeploymentsGrant {
+		intID, err := r.client.GetDeploymentIntID(ctx, g.ParentDeployment.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error resolving parent deployment", err.Error())
+			return
+		}
+		grantStr, customRoleID := resolveGrantFields(g.Grant, g.CustomRoleID)
+		if _, err := r.client.SetTeamGrant(ctx, client.TeamGrant{
+			TeamID:          plan.ID.ValueString(),
+			DeploymentScope: "branch_deployments",
+			DeploymentID:    intID,
+			Grant:           grantStr,
+			CustomRoleID:    customRoleID,
+		}); err != nil {
+			resp.Diagnostics.AddError("Error setting branch deployments grant", err.Error())
+			return
+		}
+		plan.BranchDeploymentsGrant[i] = g
+	}
+
 	// Sync members: remove those no longer in plan, add new ones.
 	planMembers := make(map[string]bool, len(plan.Members))
 	for _, m := range plan.Members {
@@ -480,6 +591,7 @@ func (r *teamResource) ImportState(ctx context.Context, req resource.ImportState
 		OrganizationGrant:         []orgGrantModel{},
 		AllBranchDeploymentsGrant: []orgGrantModel{},
 		DeploymentGrant:           []deploymentGrantModel{},
+		BranchDeploymentsGrant:    []branchDeploymentsGrantModel{},
 		Members:                   []memberModel{},
 	}
 
@@ -502,6 +614,21 @@ func (r *teamResource) ImportState(ctx context.Context, req resource.ImportState
 				Deployment:   types.StringValue(depName),
 				Grant:        grantVal,
 				CustomRoleID: customRoleIDVal,
+			})
+		}
+	}
+
+	if branchGrants, err := r.client.ListTeamBranchDeploymentsGrants(ctx, team.ID); err == nil {
+		for _, g := range branchGrants {
+			depName, err := r.client.GetDeploymentNameByIntID(ctx, g.DeploymentID)
+			if err != nil {
+				continue
+			}
+			grantVal, customRoleIDVal := grantFieldsFromAPI(g.Grant, g.CustomRoleID)
+			state.BranchDeploymentsGrant = append(state.BranchDeploymentsGrant, branchDeploymentsGrantModel{
+				ParentDeployment: types.StringValue(depName),
+				Grant:            grantVal,
+				CustomRoleID:     customRoleIDVal,
 			})
 		}
 	}
