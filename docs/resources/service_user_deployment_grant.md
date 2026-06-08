@@ -48,7 +48,7 @@ resource "dagsterplus_service_user_deployment_grant" "ci_bot_staging" {
 ### Optional
 
 - `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level: `VIEWER`, `LAUNCHER`, `EDITOR`, or `ADMIN`. Conflicts with custom_role_id.
+- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
 - `location_grants` (Block List) Per-code-location permission overrides within this deployment. (see [below for nested schema](#nestedblock--location_grants))
 
 ### Read-Only
@@ -65,7 +65,7 @@ Required:
 Optional:
 
 - `custom_role_id` (String) Custom role ID for this location. Conflicts with grant.
-- `grant` (String) Standard permission level for this location. Conflicts with custom_role_id.
+- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
 
 ## Import
 

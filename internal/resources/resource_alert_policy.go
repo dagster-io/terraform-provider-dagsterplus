@@ -164,10 +164,10 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Computed:    true,
 			},
 			"policy_type": schema.StringAttribute{
-				Description: "The category of alert policy: asset, run, code_location, automation, budget, or insight_metric.",
+				Description: withEnumValues("The category of alert policy.", alertPolicyTypes),
 				Required:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("asset", "run", "code_location", "automation", "budget", "insight_metric"),
+					stringvalidator.OneOf(alertPolicyTypes...),
 				},
 			},
 			"enabled": schema.BoolAttribute{
@@ -391,10 +391,10 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"operator": schema.StringAttribute{
-							Description: "Comparison operator: greater_than or less_than.",
+							Description: withEnumValues("Comparison operator.", alertComparisonOperators),
 							Required:    true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("greater_than", "less_than"),
+								stringvalidator.OneOf(alertComparisonOperators...),
 							},
 						},
 						"threshold": schema.Float64Attribute{
@@ -447,10 +447,10 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 							Required:    true,
 						},
 						"operator": schema.StringAttribute{
-							Description: "Comparison operator: greater_than or less_than.",
+							Description: withEnumValues("Comparison operator.", alertComparisonOperators),
 							Required:    true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("greater_than", "less_than"),
+								stringvalidator.OneOf(alertComparisonOperators...),
 							},
 						},
 						"threshold": schema.Float64Attribute{
@@ -468,10 +468,10 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Description: "The notification channel for this alert policy. Exactly one notification type should be configured.",
 				Attributes: map[string]schema.Attribute{
 					"type": schema.StringAttribute{
-						Description: "Notification type: email, email_owners, slack, microsoft_teams, or pagerduty.",
+						Description: withEnumValues("Notification type.", notificationTypes),
 						Required:    true,
 						Validators: []validator.String{
-							stringvalidator.OneOf("email", "email_owners", "slack", "microsoft_teams", "pagerduty"),
+							stringvalidator.OneOf(notificationTypes...),
 						},
 					},
 					"email_addresses": schema.ListAttribute{

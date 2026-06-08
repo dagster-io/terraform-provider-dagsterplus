@@ -118,7 +118,7 @@ import (
 ```
 
 Common patterns:
-- Enum strings: `stringvalidator.OneOf("value_a", "value_b")`
+- Enum strings: `stringvalidator.OneOf(myEnum...)` where `myEnum` is a shared slice in `internal/resources/enums.go` — drive the description from the same slice via `withEnumValues(...)` (see "Enum values: single source of truth" under Patterns to Follow). Never inline the value list.
 - Mutually exclusive sibling attributes inside a nested block: `stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("other_field"))`
 - Numeric bounds: `int64validator.AtLeast(1)`, `int64validator.Between(1, 100)`
 - Validators are not needed on data source schemas (all attributes are `Computed`).
@@ -250,6 +250,35 @@ Before writing any client code, read the schema to verify field names, argument 
 After adding or modifying any `.graphql` file in `queries/`, run `make generate` to regenerate `generated.go`. **Never edit `generated.go` by hand** — it is overwritten on every `make generate`.
 
 To determine whether a resource is org-scoped or deployment-scoped, check whether the relevant query/mutation is on the root `Query`/`Mutation` type (org-scoped) or requires a deployment-specific endpoint. Org-scoped operations use `c.gqlClient("")`; deployment-scoped use `c.gqlClient(deploymentName)`.
+
+### Enum values: single source of truth
+
+Every enum attribute (anything validated with `stringvalidator.OneOf(...)`) must surface its full list of valid values in the generated docs, so users can discover them from the registry without trial-and-error. Do **not** hand-type the value list into both the validator and the description — they will drift.
+
+Instead, define the enum once in `internal/resources/enums.go` and drive both the validator and the description from it:
+
+```go
+// internal/resources/enums.go
+var grantLevels = []string{"VIEWER", "LAUNCHER", "EDITOR", "ADMIN"}
+
+// withEnumValues appends "Valid values: `a`, `b`." to a base description.
+func withEnumValues(base string, values []string) string {
+    return base + " Valid values: `" + strings.Join(values, "`, `") + "`."
+}
+```
+
+```go
+// in the resource schema
+"grant": schema.StringAttribute{
+    Description: withEnumValues("Standard permission level.", grantLevels),
+    Validators:  []validator.String{stringvalidator.OneOf(grantLevels...)},
+},
+```
+
+Rules:
+- Add the new enum slice to `enums.go`; if the same enum recurs across resources (e.g. the grant level), reuse the shared slice and a shared base-description constant rather than re-declaring it.
+- The slice values are the exact strings users type — preserve their real case (permissions are lowercase, grant levels uppercase). Backticking straight from the slice keeps the docs honest.
+- After any enum change, run `make docs` (or the `go run …/tfplugindocs generate` equivalent) and commit the regenerated `docs/*.md`. **Reverting an enum value is a breaking change** — see the Breaking Change Protocol.
 
 ### PythonError in mutation unions
 

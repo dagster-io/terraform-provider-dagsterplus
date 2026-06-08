@@ -57,10 +57,10 @@ func (r *serviceUserAllBranchDeploymentsGrantResource) Schema(_ context.Context,
 				},
 			},
 			"grant": schema.StringAttribute{
-				Description: "Standard permission level: `VIEWER`, `LAUNCHER`, `EDITOR`, or `ADMIN`. Conflicts with custom_role_id.",
+				Description: withEnumValues(grantLevelDescription, grantLevels),
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+					stringvalidator.OneOf(grantLevels...),
 					stringvalidator.ConflictsWith(path.MatchRoot("custom_role_id")),
 				},
 			},

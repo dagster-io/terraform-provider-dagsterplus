@@ -65,14 +65,13 @@ func (r *externalAssetConnectionResource) Schema(_ context.Context, _ resource.S
 				},
 			},
 			"connection_type": schema.StringAttribute{
-				Description: "The type of external connection. Changing this forces a new resource. " +
-					"Valid values: SNOWFLAKE, BIGQUERY, POSTGRES, DATABRICKS.",
-				Required: true,
+				Description: withEnumValues("The type of external connection. Changing this forces a new resource.", externalAssetConnectionTypes),
+				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf("SNOWFLAKE", "BIGQUERY", "POSTGRES", "DATABRICKS"),
+					stringvalidator.OneOf(externalAssetConnectionTypes...),
 				},
 			},
 			"source_config_yaml": schema.StringAttribute{

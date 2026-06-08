@@ -22,40 +22,6 @@ import (
 var _ resource.Resource = &roleResource{}
 var _ resource.ResourceWithImportState = &roleResource{}
 
-// allCustomRolePermissions is the full set of valid permission values.
-var allCustomRolePermissions = []string{
-	"delete_runs",
-	"edit_alerts",
-	"edit_all_catalog_views",
-	"edit_code_locations",
-	"edit_concurrency_limits",
-	"edit_custom_roles",
-	"edit_deployment_permissions",
-	"edit_deployment_settings",
-	"edit_dynamic_partitions",
-	"edit_external_asset_connections",
-	"edit_insights_metrics",
-	"edit_issues",
-	"edit_secrets",
-	"edit_sensor_cursors",
-	"edit_users_and_teams",
-	"manage_billing",
-	"manage_branch_deployments",
-	"manage_full_deployments",
-	"manage_service_users",
-	"manage_sso_and_scim",
-	"read_and_edit_agent_tokens",
-	"read_and_edit_all_user_tokens",
-	"read_audit_log",
-	"read_secret_values",
-	"redeploy_code_locations",
-	"report_asset_events",
-	"start_and_stop_runs",
-	"toggle_schedules",
-	"toggle_sensors",
-	"wipe_assets",
-}
-
 func NewRoleResource() resource.Resource {
 	return &roleResource{}
 }
@@ -105,22 +71,22 @@ func (r *roleResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Default:     stringdefault.StaticString(""),
 			},
 			"role_type": schema.StringAttribute{
-				Description: "The scope of the role: deployment or organization. Changing this forces a new resource.",
+				Description: withEnumValues("The scope of the role. Changing this forces a new resource.", roleTypes),
 				Required:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("deployment", "organization"),
+					stringvalidator.OneOf(roleTypes...),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"permissions": schema.SetAttribute{
-				Description: "The permissions granted by this role. At least one permission is required.",
+				Description: withEnumValues("The permissions granted by this role. At least one permission is required.", customRolePermissions),
 				Required:    true,
 				ElementType: types.StringType,
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(
-						stringvalidator.OneOf(allCustomRolePermissions...),
+						stringvalidator.OneOf(customRolePermissions...),
 					),
 				},
 			},

@@ -63,8 +63,8 @@ resource "dagsterplus_role" "ops" {
 ### Required
 
 - `name` (String) The name of the role.
-- `permissions` (Set of String) The permissions granted by this role. At least one permission is required.
-- `role_type` (String) The scope of the role: deployment or organization. Changing this forces a new resource.
+- `permissions` (Set of String) The permissions granted by this role. At least one permission is required. Valid values: `delete_runs`, `edit_alerts`, `edit_all_catalog_views`, `edit_code_locations`, `edit_concurrency_limits`, `edit_custom_roles`, `edit_deployment_permissions`, `edit_deployment_settings`, `edit_dynamic_partitions`, `edit_external_asset_connections`, `edit_insights_metrics`, `edit_issues`, `edit_secrets`, `edit_sensor_cursors`, `edit_users_and_teams`, `manage_billing`, `manage_branch_deployments`, `manage_full_deployments`, `manage_service_users`, `manage_sso_and_scim`, `read_and_edit_agent_tokens`, `read_and_edit_all_user_tokens`, `read_audit_log`, `read_secret_values`, `redeploy_code_locations`, `report_asset_events`, `start_and_stop_runs`, `toggle_schedules`, `toggle_sensors`, `wipe_assets`.
+- `role_type` (String) The scope of the role. Changing this forces a new resource. Valid values: `deployment`, `organization`.
 
 ### Optional
 

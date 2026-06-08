@@ -52,10 +52,10 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 	orgGrantBlock := schema.NestedBlockObject{
 		Attributes: map[string]schema.Attribute{
 			"grant": schema.StringAttribute{
-				Description: "Organization-level permission. Only ADMIN is accepted at the API level; for any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id.",
+				Description: withEnumValues(orgGrantDescription, orgGrantLevels),
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("ADMIN"),
+					stringvalidator.OneOf(orgGrantLevels...),
 					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
 				},
 			},
@@ -71,10 +71,10 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 	deploymentScopeGrantBlock := schema.NestedBlockObject{
 		Attributes: map[string]schema.Attribute{
 			"grant": schema.StringAttribute{
-				Description: "Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.",
+				Description: withEnumValues(grantLevelDescription, grantLevels),
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+					stringvalidator.OneOf(grantLevels...),
 					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
 				},
 			},
@@ -141,10 +141,10 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 							Required:    true,
 						},
 						"grant": schema.StringAttribute{
-							Description: "Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.",
+							Description: withEnumValues(grantLevelDescription, grantLevels),
 							Optional:    true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+								stringvalidator.OneOf(grantLevels...),
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
 							},
 						},
@@ -167,10 +167,10 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 							Required:    true,
 						},
 						"grant": schema.StringAttribute{
-							Description: "Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.",
+							Description: withEnumValues(grantLevelDescription, grantLevels),
 							Optional:    true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+								stringvalidator.OneOf(grantLevels...),
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
 							},
 						},

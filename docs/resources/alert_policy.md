@@ -172,7 +172,7 @@ resource "dagsterplus_alert_policy" "weekly_credits" {
 - `deployment` (String) The name of the deployment this alert policy belongs to (e.g. `prod`).
 - `enabled` (Boolean) Whether the alert policy is active.
 - `name` (String) The unique name of the alert policy. Changing this forces a new resource.
-- `policy_type` (String) The category of alert policy: asset, run, code_location, automation, budget, or insight_metric.
+- `policy_type` (String) The category of alert policy. Valid values: `asset`, `run`, `code_location`, `automation`, `budget`, `insight_metric`.
 
 ### Optional
 
@@ -220,7 +220,7 @@ Optional:
 
 Required:
 
-- `operator` (String) Comparison operator: greater_than or less_than.
+- `operator` (String) Comparison operator. Valid values: `greater_than`, `less_than`.
 - `period_days` (Number) The period in days over which to measure.
 - `threshold` (Number) The budget threshold value.
 
@@ -240,7 +240,7 @@ Optional:
 Required:
 
 - `metric` (String) The metric to monitor (e.g. dagster_credits).
-- `operator` (String) Comparison operator: greater_than or less_than.
+- `operator` (String) Comparison operator. Valid values: `greater_than`, `less_than`.
 - `period_days` (Number) The period in days over which to measure.
 - `threshold` (Number) The metric threshold value.
 
@@ -256,7 +256,7 @@ Optional:
 
 Required:
 
-- `type` (String) Notification type: email, email_owners, slack, microsoft_teams, or pagerduty.
+- `type` (String) Notification type. Valid values: `email`, `email_owners`, `slack`, `microsoft_teams`, `pagerduty`.
 
 Optional:
 

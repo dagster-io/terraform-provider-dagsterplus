@@ -57,10 +57,10 @@ func (r *userOrganizationGrantResource) Schema(_ context.Context, _ resource.Sch
 				},
 			},
 			"grant": schema.StringAttribute{
-				Description: "Organization-level permission. Only `ADMIN` is accepted at the API level; for any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id.",
+				Description: withEnumValues(orgGrantDescription, orgGrantLevels),
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("ADMIN"),
+					stringvalidator.OneOf(orgGrantLevels...),
 					stringvalidator.ConflictsWith(path.MatchRoot("custom_role_id")),
 				},
 			},
