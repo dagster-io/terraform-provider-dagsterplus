@@ -49,7 +49,7 @@ resource "dagsterplus_user" "bob" {
 Optional:
 
 - `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
 
 
 <a id="nestedblock--branch_deployments_grant"></a>
@@ -62,7 +62,7 @@ Required:
 Optional:
 
 - `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
 
 
 <a id="nestedblock--deployment_grant"></a>
@@ -75,7 +75,7 @@ Required:
 Optional:
 
 - `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level: VIEWER, LAUNCHER, EDITOR, or ADMIN. Conflicts with custom_role_id.
+- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
 
 
 <a id="nestedblock--organization_grant"></a>
@@ -84,7 +84,7 @@ Optional:
 Optional:
 
 - `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Organization-level permission. Only ADMIN is accepted at the API level; for any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id.
+- `grant` (String) Organization-level permission. For any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id. Valid values: `ADMIN`.
 
 ## Import
 

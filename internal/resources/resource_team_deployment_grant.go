@@ -74,10 +74,10 @@ func (r *teamDeploymentGrantResource) Schema(_ context.Context, _ resource.Schem
 				},
 			},
 			"grant": schema.StringAttribute{
-				Description: "Standard permission level: `VIEWER`, `LAUNCHER`, `EDITOR`, or `ADMIN`. Conflicts with custom_role_id.",
+				Description: withEnumValues(grantLevelDescription, grantLevels),
 				Optional:    true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+					stringvalidator.OneOf(grantLevels...),
 					stringvalidator.ConflictsWith(path.MatchRoot("custom_role_id")),
 				},
 			},
@@ -99,10 +99,10 @@ func (r *teamDeploymentGrantResource) Schema(_ context.Context, _ resource.Schem
 							Required:    true,
 						},
 						"grant": schema.StringAttribute{
-							Description: "Standard permission level for this location. Conflicts with custom_role_id.",
+							Description: withEnumValues(grantLevelDescription, grantLevels),
 							Optional:    true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("VIEWER", "LAUNCHER", "EDITOR", "ADMIN"),
+								stringvalidator.OneOf(grantLevels...),
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
 							},
 						},

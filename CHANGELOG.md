@@ -10,6 +10,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full matrix of permission-grant resources for `team`, `user`, and `service_user` principals across four scopes (`organization`, `deployment`, `all_branch_deployments`, `branch_deployments`). Each scope is available both as an inline block on the parent resource and as a standalone `{principal}_{scope}_grant` resource for out-of-band lifecycle management.
 - `branch_deployments_grant { parent_deployment = … }` — new scope expressing grants that apply to all branch deployments of a specific parent (full) deployment. Symmetric with `deployment_grant { deployment = … }`.
 
+### Changed
+- Attribute documentation now lists the full set of valid values for every enum attribute, so users can discover them from the registry docs without trial-and-error. Affected attributes: `dagsterplus_role` `permissions` (the complete 30-value permission list) and `role_type`; the `grant` permission level (`VIEWER`/`LAUNCHER`/`EDITOR`/`ADMIN`) and organization `grant` (`ADMIN`) on all `team`/`user`/`service_user` grant resources and inline blocks; `dagsterplus_external_asset_connection` `connection_type`; and `dagsterplus_alert_policy` `policy_type`, budget/insight-metric `operator`, and notification `type`. Validator behavior is unchanged — the accepted values are identical to previous releases.
+
 ## [0.1.5] - 2026-05-01
 
 ### Added

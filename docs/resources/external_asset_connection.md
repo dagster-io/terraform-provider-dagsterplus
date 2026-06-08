@@ -45,7 +45,7 @@ resource "dagsterplus_external_asset_connection" "bigquery_sync" {
 
 ### Required
 
-- `connection_type` (String) The type of external connection. Changing this forces a new resource. Valid values: SNOWFLAKE, BIGQUERY, POSTGRES, DATABRICKS.
+- `connection_type` (String) The type of external connection. Changing this forces a new resource. Valid values: `SNOWFLAKE`, `BIGQUERY`, `POSTGRES`, `DATABRICKS`.
 - `name` (String) The name of the external asset connection.
 - `source_config_yaml` (String, Sensitive) YAML configuration for the connection source. May contain credentials — treated as sensitive.
 
