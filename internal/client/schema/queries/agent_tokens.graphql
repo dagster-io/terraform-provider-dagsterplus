@@ -30,3 +30,83 @@ mutation RevokeAgentToken($tokenId: Int!) {
     __typename
   }
 }
+
+# Agent token permission grants. Agent tokens only ever carry the AGENT grant,
+# so the grant value is hardcoded in the mutations below and never surfaced to
+# the provider.
+fragment AgentTokenGrantsFields on DagsterCloudScopedPermissionGrants {
+  organizationPermissionGrant {
+    grant
+    deploymentScope
+    deploymentId
+  }
+  allBranchDeploymentsPermissionGrant {
+    grant
+    deploymentScope
+    deploymentId
+  }
+  perBaseBranchDeploymentsPermissionGrants {
+    grant
+    deploymentScope
+    deploymentId
+  }
+  deploymentPermissionGrants {
+    grant
+    deploymentScope
+    deploymentId
+  }
+}
+
+query GetAgentTokenGrants($tokenId: Int!) {
+  agentTokenOrError(tokenId: $tokenId) {
+    __typename
+    ... on DagsterCloudAgentToken {
+      id
+      permissions {
+        ...AgentTokenGrantsFields
+      }
+    }
+  }
+}
+
+mutation SetAgentGrant(
+  $agentTokenId: Int!
+  $scope: PermissionDeploymentScope!
+  $deploymentId: Int
+) {
+  createOrUpdateAgentPermissions(
+    agentPermission: {
+      agentTokenId: $agentTokenId
+      deploymentScope: $scope
+      grant: AGENT
+      deploymentId: $deploymentId
+    }
+  ) {
+    __typename
+    ... on DagsterCloudAgentToken {
+      id
+      permissions {
+        ...AgentTokenGrantsFields
+      }
+    }
+  }
+}
+
+mutation DeleteAgentGrant(
+  $agentTokenId: Int!
+  $scope: PermissionDeploymentScope!
+  $deploymentId: Int
+) {
+  removeAgentPermissions(
+    agentPermission: {
+      agentTokenId: $agentTokenId
+      deploymentScope: $scope
+      deploymentId: $deploymentId
+    }
+  ) {
+    __typename
+    ... on DagsterCloudAgentToken {
+      id
+    }
+  }
+}

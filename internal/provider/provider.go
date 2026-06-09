@@ -123,6 +123,7 @@ func (p *dagsterplusProvider) Resources(_ context.Context) []func() resource.Res
 		resources.NewUserResource,
 		resources.NewAlertPolicyResource,
 		resources.NewAgentTokenResource,
+		resources.NewAgentTokenDeploymentGrantResource,
 		resources.NewUserTokenResource,
 		resources.NewRoleResource,
 		resources.NewScimSettingsResource,

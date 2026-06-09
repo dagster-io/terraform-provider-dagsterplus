@@ -180,6 +180,32 @@ resource "dagsterplus_service_user_branch_deployments_grant" "standalone" {
 }
 
 # ---------------------------------------------------------------------------
+# Agent token: inline grant attributes + a standalone deployment grant.
+#
+# Agent tokens only ever carry the AGENT permission, so grants are expressed
+# as plain attributes (no grant level). organization = false removes the
+# default org grant Dagster+ creates with every new token.
+# ---------------------------------------------------------------------------
+
+resource "dagsterplus_agent_token" "inline" {
+  name                      = "acc-tf-agent-inline"
+  organization              = false
+  all_branch_deployments    = true
+  deployment_grants         = [dagsterplus_deployment.test.name]
+  branch_deployments_grants = [dagsterplus_deployment.test.name]
+}
+
+resource "dagsterplus_agent_token" "standalone" {
+  name         = "acc-tf-agent-standalone"
+  organization = false
+}
+
+resource "dagsterplus_agent_token_deployment_grant" "standalone" {
+  agent_token_id = dagsterplus_agent_token.standalone.id
+  deployment     = dagsterplus_deployment.test.name
+}
+
+# ---------------------------------------------------------------------------
 # User (dennis): standalone grant resources — all 4 scopes.
 #
 # Note: inline grant blocks on dagsterplus_user are intentionally NOT

@@ -829,6 +829,136 @@ func (v *AgentTokenFields) GetToken() string { return v.Token }
 // GetRevoked returns AgentTokenFields.Revoked, and is useful for accessing the field via an interface.
 func (v *AgentTokenFields) GetRevoked() bool { return v.Revoked }
 
+// Agent token permission grants. Agent tokens only ever carry the AGENT grant,
+// so the grant value is hardcoded in the mutations below and never surfaced to
+// the provider.
+type AgentTokenGrantsFields struct {
+	OrganizationPermissionGrant              AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant                `json:"organizationPermissionGrant"`
+	AllBranchDeploymentsPermissionGrant      AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant        `json:"allBranchDeploymentsPermissionGrant"`
+	PerBaseBranchDeploymentsPermissionGrants []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
+	DeploymentPermissionGrants               []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant               `json:"deploymentPermissionGrants"`
+}
+
+// GetOrganizationPermissionGrant returns AgentTokenGrantsFields.OrganizationPermissionGrant, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFields) GetOrganizationPermissionGrant() AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant {
+	return v.OrganizationPermissionGrant
+}
+
+// GetAllBranchDeploymentsPermissionGrant returns AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFields) GetAllBranchDeploymentsPermissionGrant() AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
+	return v.AllBranchDeploymentsPermissionGrant
+}
+
+// GetPerBaseBranchDeploymentsPermissionGrants returns AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFields) GetPerBaseBranchDeploymentsPermissionGrants() []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
+	return v.PerBaseBranchDeploymentsPermissionGrants
+}
+
+// GetDeploymentPermissionGrants returns AgentTokenGrantsFields.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFields) GetDeploymentPermissionGrants() []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
+	return v.DeploymentPermissionGrants
+}
+
+// AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
+// The GraphQL type's documentation follows.
+//
+// If the deploymentId is null, then this represents an organization grant.
+type AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant struct {
+	Grant           PermissionGrant           `json:"grant"`
+	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
+	DeploymentId    int                       `json:"deploymentId"`
+}
+
+// GetGrant returns AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
+	return v.Grant
+}
+
+// GetDeploymentScope returns AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
+	return v.DeploymentScope
+}
+
+// GetDeploymentId returns AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
+	return v.DeploymentId
+}
+
+// AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
+// The GraphQL type's documentation follows.
+//
+// If the deploymentId is null, then this represents an organization grant.
+type AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant struct {
+	Grant           PermissionGrant           `json:"grant"`
+	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
+	DeploymentId    int                       `json:"deploymentId"`
+}
+
+// GetGrant returns AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
+	return v.Grant
+}
+
+// GetDeploymentScope returns AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
+	return v.DeploymentScope
+}
+
+// GetDeploymentId returns AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
+	return v.DeploymentId
+}
+
+// AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
+// The GraphQL type's documentation follows.
+//
+// If the deploymentId is null, then this represents an organization grant.
+type AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant struct {
+	Grant           PermissionGrant           `json:"grant"`
+	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
+	DeploymentId    int                       `json:"deploymentId"`
+}
+
+// GetGrant returns AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
+	return v.Grant
+}
+
+// GetDeploymentScope returns AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
+	return v.DeploymentScope
+}
+
+// GetDeploymentId returns AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
+	return v.DeploymentId
+}
+
+// AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
+// The GraphQL type's documentation follows.
+//
+// If the deploymentId is null, then this represents an organization grant.
+type AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant struct {
+	Grant           PermissionGrant           `json:"grant"`
+	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
+	DeploymentId    int                       `json:"deploymentId"`
+}
+
+// GetGrant returns AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
+	return v.Grant
+}
+
+// GetDeploymentScope returns AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
+	return v.DeploymentScope
+}
+
+// GetDeploymentId returns AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
+func (v *AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
+	return v.DeploymentId
+}
+
 // Event types which we can alert on. These can either correspond with a DagsterEventType or a discrete
 // event outside of the event log. The AlertPolicyEventType set on an AlertPolicy indicates what that policy
 // should be monitoring.
@@ -5166,6 +5296,198 @@ var AllDagsterCloudDeploymentType = []DagsterCloudDeploymentType{
 	DagsterCloudDeploymentTypeBranch,
 }
 
+// DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken includes the requested fields of the GraphQL type DagsterCloudAgentToken.
+type DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken struct {
+	Typename string `json:"__typename"`
+	Id       int    `json:"id"`
+}
+
+// GetTypename returns DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken.Typename, and is useful for accessing the field via an interface.
+func (v *DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken) GetTypename() string {
+	return v.Typename
+}
+
+// GetId returns DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken.Id, and is useful for accessing the field via an interface.
+func (v *DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken) GetId() int { return v.Id }
+
+// DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult includes the requested fields of the GraphQL interface ModifyAgentTokenResult.
+//
+// DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult is implemented by the following types:
+// DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken
+// DeleteAgentGrantRemoveAgentPermissionsPythonError
+// DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError
+type DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult interface {
+	implementsGraphQLInterfaceDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+}
+
+func (v *DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken) implementsGraphQLInterfaceDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult() {
+}
+func (v *DeleteAgentGrantRemoveAgentPermissionsPythonError) implementsGraphQLInterfaceDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult() {
+}
+func (v *DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError) implementsGraphQLInterfaceDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult() {
+}
+
+func __unmarshalDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult(b []byte, v *DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "DagsterCloudAgentToken":
+		*v = new(DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken)
+		return json.Unmarshal(b, *v)
+	case "PythonError":
+		*v = new(DeleteAgentGrantRemoveAgentPermissionsPythonError)
+		return json.Unmarshal(b, *v)
+	case "UnauthorizedError":
+		*v = new(DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing ModifyAgentTokenResult.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult(v *DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken:
+		typename = "DagsterCloudAgentToken"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*DeleteAgentGrantRemoveAgentPermissionsDagsterCloudAgentToken
+		}{typename, v}
+		return json.Marshal(result)
+	case *DeleteAgentGrantRemoveAgentPermissionsPythonError:
+		typename = "PythonError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*DeleteAgentGrantRemoveAgentPermissionsPythonError
+		}{typename, v}
+		return json.Marshal(result)
+	case *DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError:
+		typename = "UnauthorizedError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult: "%T"`, v)
+	}
+}
+
+// DeleteAgentGrantRemoveAgentPermissionsPythonError includes the requested fields of the GraphQL type PythonError.
+type DeleteAgentGrantRemoveAgentPermissionsPythonError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns DeleteAgentGrantRemoveAgentPermissionsPythonError.Typename, and is useful for accessing the field via an interface.
+func (v *DeleteAgentGrantRemoveAgentPermissionsPythonError) GetTypename() string { return v.Typename }
+
+// DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
+type DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError.Typename, and is useful for accessing the field via an interface.
+func (v *DeleteAgentGrantRemoveAgentPermissionsUnauthorizedError) GetTypename() string {
+	return v.Typename
+}
+
+// DeleteAgentGrantResponse is returned by DeleteAgentGrant on success.
+type DeleteAgentGrantResponse struct {
+	RemoveAgentPermissions DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult `json:"-"`
+}
+
+// GetRemoveAgentPermissions returns DeleteAgentGrantResponse.RemoveAgentPermissions, and is useful for accessing the field via an interface.
+func (v *DeleteAgentGrantResponse) GetRemoveAgentPermissions() DeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult {
+	return v.RemoveAgentPermissions
+}
+
+func (v *DeleteAgentGrantResponse) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*DeleteAgentGrantResponse
+		RemoveAgentPermissions json.RawMessage `json:"removeAgentPermissions"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.DeleteAgentGrantResponse = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.RemoveAgentPermissions
+		src := firstPass.RemoveAgentPermissions
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal DeleteAgentGrantResponse.RemoveAgentPermissions: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalDeleteAgentGrantResponse struct {
+	RemoveAgentPermissions json.RawMessage `json:"removeAgentPermissions"`
+}
+
+func (v *DeleteAgentGrantResponse) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *DeleteAgentGrantResponse) __premarshalJSON() (*__premarshalDeleteAgentGrantResponse, error) {
+	var retval __premarshalDeleteAgentGrantResponse
+
+	{
+
+		dst := &retval.RemoveAgentPermissions
+		src := v.RemoveAgentPermissions
+		var err error
+		*dst, err = __marshalDeleteAgentGrantRemoveAgentPermissionsModifyAgentTokenResult(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal DeleteAgentGrantResponse.RemoveAgentPermissions: %w", err)
+		}
+	}
+	return &retval, nil
+}
+
 // DeleteAlertPolicyDeleteAlertPolicyDeleteAlertPolicyMutationResult includes the requested fields of the GraphQL interface DeleteAlertPolicyMutationResult.
 //
 // DeleteAlertPolicyDeleteAlertPolicyDeleteAlertPolicyMutationResult is implemented by the following types:
@@ -8362,6 +8684,282 @@ var AllExternalAssetConnectionType = []ExternalAssetConnectionType{
 	ExternalAssetConnectionTypeBigquery,
 	ExternalAssetConnectionTypePostgres,
 	ExternalAssetConnectionTypeDatabricks,
+}
+
+// GetAgentTokenGrantsAgentTokenOrError includes the requested fields of the GraphQL interface AgentTokenOrError.
+//
+// GetAgentTokenGrantsAgentTokenOrError is implemented by the following types:
+// GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken
+// GetAgentTokenGrantsAgentTokenOrErrorPythonError
+// GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError
+type GetAgentTokenGrantsAgentTokenOrError interface {
+	implementsGraphQLInterfaceGetAgentTokenGrantsAgentTokenOrError()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+}
+
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken) implementsGraphQLInterfaceGetAgentTokenGrantsAgentTokenOrError() {
+}
+func (v *GetAgentTokenGrantsAgentTokenOrErrorPythonError) implementsGraphQLInterfaceGetAgentTokenGrantsAgentTokenOrError() {
+}
+func (v *GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError) implementsGraphQLInterfaceGetAgentTokenGrantsAgentTokenOrError() {
+}
+
+func __unmarshalGetAgentTokenGrantsAgentTokenOrError(b []byte, v *GetAgentTokenGrantsAgentTokenOrError) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "DagsterCloudAgentToken":
+		*v = new(GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken)
+		return json.Unmarshal(b, *v)
+	case "PythonError":
+		*v = new(GetAgentTokenGrantsAgentTokenOrErrorPythonError)
+		return json.Unmarshal(b, *v)
+	case "UnauthorizedError":
+		*v = new(GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing AgentTokenOrError.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for GetAgentTokenGrantsAgentTokenOrError: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalGetAgentTokenGrantsAgentTokenOrError(v *GetAgentTokenGrantsAgentTokenOrError) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken:
+		typename = "DagsterCloudAgentToken"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken
+		}{typename, v}
+		return json.Marshal(result)
+	case *GetAgentTokenGrantsAgentTokenOrErrorPythonError:
+		typename = "PythonError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*GetAgentTokenGrantsAgentTokenOrErrorPythonError
+		}{typename, v}
+		return json.Marshal(result)
+	case *GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError:
+		typename = "UnauthorizedError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for GetAgentTokenGrantsAgentTokenOrError: "%T"`, v)
+	}
+}
+
+// GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken includes the requested fields of the GraphQL type DagsterCloudAgentToken.
+type GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken struct {
+	Typename    string                                                                                                  `json:"__typename"`
+	Id          int                                                                                                     `json:"id"`
+	Permissions GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants `json:"permissions"`
+}
+
+// GetTypename returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken.Typename, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken) GetTypename() string {
+	return v.Typename
+}
+
+// GetId returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken.Id, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken) GetId() int { return v.Id }
+
+// GetPermissions returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken.Permissions, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken) GetPermissions() GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants {
+	return v.Permissions
+}
+
+// GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrants.
+type GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants struct {
+	AgentTokenGrantsFields `json:"-"`
+}
+
+// GetOrganizationPermissionGrant returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.OrganizationPermissionGrant, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetOrganizationPermissionGrant() AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.OrganizationPermissionGrant
+}
+
+// GetAllBranchDeploymentsPermissionGrant returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetAllBranchDeploymentsPermissionGrant() AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
+}
+
+// GetPerBaseBranchDeploymentsPermissionGrants returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
+}
+
+// GetDeploymentPermissionGrants returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetDeploymentPermissionGrants() []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.DeploymentPermissionGrants
+}
+
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AgentTokenGrantsFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalGetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants struct {
+	OrganizationPermissionGrant AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant `json:"organizationPermissionGrant"`
+
+	AllBranchDeploymentsPermissionGrant AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
+
+	PerBaseBranchDeploymentsPermissionGrants []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
+
+	DeploymentPermissionGrants []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
+}
+
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) __premarshalJSON() (*__premarshalGetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants, error) {
+	var retval __premarshalGetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants
+
+	retval.OrganizationPermissionGrant = v.AgentTokenGrantsFields.OrganizationPermissionGrant
+	retval.AllBranchDeploymentsPermissionGrant = v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
+	retval.PerBaseBranchDeploymentsPermissionGrants = v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
+	retval.DeploymentPermissionGrants = v.AgentTokenGrantsFields.DeploymentPermissionGrants
+	return &retval, nil
+}
+
+// GetAgentTokenGrantsAgentTokenOrErrorPythonError includes the requested fields of the GraphQL type PythonError.
+type GetAgentTokenGrantsAgentTokenOrErrorPythonError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns GetAgentTokenGrantsAgentTokenOrErrorPythonError.Typename, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorPythonError) GetTypename() string { return v.Typename }
+
+// GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
+type GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError.Typename, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsAgentTokenOrErrorUnauthorizedError) GetTypename() string {
+	return v.Typename
+}
+
+// GetAgentTokenGrantsResponse is returned by GetAgentTokenGrants on success.
+type GetAgentTokenGrantsResponse struct {
+	AgentTokenOrError GetAgentTokenGrantsAgentTokenOrError `json:"-"`
+}
+
+// GetAgentTokenOrError returns GetAgentTokenGrantsResponse.AgentTokenOrError, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenGrantsResponse) GetAgentTokenOrError() GetAgentTokenGrantsAgentTokenOrError {
+	return v.AgentTokenOrError
+}
+
+func (v *GetAgentTokenGrantsResponse) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetAgentTokenGrantsResponse
+		AgentTokenOrError json.RawMessage `json:"agentTokenOrError"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetAgentTokenGrantsResponse = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.AgentTokenOrError
+		src := firstPass.AgentTokenOrError
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalGetAgentTokenGrantsAgentTokenOrError(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal GetAgentTokenGrantsResponse.AgentTokenOrError: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalGetAgentTokenGrantsResponse struct {
+	AgentTokenOrError json.RawMessage `json:"agentTokenOrError"`
+}
+
+func (v *GetAgentTokenGrantsResponse) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetAgentTokenGrantsResponse) __premarshalJSON() (*__premarshalGetAgentTokenGrantsResponse, error) {
+	var retval __premarshalGetAgentTokenGrantsResponse
+
+	{
+
+		dst := &retval.AgentTokenOrError
+		src := v.AgentTokenOrError
+		var err error
+		*dst, err = __marshalGetAgentTokenGrantsAgentTokenOrError(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal GetAgentTokenGrantsResponse.AgentTokenOrError: %w", err)
+		}
+	}
+	return &retval, nil
 }
 
 // GetAtlanIntegrationSettingsAtlanIntegrationAtlanIntegrationQuery includes the requested fields of the GraphQL type AtlanIntegrationQuery.
@@ -14056,6 +14654,284 @@ func (v *ServiceUserGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterC
 	return v.DeploymentId
 }
 
+// SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken includes the requested fields of the GraphQL type DagsterCloudAgentToken.
+type SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken struct {
+	Typename    string                                                                                                         `json:"__typename"`
+	Id          int                                                                                                            `json:"id"`
+	Permissions SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants `json:"permissions"`
+}
+
+// GetTypename returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken.Typename, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken) GetTypename() string {
+	return v.Typename
+}
+
+// GetId returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken.Id, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken) GetId() int { return v.Id }
+
+// GetPermissions returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken.Permissions, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken) GetPermissions() SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants {
+	return v.Permissions
+}
+
+// SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrants.
+type SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants struct {
+	AgentTokenGrantsFields `json:"-"`
+}
+
+// GetOrganizationPermissionGrant returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.OrganizationPermissionGrant, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetOrganizationPermissionGrant() AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.OrganizationPermissionGrant
+}
+
+// GetAllBranchDeploymentsPermissionGrant returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetAllBranchDeploymentsPermissionGrant() AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
+}
+
+// GetPerBaseBranchDeploymentsPermissionGrants returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
+}
+
+// GetDeploymentPermissionGrants returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetDeploymentPermissionGrants() []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
+	return v.AgentTokenGrantsFields.DeploymentPermissionGrants
+}
+
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AgentTokenGrantsFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalSetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants struct {
+	OrganizationPermissionGrant AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant `json:"organizationPermissionGrant"`
+
+	AllBranchDeploymentsPermissionGrant AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
+
+	PerBaseBranchDeploymentsPermissionGrants []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
+
+	DeploymentPermissionGrants []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
+}
+
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) __premarshalJSON() (*__premarshalSetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants, error) {
+	var retval __premarshalSetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants
+
+	retval.OrganizationPermissionGrant = v.AgentTokenGrantsFields.OrganizationPermissionGrant
+	retval.AllBranchDeploymentsPermissionGrant = v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
+	retval.PerBaseBranchDeploymentsPermissionGrants = v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
+	retval.DeploymentPermissionGrants = v.AgentTokenGrantsFields.DeploymentPermissionGrants
+	return &retval, nil
+}
+
+// SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult includes the requested fields of the GraphQL interface ModifyAgentTokenResult.
+//
+// SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult is implemented by the following types:
+// SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken
+// SetAgentGrantCreateOrUpdateAgentPermissionsPythonError
+// SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError
+type SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult interface {
+	implementsGraphQLInterfaceSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+}
+
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken) implementsGraphQLInterfaceSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult() {
+}
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsPythonError) implementsGraphQLInterfaceSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult() {
+}
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError) implementsGraphQLInterfaceSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult() {
+}
+
+func __unmarshalSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult(b []byte, v *SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "DagsterCloudAgentToken":
+		*v = new(SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken)
+		return json.Unmarshal(b, *v)
+	case "PythonError":
+		*v = new(SetAgentGrantCreateOrUpdateAgentPermissionsPythonError)
+		return json.Unmarshal(b, *v)
+	case "UnauthorizedError":
+		*v = new(SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing ModifyAgentTokenResult.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult(v *SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken:
+		typename = "DagsterCloudAgentToken"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentToken
+		}{typename, v}
+		return json.Marshal(result)
+	case *SetAgentGrantCreateOrUpdateAgentPermissionsPythonError:
+		typename = "PythonError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*SetAgentGrantCreateOrUpdateAgentPermissionsPythonError
+		}{typename, v}
+		return json.Marshal(result)
+	case *SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError:
+		typename = "UnauthorizedError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult: "%T"`, v)
+	}
+}
+
+// SetAgentGrantCreateOrUpdateAgentPermissionsPythonError includes the requested fields of the GraphQL type PythonError.
+type SetAgentGrantCreateOrUpdateAgentPermissionsPythonError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns SetAgentGrantCreateOrUpdateAgentPermissionsPythonError.Typename, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsPythonError) GetTypename() string {
+	return v.Typename
+}
+
+// SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
+type SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError struct {
+	Typename string `json:"__typename"`
+}
+
+// GetTypename returns SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError.Typename, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantCreateOrUpdateAgentPermissionsUnauthorizedError) GetTypename() string {
+	return v.Typename
+}
+
+// SetAgentGrantResponse is returned by SetAgentGrant on success.
+type SetAgentGrantResponse struct {
+	CreateOrUpdateAgentPermissions SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult `json:"-"`
+}
+
+// GetCreateOrUpdateAgentPermissions returns SetAgentGrantResponse.CreateOrUpdateAgentPermissions, and is useful for accessing the field via an interface.
+func (v *SetAgentGrantResponse) GetCreateOrUpdateAgentPermissions() SetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult {
+	return v.CreateOrUpdateAgentPermissions
+}
+
+func (v *SetAgentGrantResponse) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*SetAgentGrantResponse
+		CreateOrUpdateAgentPermissions json.RawMessage `json:"createOrUpdateAgentPermissions"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.SetAgentGrantResponse = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.CreateOrUpdateAgentPermissions
+		src := firstPass.CreateOrUpdateAgentPermissions
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal SetAgentGrantResponse.CreateOrUpdateAgentPermissions: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalSetAgentGrantResponse struct {
+	CreateOrUpdateAgentPermissions json.RawMessage `json:"createOrUpdateAgentPermissions"`
+}
+
+func (v *SetAgentGrantResponse) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *SetAgentGrantResponse) __premarshalJSON() (*__premarshalSetAgentGrantResponse, error) {
+	var retval __premarshalSetAgentGrantResponse
+
+	{
+
+		dst := &retval.CreateOrUpdateAgentPermissions
+		src := v.CreateOrUpdateAgentPermissions
+		var err error
+		*dst, err = __marshalSetAgentGrantCreateOrUpdateAgentPermissionsModifyAgentTokenResult(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal SetAgentGrantResponse.CreateOrUpdateAgentPermissions: %w", err)
+		}
+	}
+	return &retval, nil
+}
+
 // SetAtlanIntegrationSettingsResponse is returned by SetAtlanIntegrationSettings on success.
 type SetAtlanIntegrationSettingsResponse struct {
 	// Replace all Atlan integration existing settings with new settings.
@@ -18444,6 +19320,22 @@ type __CreateUserTokenInput struct {
 // GetDescription returns __CreateUserTokenInput.Description, and is useful for accessing the field via an interface.
 func (v *__CreateUserTokenInput) GetDescription() string { return v.Description }
 
+// __DeleteAgentGrantInput is used internally by genqlient
+type __DeleteAgentGrantInput struct {
+	AgentTokenId int                       `json:"agentTokenId"`
+	Scope        PermissionDeploymentScope `json:"scope"`
+	DeploymentId int                       `json:"deploymentId"`
+}
+
+// GetAgentTokenId returns __DeleteAgentGrantInput.AgentTokenId, and is useful for accessing the field via an interface.
+func (v *__DeleteAgentGrantInput) GetAgentTokenId() int { return v.AgentTokenId }
+
+// GetScope returns __DeleteAgentGrantInput.Scope, and is useful for accessing the field via an interface.
+func (v *__DeleteAgentGrantInput) GetScope() PermissionDeploymentScope { return v.Scope }
+
+// GetDeploymentId returns __DeleteAgentGrantInput.DeploymentId, and is useful for accessing the field via an interface.
+func (v *__DeleteAgentGrantInput) GetDeploymentId() int { return v.DeploymentId }
+
 // __DeleteAlertPolicyInput is used internally by genqlient
 type __DeleteAlertPolicyInput struct {
 	Name string `json:"name"`
@@ -18564,6 +19456,14 @@ func (v *__DeleteUserGrantInput) GetScope() PermissionDeploymentScope { return v
 // GetDeploymentId returns __DeleteUserGrantInput.DeploymentId, and is useful for accessing the field via an interface.
 func (v *__DeleteUserGrantInput) GetDeploymentId() int { return v.DeploymentId }
 
+// __GetAgentTokenGrantsInput is used internally by genqlient
+type __GetAgentTokenGrantsInput struct {
+	TokenId int `json:"tokenId"`
+}
+
+// GetTokenId returns __GetAgentTokenGrantsInput.TokenId, and is useful for accessing the field via an interface.
+func (v *__GetAgentTokenGrantsInput) GetTokenId() int { return v.TokenId }
+
 // __GetExternalAssetConnectionInput is used internally by genqlient
 type __GetExternalAssetConnectionInput struct {
 	Id string `json:"id"`
@@ -18679,6 +19579,22 @@ type __SelectGithubInstallationInput struct {
 
 // GetAccountName returns __SelectGithubInstallationInput.AccountName, and is useful for accessing the field via an interface.
 func (v *__SelectGithubInstallationInput) GetAccountName() string { return v.AccountName }
+
+// __SetAgentGrantInput is used internally by genqlient
+type __SetAgentGrantInput struct {
+	AgentTokenId int                       `json:"agentTokenId"`
+	Scope        PermissionDeploymentScope `json:"scope"`
+	DeploymentId int                       `json:"deploymentId"`
+}
+
+// GetAgentTokenId returns __SetAgentGrantInput.AgentTokenId, and is useful for accessing the field via an interface.
+func (v *__SetAgentGrantInput) GetAgentTokenId() int { return v.AgentTokenId }
+
+// GetScope returns __SetAgentGrantInput.Scope, and is useful for accessing the field via an interface.
+func (v *__SetAgentGrantInput) GetScope() PermissionDeploymentScope { return v.Scope }
+
+// GetDeploymentId returns __SetAgentGrantInput.DeploymentId, and is useful for accessing the field via an interface.
+func (v *__SetAgentGrantInput) GetDeploymentId() int { return v.DeploymentId }
 
 // __SetAtlanIntegrationSettingsInput is used internally by genqlient
 type __SetAtlanIntegrationSettingsInput struct {
@@ -19634,6 +20550,47 @@ func CreateUserToken(
 	return data_, err_
 }
 
+// The mutation executed by DeleteAgentGrant.
+const DeleteAgentGrant_Operation = `
+mutation DeleteAgentGrant ($agentTokenId: Int!, $scope: PermissionDeploymentScope!, $deploymentId: Int) {
+	removeAgentPermissions(agentPermission: {agentTokenId:$agentTokenId,deploymentScope:$scope,deploymentId:$deploymentId}) {
+		__typename
+		... on DagsterCloudAgentToken {
+			id
+		}
+	}
+}
+`
+
+func DeleteAgentGrant(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	agentTokenId int,
+	scope PermissionDeploymentScope,
+	deploymentId int,
+) (data_ *DeleteAgentGrantResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteAgentGrant",
+		Query:  DeleteAgentGrant_Operation,
+		Variables: &__DeleteAgentGrantInput{
+			AgentTokenId: agentTokenId,
+			Scope:        scope,
+			DeploymentId: deploymentId,
+		},
+	}
+
+	data_ = &DeleteAgentGrantResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteAlertPolicy.
 const DeleteAlertPolicy_Operation = `
 mutation DeleteAlertPolicy ($name: String!) {
@@ -20185,6 +21142,68 @@ func DeselectGithubInstallation(
 	}
 
 	data_ = &DeselectGithubInstallationResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetAgentTokenGrants.
+const GetAgentTokenGrants_Operation = `
+query GetAgentTokenGrants ($tokenId: Int!) {
+	agentTokenOrError(tokenId: $tokenId) {
+		__typename
+		... on DagsterCloudAgentToken {
+			id
+			permissions {
+				... AgentTokenGrantsFields
+			}
+		}
+	}
+}
+fragment AgentTokenGrantsFields on DagsterCloudScopedPermissionGrants {
+	organizationPermissionGrant {
+		grant
+		deploymentScope
+		deploymentId
+	}
+	allBranchDeploymentsPermissionGrant {
+		grant
+		deploymentScope
+		deploymentId
+	}
+	perBaseBranchDeploymentsPermissionGrants {
+		grant
+		deploymentScope
+		deploymentId
+	}
+	deploymentPermissionGrants {
+		grant
+		deploymentScope
+		deploymentId
+	}
+}
+`
+
+func GetAgentTokenGrants(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	tokenId int,
+) (data_ *GetAgentTokenGrantsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetAgentTokenGrants",
+		Query:  GetAgentTokenGrants_Operation,
+		Variables: &__GetAgentTokenGrantsInput{
+			TokenId: tokenId,
+		},
+	}
+
+	data_ = &GetAgentTokenGrantsResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -21589,6 +22608,72 @@ func SelectGithubInstallation(
 	}
 
 	data_ = &SelectGithubInstallationResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by SetAgentGrant.
+const SetAgentGrant_Operation = `
+mutation SetAgentGrant ($agentTokenId: Int!, $scope: PermissionDeploymentScope!, $deploymentId: Int) {
+	createOrUpdateAgentPermissions(agentPermission: {agentTokenId:$agentTokenId,deploymentScope:$scope,grant:AGENT,deploymentId:$deploymentId}) {
+		__typename
+		... on DagsterCloudAgentToken {
+			id
+			permissions {
+				... AgentTokenGrantsFields
+			}
+		}
+	}
+}
+fragment AgentTokenGrantsFields on DagsterCloudScopedPermissionGrants {
+	organizationPermissionGrant {
+		grant
+		deploymentScope
+		deploymentId
+	}
+	allBranchDeploymentsPermissionGrant {
+		grant
+		deploymentScope
+		deploymentId
+	}
+	perBaseBranchDeploymentsPermissionGrants {
+		grant
+		deploymentScope
+		deploymentId
+	}
+	deploymentPermissionGrants {
+		grant
+		deploymentScope
+		deploymentId
+	}
+}
+`
+
+func SetAgentGrant(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	agentTokenId int,
+	scope PermissionDeploymentScope,
+	deploymentId int,
+) (data_ *SetAgentGrantResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "SetAgentGrant",
+		Query:  SetAgentGrant_Operation,
+		Variables: &__SetAgentGrantInput{
+			AgentTokenId: agentTokenId,
+			Scope:        scope,
+			DeploymentId: deploymentId,
+		},
+	}
+
+	data_ = &SetAgentGrantResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
