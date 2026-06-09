@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Notes
+- Migration note for `dagsterplus_agent_token`: the new `organization` attribute defaults to `true` and is now actively reconciled. If you previously removed a token's organization-scoped grant **outside Terraform** (e.g. via a `graphql_mutation` resource), Terraform will re-add it on the next apply — set `organization = false` in your config to keep the grant removed. Tokens that still hold their default organization grant are unaffected.
+
 ### Added
 - Permission grants for `dagsterplus_agent_token`. Agent tokens only ever carry the `AGENT` permission, so grants are expressed as inline attributes on the token resource rather than nested blocks: `organization` (bool, default `true`), `all_branch_deployments` (bool, default `false`), `deployment_grants` (set of deployment names), and `branch_deployments_grants` (set of parent deployment names). Setting `organization = false` removes the organization-scoped grant that Dagster+ creates automatically with every new token.
 - `dagsterplus_agent_token_deployment_grant` — standalone resource granting an agent token the `AGENT` permission on a single deployment, for composing grants in a separate module/lifecycle from the token (e.g. `for_each` over deployments). Imported via `{agent_token_id}/{deployment}`.
