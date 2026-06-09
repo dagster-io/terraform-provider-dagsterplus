@@ -85,6 +85,58 @@ resource "dagsterplus_agent_token" "test" {
 `, name)
 }
 
+// TestAccAgentTokenResource_grants exercises the inline grant attributes:
+// removing the default organization grant, granting a deployment, then updating
+// to add an all-branch-deployments grant.
+func TestAccAgentTokenResource_grants(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckAgentTokenDestroyed(rName),
+		Steps: []resource.TestStep{
+			// Create: drop the default org grant, grant a single deployment.
+			{
+				Config: providerConfig() + testAccAgentTokenGrantsConfig(rName, "false", "false", fmt.Sprintf("[%q]", testAccDeployment())),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_agent_token.test", "organization", "false"),
+					resource.TestCheckResourceAttr("dagsterplus_agent_token.test", "all_branch_deployments", "false"),
+					resource.TestCheckResourceAttr("dagsterplus_agent_token.test", "deployment_grants.#", "1"),
+					resource.TestCheckTypeSetElemAttr("dagsterplus_agent_token.test", "deployment_grants.*", testAccDeployment()),
+				),
+			},
+			// Update: re-enable org grant and add an all-branch-deployments grant.
+			{
+				Config: providerConfig() + testAccAgentTokenGrantsConfig(rName, "true", "true", fmt.Sprintf("[%q]", testAccDeployment())),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_agent_token.test", "organization", "true"),
+					resource.TestCheckResourceAttr("dagsterplus_agent_token.test", "all_branch_deployments", "true"),
+				),
+			},
+			// Import: token/name are not recoverable and the grant name sets are
+			// not repopulated on import (only organization/all_branch are read back).
+			{
+				ResourceName:            "dagsterplus_agent_token.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"token", "name", "deployment_grants", "branch_deployments_grants"},
+			},
+		},
+	})
+}
+
+func testAccAgentTokenGrantsConfig(name, organization, allBranch, deploymentGrants string) string {
+	return fmt.Sprintf(`
+resource "dagsterplus_agent_token" "test" {
+  name                   = %q
+  organization           = %s
+  all_branch_deployments = %s
+  deployment_grants      = %s
+}
+`, name, organization, allBranch, deploymentGrants)
+}
+
 func testAccCheckAgentTokenDestroyed(name string) resource.TestCheckFunc {
 	return func(_ *terraform.State) error {
 		c := client.New(

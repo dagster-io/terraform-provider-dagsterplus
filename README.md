@@ -83,6 +83,7 @@ More examples are available in the [`examples`](./examples/) directory and in th
 | User | `dagsterplus_user` | `dagsterplus_user` / `dagsterplus_users` | Yes | Experimental |
 | Alert Policy | `dagsterplus_alert_policy` | `dagsterplus_alert_policy` / `dagsterplus_alert_policies` | Yes | Experimental |
 | Agent Token | `dagsterplus_agent_token` | `dagsterplus_agent_token` | Yes | Experimental |
+| Agent Token Deployment Grant | `dagsterplus_agent_token_deployment_grant` | — | Yes | Experimental |
 | User Token | `dagsterplus_user_token` | `dagsterplus_user_token` | Yes | Experimental |
 | Role | `dagsterplus_role` | `dagsterplus_role` / `dagsterplus_roles` | Yes | Experimental |
 | SCIM Settings | `dagsterplus_scim_settings` | — | Yes | Experimental |
