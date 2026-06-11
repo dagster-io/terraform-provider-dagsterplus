@@ -88,6 +88,34 @@ func TestAccTeamDeploymentGrantResource_locationGrants(t *testing.T) {
 	})
 }
 
+// TestAccTeamDeploymentGrantResource_requiresGrant verifies that omitting both grant and
+// custom_role_id fails at plan time with a clear validation error, rather than sending an
+// empty grant to the API (which rejects it with an opaque enum error). Regression test for
+// https://github.com/dagster-io/terraform-provider-dagsterplus/issues/37.
+func TestAccTeamDeploymentGrantResource_requiresGrant(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfig() + fmt.Sprintf(`
+resource "dagsterplus_team" "test" {
+  name = %q
+}
+
+resource "dagsterplus_team_deployment_grant" "test" {
+  team_id    = dagsterplus_team.test.id
+  deployment = %q
+}
+`, rName, testAccDeployment()),
+				ExpectError: errRegexp(`one .and only one. of`),
+			},
+		},
+	})
+}
+
 // TestAccTeamDeploymentGrantResource_disappears verifies Terraform detects drift when
 // the deployment grant is removed outside of Terraform.
 func TestAccTeamDeploymentGrantResource_disappears(t *testing.T) {

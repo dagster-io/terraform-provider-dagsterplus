@@ -61,11 +61,11 @@ func (r *serviceUserOrganizationGrantResource) Schema(_ context.Context, _ resou
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(orgGrantLevels...),
-					stringvalidator.ConflictsWith(path.MatchRoot("custom_role_id")),
+					stringvalidator.ExactlyOneOf(path.MatchRoot("custom_role_id")),
 				},
 			},
 			"custom_role_id": schema.StringAttribute{
-				Description: "The ID of a custom role to assign. Conflicts with grant.",
+				Description: "The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.",
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.ConflictsWith(path.MatchRoot("grant")),
