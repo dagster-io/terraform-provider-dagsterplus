@@ -22,8 +22,8 @@ Manages a deployment-level permission grant for a Dagster+ team. Use this resour
 
 ### Optional
 
-- `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
+- `custom_role_id` (String) The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.
+- `grant` (String) Standard permission level. Exactly one of grant or custom_role_id must be set. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
 - `location_grants` (Block List) Per-code-location permission overrides within this deployment. (see [below for nested schema](#nestedblock--location_grants))
 
 ### Read-Only
@@ -39,5 +39,5 @@ Required:
 
 Optional:
 
-- `custom_role_id` (String) Custom role ID for this location. Conflicts with grant.
-- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
+- `custom_role_id` (String) Custom role ID for this location. Exactly one of grant or custom_role_id must be set.
+- `grant` (String) Standard permission level. Exactly one of grant or custom_role_id must be set. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.

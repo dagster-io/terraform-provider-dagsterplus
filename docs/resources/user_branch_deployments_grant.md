@@ -30,8 +30,8 @@ resource "dagsterplus_user_branch_deployments_grant" "alice_prod_branches" {
 
 ### Optional
 
-- `custom_role_id` (String) The ID of a custom role to assign. Conflicts with grant.
-- `grant` (String) Standard permission level. Conflicts with custom_role_id. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
+- `custom_role_id` (String) The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.
+- `grant` (String) Standard permission level. Exactly one of grant or custom_role_id must be set. Valid values: `VIEWER`, `LAUNCHER`, `EDITOR`, `ADMIN`.
 
 ### Read-Only
 

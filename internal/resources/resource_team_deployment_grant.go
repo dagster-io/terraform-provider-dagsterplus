@@ -78,11 +78,11 @@ func (r *teamDeploymentGrantResource) Schema(_ context.Context, _ resource.Schem
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(grantLevels...),
-					stringvalidator.ConflictsWith(path.MatchRoot("custom_role_id")),
+					stringvalidator.ExactlyOneOf(path.MatchRoot("custom_role_id")),
 				},
 			},
 			"custom_role_id": schema.StringAttribute{
-				Description: "The ID of a custom role to assign. Conflicts with grant.",
+				Description: "The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.",
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.ConflictsWith(path.MatchRoot("grant")),
@@ -103,11 +103,11 @@ func (r *teamDeploymentGrantResource) Schema(_ context.Context, _ resource.Schem
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.OneOf(grantLevels...),
-								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+								stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("custom_role_id")),
 							},
 						},
 						"custom_role_id": schema.StringAttribute{
-							Description: "Custom role ID for this location. Conflicts with grant.",
+							Description: "Custom role ID for this location. Exactly one of grant or custom_role_id must be set.",
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),

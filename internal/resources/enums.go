@@ -69,10 +69,10 @@ var (
 // these constants describe only the attribute's meaning.
 const (
 	// grantLevelDescription is the base description for a standard permission-level attribute.
-	grantLevelDescription = "Standard permission level. Conflicts with custom_role_id."
+	grantLevelDescription = "Standard permission level. Exactly one of grant or custom_role_id must be set."
 
 	// orgGrantDescription is the base description for an organization-level grant attribute.
-	orgGrantDescription = "Organization-level permission. For any non-admin role use custom_role_id with an organization-scoped custom role. Conflicts with custom_role_id."
+	orgGrantDescription = "Organization-level permission. For any non-admin role use custom_role_id with an organization-scoped custom role. Exactly one of grant or custom_role_id must be set."
 )
 
 // withEnumValues appends the list of valid enum values to a base attribute

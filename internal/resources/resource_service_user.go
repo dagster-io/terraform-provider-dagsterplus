@@ -50,11 +50,11 @@ func (r *serviceUserResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(orgGrantLevels...),
-					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("custom_role_id")),
 				},
 			},
 			"custom_role_id": schema.StringAttribute{
-				Description: "The ID of a custom role to assign. Conflicts with grant.",
+				Description: "The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.",
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),
@@ -69,11 +69,11 @@ func (r *serviceUserResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(grantLevels...),
-					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("custom_role_id")),
 				},
 			},
 			"custom_role_id": schema.StringAttribute{
-				Description: "The ID of a custom role to assign. Conflicts with grant.",
+				Description: "The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.",
 				Optional:    true,
 				Validators: []validator.String{
 					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),
@@ -126,11 +126,11 @@ func (r *serviceUserResource) Schema(_ context.Context, _ resource.SchemaRequest
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.OneOf(grantLevels...),
-								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+								stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("custom_role_id")),
 							},
 						},
 						"custom_role_id": schema.StringAttribute{
-							Description: "The ID of a custom role to assign. Conflicts with grant.",
+							Description: "The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.",
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),
@@ -152,11 +152,11 @@ func (r *serviceUserResource) Schema(_ context.Context, _ resource.SchemaRequest
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.OneOf(grantLevels...),
-								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("custom_role_id")),
+								stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("custom_role_id")),
 							},
 						},
 						"custom_role_id": schema.StringAttribute{
-							Description: "The ID of a custom role to assign. Conflicts with grant.",
+							Description: "The ID of a custom role to assign. Exactly one of grant or custom_role_id must be set.",
 							Optional:    true,
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("grant")),
