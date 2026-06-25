@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-06-25
+
+### Fixed
+- All `team`/`user`/`service_user` grant resources and inline grant blocks (across the `organization`, `deployment`, `all_branch_deployments`, and `branch_deployments` scopes, plus per-location grants) now require exactly one of `grant` or `custom_role_id` to be set. Previously both were marked `Optional`, so a config that set neither (e.g. only `location_grants`) passed validation but sent an empty grant to the API, failing apply with an opaque `Value '' does not exist in 'PermissionGrant' enum` error. The requirement is now enforced at plan time with a clear validation message. Configs that already set one of the two attributes are unaffected. ([#37](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/37))
+
+## [0.1.6] - 2026-06-09
+
 ### Notes
 - Migration note for `dagsterplus_agent_token`: the new `organization` attribute defaults to `true` and is now actively reconciled. If you previously removed a token's organization-scoped grant **outside Terraform** (e.g. via a `graphql_mutation` resource), Terraform will re-add it on the next apply — set `organization = false` in your config to keep the grant removed. Tokens that still hold their default organization grant are unaffected.
 
@@ -14,9 +21,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - `dagsterplus_agent_token_deployment_grant` — standalone resource granting an agent token the `AGENT` permission on a single deployment, for composing grants in a separate module/lifecycle from the token (e.g. `for_each` over deployments). Imported via `{agent_token_id}/{deployment}`.
 - Full matrix of permission-grant resources for `team`, `user`, and `service_user` principals across four scopes (`organization`, `deployment`, `all_branch_deployments`, `branch_deployments`). Each scope is available both as an inline block on the parent resource and as a standalone `{principal}_{scope}_grant` resource for out-of-band lifecycle management.
 - `branch_deployments_grant { parent_deployment = … }` — new scope expressing grants that apply to all branch deployments of a specific parent (full) deployment. Symmetric with `deployment_grant { deployment = … }`.
-
-### Fixed
-- All `team`/`user`/`service_user` grant resources and inline grant blocks (across the `organization`, `deployment`, `all_branch_deployments`, and `branch_deployments` scopes, plus per-location grants) now require exactly one of `grant` or `custom_role_id` to be set. Previously both were marked `Optional`, so a config that set neither (e.g. only `location_grants`) passed validation but sent an empty grant to the API, failing apply with an opaque `Value '' does not exist in 'PermissionGrant' enum` error. The requirement is now enforced at plan time with a clear validation message. Configs that already set one of the two attributes are unaffected. ([#37](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/37))
 
 ### Changed
 - Attribute documentation now lists the full set of valid values for every enum attribute, so users can discover them from the registry docs without trial-and-error. Affected attributes: `dagsterplus_role` `permissions` (the complete 30-value permission list) and `role_type`; the `grant` permission level (`VIEWER`/`LAUNCHER`/`EDITOR`/`ADMIN`) and organization `grant` (`ADMIN`) on all `team`/`user`/`service_user` grant resources and inline blocks; `dagsterplus_external_asset_connection` `connection_type`; and `dagsterplus_alert_policy` `policy_type`, budget/insight-metric `operator`, and notification `type`. Validator behavior is unchanged — the accepted values are identical to previous releases.
@@ -70,7 +74,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full CI pipeline (build, vet, format, unit tests, module tidy, generated code check).
 - GoReleaser-based release pipeline with GPG-signed checksums.
 
-[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.2...v0.1.3
