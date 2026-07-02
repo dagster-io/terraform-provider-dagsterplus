@@ -231,6 +231,49 @@ func TestAccAlertPolicyResource_codeLocation(t *testing.T) {
 	})
 }
 
+// TestAccAlertPolicyResource_webhookNotification tests create, update, and destroy for an
+// alert policy that notifies a generic webhook endpoint (e.g. IncidentIO).
+func TestAccAlertPolicyResource_webhookNotification(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckAlertPolicyDestroyed(testAccAlertDeployment, rName),
+		Steps: []resource.TestStep{
+			// Create: webhook with a single auth header.
+			{
+				Config: providerConfig() + testAccAlertPolicyWebhookConfig(
+					rName, testAccAlertDeployment, true, "Bearer initial",
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "name", rName),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "policy_type", "code_location"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.type", "webhook"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.webhook_url", "https://api.incident.io/v2/alert_events/http/example"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.headers.Authorization", "Bearer initial"),
+					resource.TestCheckResourceAttrSet("dagsterplus_alert_policy.test", "notification_service.body_template"),
+					resource.TestCheckResourceAttrSet("dagsterplus_alert_policy.test", "id"),
+				),
+			},
+			// Update: rotate the auth header value.
+			{
+				Config: providerConfig() + testAccAlertPolicyWebhookConfig(
+					rName, testAccAlertDeployment, true, "Bearer rotated",
+				),
+				Check: resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.headers.Authorization", "Bearer rotated"),
+			},
+			// Import
+			{
+				ResourceName:            "dagsterplus_alert_policy.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"policy_type"},
+			},
+		},
+	})
+}
+
 // TestAccAlertPolicyResource_automation tests create, update, and destroy for an automation alert policy.
 func TestAccAlertPolicyResource_automation(t *testing.T) {
 	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
@@ -683,6 +726,30 @@ resource "dagsterplus_alert_policy" "test" {
   }
 }
 `, name, deployment, enabled, operator, threshold, periodDays)
+}
+
+func testAccAlertPolicyWebhookConfig(name, deployment string, enabled bool, authHeader string) string {
+	return fmt.Sprintf(`
+resource "dagsterplus_alert_policy" "test" {
+  name        = %q
+  deployment  = %q
+  policy_type = "code_location"
+  enabled     = %t
+
+  code_location {
+    all_locations = true
+  }
+
+  notification_service {
+    type          = "webhook"
+    webhook_url   = "https://api.incident.io/v2/alert_events/http/example"
+    body_template = "{\"message\": \"{{ alert.name }}\"}"
+    headers = {
+      Authorization = %q
+    }
+  }
+}
+`, name, deployment, enabled, authHeader)
 }
 
 func testAccAlertPolicyInsightMetricConfig(name, deployment string, enabled bool, metric, operator string, threshold float64, periodDays int) string {

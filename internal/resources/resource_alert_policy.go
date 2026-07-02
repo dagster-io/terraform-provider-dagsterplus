@@ -127,6 +127,8 @@ type NotificationServiceModel struct {
 	SlackChannelName      types.String `tfsdk:"slack_channel_name"`
 	WebhookURL            types.String `tfsdk:"webhook_url"`
 	IntegrationKey        types.String `tfsdk:"integration_key"`
+	Headers               types.Map    `tfsdk:"headers"`
+	BodyTemplate          types.String `tfsdk:"body_template"`
 }
 
 func (r *alertPolicyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -493,7 +495,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						Optional:    true,
 					},
 					"webhook_url": schema.StringAttribute{
-						Description: "Microsoft Teams incoming webhook URL. Required when type = microsoft_teams.",
+						Description: "Incoming webhook URL. Required when type = microsoft_teams (Teams incoming webhook) or type = webhook (generic webhook endpoint).",
 						Optional:    true,
 						Sensitive:   true,
 					},
@@ -501,6 +503,17 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						Description: "PagerDuty integration key. Required when type = pagerduty.",
 						Optional:    true,
 						Sensitive:   true,
+					},
+					"headers": schema.MapAttribute{
+						Description: "Arbitrary HTTP headers sent with each webhook request (e.g. authentication headers). Used when type = webhook. Marked sensitive because header values may contain credentials.",
+						Optional:    true,
+						Sensitive:   true,
+						ElementType: types.StringType,
+					},
+					"body_template": schema.StringAttribute{
+						Description: "Templated request body sent with each webhook request. Used when type = webhook. The API may return a default template if none is supplied.",
+						Optional:    true,
+						Computed:    true,
 					},
 				},
 			},
@@ -757,6 +770,12 @@ func modelToPolicy(ctx context.Context, model AlertPolicyResourceModel) (client.
 		policy.NotificationService.WebhookURL = ns.WebhookURL.ValueString()
 	case "pagerduty":
 		policy.NotificationService.IntegrationKey = ns.IntegrationKey.ValueString()
+	case "webhook":
+		policy.NotificationService.WebhookURL = ns.WebhookURL.ValueString()
+		policy.NotificationService.WebhookBodyTemplate = ns.BodyTemplate.ValueString()
+		if !ns.Headers.IsNull() && !ns.Headers.IsUnknown() {
+			diags.Append(ns.Headers.ElementsAs(ctx, &policy.NotificationService.WebhookHeaders, false)...)
+		}
 	}
 
 	return policy, diags
@@ -920,6 +939,8 @@ func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) 
 		SlackChannelName:      types.StringNull(),
 		WebhookURL:            types.StringNull(),
 		IntegrationKey:        types.StringNull(),
+		Headers:               types.MapNull(types.StringType),
+		BodyTemplate:          types.StringNull(),
 	}
 	switch ns.Type {
 	case "email":
@@ -941,6 +962,16 @@ func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) 
 		model.NotificationService.WebhookURL = types.StringValue(ns.WebhookURL)
 	case "pagerduty":
 		model.NotificationService.IntegrationKey = types.StringValue(ns.IntegrationKey)
+	case "webhook":
+		model.NotificationService.WebhookURL = types.StringValue(ns.WebhookURL)
+		model.NotificationService.BodyTemplate = types.StringValue(ns.WebhookBodyTemplate)
+		if len(ns.WebhookHeaders) > 0 {
+			elems := make(map[string]attr.Value, len(ns.WebhookHeaders))
+			for k, v := range ns.WebhookHeaders {
+				elems[k] = types.StringValue(v)
+			}
+			model.NotificationService.Headers = types.MapValueMust(types.StringType, elems)
+		}
 	}
 
 	return nil

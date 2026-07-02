@@ -27,7 +27,7 @@ var (
 	alertComparisonOperators = []string{"greater_than", "less_than"}
 
 	// notificationTypes are the supported alert notification channels.
-	notificationTypes = []string{"email", "email_owners", "slack", "microsoft_teams", "pagerduty"}
+	notificationTypes = []string{"email", "email_owners", "slack", "microsoft_teams", "pagerduty", "webhook"}
 
 	// customRolePermissions is the full set of valid permission values for a custom role.
 	customRolePermissions = []string{

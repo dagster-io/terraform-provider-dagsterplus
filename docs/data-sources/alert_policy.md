@@ -115,13 +115,15 @@ Read-Only:
 
 Read-Only:
 
+- `body_template` (String) Templated request body sent with each generic webhook request.
 - `default_email_addresses` (List of String) Fallback email addresses for email_owners notifications.
 - `email_addresses` (List of String) Email addresses to notify.
+- `headers` (Map of String, Sensitive) Arbitrary HTTP headers sent with each generic webhook request.
 - `integration_key` (String, Sensitive) PagerDuty integration key.
 - `slack_channel_name` (String) Slack channel name.
 - `slack_workspace_name` (String) Slack workspace name.
 - `type` (String) Notification type: email, email_owners, slack, microsoft_teams, or pagerduty.
-- `webhook_url` (String, Sensitive) Microsoft Teams incoming webhook URL.
+- `webhook_url` (String, Sensitive) Incoming webhook URL (Microsoft Teams or generic webhook).
 
 
 <a id="nestedblock--run"></a>

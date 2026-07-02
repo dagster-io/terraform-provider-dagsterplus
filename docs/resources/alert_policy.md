@@ -142,6 +142,28 @@ resource "dagsterplus_alert_policy" "credit_budget" {
   }
 }
 
+# Code location policy — generic webhook notification (e.g. IncidentIO)
+resource "dagsterplus_alert_policy" "code_location_webhook" {
+  deployment  = "prod"
+  name        = "code-location-errors-webhook"
+  policy_type = "code_location"
+  enabled     = true
+
+  code_location {
+    all_locations = true
+  }
+
+  notification_service {
+    type          = "webhook"
+    webhook_url   = "https://api.incident.io/v2/alert_events/http/00000000"
+    body_template = "{\"message\": \"{{ alert.name }} triggered\"}"
+    headers = {
+      Authorization  = "Bearer my-secret-token"
+      "Content-Type" = "application/json"
+    }
+  }
+}
+
 # Insight metric policy — deployment-wide metric threshold
 resource "dagsterplus_alert_policy" "weekly_credits" {
   deployment  = "prod"
@@ -256,16 +278,18 @@ Optional:
 
 Required:
 
-- `type` (String) Notification type. Valid values: `email`, `email_owners`, `slack`, `microsoft_teams`, `pagerduty`.
+- `type` (String) Notification type. Valid values: `email`, `email_owners`, `slack`, `microsoft_teams`, `pagerduty`, `webhook`.
 
 Optional:
 
+- `body_template` (String) Templated request body sent with each webhook request. Used when type = webhook. The API may return a default template if none is supplied.
 - `default_email_addresses` (List of String) Fallback email addresses when no code owners are found. Used when type = email_owners.
 - `email_addresses` (List of String) Email addresses to notify. Required when type = email.
+- `headers` (Map of String, Sensitive) Arbitrary HTTP headers sent with each webhook request (e.g. authentication headers). Used when type = webhook. Marked sensitive because header values may contain credentials.
 - `integration_key` (String, Sensitive) PagerDuty integration key. Required when type = pagerduty.
 - `slack_channel_name` (String) Slack channel name (e.g. '#alerts'). Required when type = slack.
 - `slack_workspace_name` (String) Slack workspace name. Required when type = slack.
-- `webhook_url` (String, Sensitive) Microsoft Teams incoming webhook URL. Required when type = microsoft_teams.
+- `webhook_url` (String, Sensitive) Incoming webhook URL. Required when type = microsoft_teams (Teams incoming webhook) or type = webhook (generic webhook endpoint).
 
 
 <a id="nestedblock--run"></a>
