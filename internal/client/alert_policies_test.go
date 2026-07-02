@@ -560,16 +560,15 @@ func TestCreateOrUpdateAlertPolicy_WebhookDocument(t *testing.T) {
 	if webhook["body_template"] != "{}" {
 		t.Errorf("body_template = %v, want {}", webhook["body_template"])
 	}
-	headers, ok := webhook["headers"].([]any)
+	headers, ok := webhook["headers"].(map[string]any)
 	if !ok {
 		t.Fatalf("headers missing or wrong type: %T", webhook["headers"])
 	}
 	if len(headers) != 1 {
 		t.Fatalf("len(headers) = %d, want 1", len(headers))
 	}
-	h := headers[0].(map[string]any)
-	if h["key"] != "X-Token" || h["value"] != "abc" {
-		t.Errorf("header = %v, want {key: X-Token, value: abc}", h)
+	if headers["X-Token"] != "abc" {
+		t.Errorf("headers[X-Token] = %v, want abc", headers["X-Token"])
 	}
 }
 

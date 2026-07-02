@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client/schema"
@@ -556,16 +555,11 @@ func buildPolicyDoc(policy AlertPolicy) map[string]any {
 			"pagerduty": map[string]any{"integration_key": ns.IntegrationKey},
 		}
 	case "webhook":
-		// Headers are serialized as a list of {key, value} pairs. Sort by key so
-		// the generated document is deterministic (map iteration order is not).
-		keys := make([]string, 0, len(ns.WebhookHeaders))
-		for k := range ns.WebhookHeaders {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		headers := make([]map[string]any, 0, len(keys))
-		for _, k := range keys {
-			headers = append(headers, map[string]any{"key": k, "value": ns.WebhookHeaders[k]})
+		// The write document expects headers as a dict ({"Key": "Value"}), even
+		// though the read path returns them as a KeyValuePair list.
+		headers := make(map[string]any, len(ns.WebhookHeaders))
+		for k, v := range ns.WebhookHeaders {
+			headers[k] = v
 		}
 		doc["notification_service"] = map[string]any{
 			"webhook": map[string]any{

@@ -234,6 +234,7 @@ func TestAccAlertPolicyResource_codeLocation(t *testing.T) {
 // TestAccAlertPolicyResource_webhookNotification tests create, update, and destroy for an
 // alert policy that notifies a generic webhook endpoint (e.g. IncidentIO).
 func TestAccAlertPolicyResource_webhookNotification(t *testing.T) {
+	webhookURL := testAccWebhookURL(t)
 	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -244,13 +245,13 @@ func TestAccAlertPolicyResource_webhookNotification(t *testing.T) {
 			// Create: webhook with a single auth header.
 			{
 				Config: providerConfig() + testAccAlertPolicyWebhookConfig(
-					rName, testAccAlertDeployment, true, "Bearer initial",
+					rName, testAccAlertDeployment, webhookURL, true, "Bearer initial",
 				),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "name", rName),
 					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "policy_type", "code_location"),
 					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.type", "webhook"),
-					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.webhook_url", "https://api.incident.io/v2/alert_events/http/example"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.webhook_url", webhookURL),
 					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.headers.Authorization", "Bearer initial"),
 					resource.TestCheckResourceAttrSet("dagsterplus_alert_policy.test", "notification_service.body_template"),
 					resource.TestCheckResourceAttrSet("dagsterplus_alert_policy.test", "id"),
@@ -259,7 +260,7 @@ func TestAccAlertPolicyResource_webhookNotification(t *testing.T) {
 			// Update: rotate the auth header value.
 			{
 				Config: providerConfig() + testAccAlertPolicyWebhookConfig(
-					rName, testAccAlertDeployment, true, "Bearer rotated",
+					rName, testAccAlertDeployment, webhookURL, true, "Bearer rotated",
 				),
 				Check: resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.headers.Authorization", "Bearer rotated"),
 			},
@@ -728,7 +729,7 @@ resource "dagsterplus_alert_policy" "test" {
 `, name, deployment, enabled, operator, threshold, periodDays)
 }
 
-func testAccAlertPolicyWebhookConfig(name, deployment string, enabled bool, authHeader string) string {
+func testAccAlertPolicyWebhookConfig(name, deployment, webhookURL string, enabled bool, authHeader string) string {
 	return fmt.Sprintf(`
 resource "dagsterplus_alert_policy" "test" {
   name        = %q
@@ -742,14 +743,14 @@ resource "dagsterplus_alert_policy" "test" {
 
   notification_service {
     type          = "webhook"
-    webhook_url   = "https://api.incident.io/v2/alert_events/http/example"
-    body_template = "{\"message\": \"{{ alert.name }}\"}"
+    webhook_url   = %q
+    body_template = "{\"text\": \"alert fired\"}"
     headers = {
       Authorization = %q
     }
   }
 }
-`, name, deployment, enabled, authHeader)
+`, name, deployment, enabled, webhookURL, authHeader)
 }
 
 func testAccAlertPolicyInsightMetricConfig(name, deployment string, enabled bool, metric, operator string, threshold float64, periodDays int) string {

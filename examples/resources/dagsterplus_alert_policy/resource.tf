@@ -139,9 +139,13 @@ resource "dagsterplus_alert_policy" "code_location_webhook" {
   }
 
   notification_service {
-    type          = "webhook"
+    type = "webhook"
+    # The webhook URL's domain must be allowlisted for your organization
+    # (a support-gated setting). body_template tokens must be lowercase
+    # identifiers, e.g. {{alert_summary}}, or environment variables, e.g.
+    # {{env.MY_SECRET}}.
     webhook_url   = "https://api.incident.io/v2/alert_events/http/00000000"
-    body_template = "{\"message\": \"{{ alert.name }} triggered\"}"
+    body_template = "{\"message\": \"{{alert_summary}}\"}"
     headers = {
       Authorization  = "Bearer my-secret-token"
       "Content-Type" = "application/json"

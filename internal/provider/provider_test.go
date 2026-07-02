@@ -73,6 +73,20 @@ func testAccExistingUserEmail(t *testing.T) string {
 	return email
 }
 
+// testAccWebhookURL returns an allowlisted webhook endpoint used by the webhook
+// notification acceptance test. Dagster+ only permits webhook alerts to domains
+// that have been allowlisted for the organisation (a support-gated setting), so
+// the URL cannot be an arbitrary value. Set DAGSTER_CLOUD_TEST_WEBHOOK_URL to an
+// allowlisted endpoint; the test is skipped when the variable is absent.
+func testAccWebhookURL(t *testing.T) string {
+	t.Helper()
+	url := os.Getenv("DAGSTER_CLOUD_TEST_WEBHOOK_URL")
+	if url == "" {
+		t.Skip("DAGSTER_CLOUD_TEST_WEBHOOK_URL (an allowlisted webhook endpoint) must be set to run the webhook notification test")
+	}
+	return url
+}
+
 // providerConfig returns the HCL provider block for acceptance tests.
 // Credentials are read from environment variables.
 func providerConfig() string {

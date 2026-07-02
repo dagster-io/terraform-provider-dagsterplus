@@ -495,7 +495,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						Optional:    true,
 					},
 					"webhook_url": schema.StringAttribute{
-						Description: "Incoming webhook URL. Required when type = microsoft_teams (Teams incoming webhook) or type = webhook (generic webhook endpoint).",
+						Description: "Incoming webhook URL. Required when type = microsoft_teams (Teams incoming webhook) or type = webhook (generic webhook endpoint). For the generic webhook type the URL's domain must be allowlisted for your organization (a support-gated setting).",
 						Optional:    true,
 						Sensitive:   true,
 					},
@@ -511,7 +511,7 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 						ElementType: types.StringType,
 					},
 					"body_template": schema.StringAttribute{
-						Description: "Templated request body sent with each webhook request. Used when type = webhook. The API may return a default template if none is supplied.",
+						Description: "Templated request body sent with each webhook request. Used when type = webhook. Template tokens must be lowercase identifiers (e.g. `{{alert_summary}}`) or environment variables (e.g. `{{env.MY_SECRET}}`). The API may return a default template if none is supplied.",
 						Optional:    true,
 						Computed:    true,
 					},
