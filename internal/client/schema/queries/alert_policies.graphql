@@ -96,6 +96,14 @@ fragment AlertPolicyFields on AlertPolicy {
     ... on PagerdutyAlertPolicyNotification {
       integrationKey
     }
+    ... on WebhookAlertPolicyNotification {
+      webhookUrl
+      headers {
+        key
+        value
+      }
+      bodyTemplate
+    }
   }
 }
 

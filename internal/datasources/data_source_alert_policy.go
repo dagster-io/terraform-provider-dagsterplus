@@ -273,7 +273,7 @@ func (d *alertPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 						Computed:    true,
 					},
 					"webhook_url": schema.StringAttribute{
-						Description: "Microsoft Teams incoming webhook URL.",
+						Description: "Incoming webhook URL (Microsoft Teams or generic webhook).",
 						Computed:    true,
 						Sensitive:   true,
 					},
@@ -281,6 +281,16 @@ func (d *alertPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 						Description: "PagerDuty integration key.",
 						Computed:    true,
 						Sensitive:   true,
+					},
+					"headers": schema.MapAttribute{
+						Description: "Arbitrary HTTP headers sent with each generic webhook request.",
+						Computed:    true,
+						Sensitive:   true,
+						ElementType: types.StringType,
+					},
+					"body_template": schema.StringAttribute{
+						Description: "Templated request body sent with each generic webhook request.",
+						Computed:    true,
 					},
 				},
 			},

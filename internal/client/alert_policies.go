@@ -30,13 +30,15 @@ type AlertPolicy struct {
 // AlertPolicyNotification holds the notification service config for an alert policy.
 // Exactly one notification type should be populated, indicated by Type.
 type AlertPolicyNotification struct {
-	Type                  string   // "email" | "email_owners" | "slack" | "microsoft_teams" | "pagerduty"
-	EmailAddresses        []string // email
-	DefaultEmailAddresses []string // email_owners (optional fallback addresses)
-	SlackWorkspaceName    string   // slack
-	SlackChannelName      string   // slack
-	WebhookURL            string   // microsoft_teams
-	IntegrationKey        string   // pagerduty
+	Type                  string            // "email" | "email_owners" | "slack" | "microsoft_teams" | "pagerduty" | "webhook"
+	EmailAddresses        []string          // email
+	DefaultEmailAddresses []string          // email_owners (optional fallback addresses)
+	SlackWorkspaceName    string            // slack
+	SlackChannelName      string            // slack
+	WebhookURL            string            // microsoft_teams, webhook
+	IntegrationKey        string            // pagerduty
+	WebhookHeaders        map[string]string // webhook (arbitrary request headers)
+	WebhookBodyTemplate   string            // webhook (templated request body)
 }
 
 // RunTargetFilter filters run targets.
@@ -122,6 +124,16 @@ func alertFieldsToPolicy(f schema.AlertPolicyFields) AlertPolicy {
 	case *schema.AlertPolicyFieldsNotificationServicePagerdutyAlertPolicyNotification:
 		ns.Type = "pagerduty"
 		ns.IntegrationKey = n.IntegrationKey
+	case *schema.AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification:
+		ns.Type = "webhook"
+		ns.WebhookURL = n.WebhookUrl
+		ns.WebhookBodyTemplate = n.BodyTemplate
+		if len(n.Headers) > 0 {
+			ns.WebhookHeaders = make(map[string]string, len(n.Headers))
+			for _, h := range n.Headers {
+				ns.WebhookHeaders[h.Key] = h.Value
+			}
+		}
 	}
 
 	eventTypes := make([]string, len(f.EventTypes))
@@ -541,6 +553,20 @@ func buildPolicyDoc(policy AlertPolicy) map[string]any {
 	case "pagerduty":
 		doc["notification_service"] = map[string]any{
 			"pagerduty": map[string]any{"integration_key": ns.IntegrationKey},
+		}
+	case "webhook":
+		// The write document expects headers as a dict ({"Key": "Value"}), even
+		// though the read path returns them as a KeyValuePair list.
+		headers := make(map[string]any, len(ns.WebhookHeaders))
+		for k, v := range ns.WebhookHeaders {
+			headers[k] = v
+		}
+		doc["notification_service"] = map[string]any{
+			"webhook": map[string]any{
+				"webhook_url":   ns.WebhookURL,
+				"headers":       headers,
+				"body_template": ns.WebhookBodyTemplate,
+			},
 		}
 	}
 

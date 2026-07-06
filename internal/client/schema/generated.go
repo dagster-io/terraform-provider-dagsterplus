@@ -2103,12 +2103,49 @@ func (v *AlertPolicyFieldsNotificationServiceSlackAlertPolicyNotification) GetSl
 
 // AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification includes the requested fields of the GraphQL type WebhookAlertPolicyNotification.
 type AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification struct {
-	Typename string `json:"__typename"`
+	Typename     string                                                                                  `json:"__typename"`
+	WebhookUrl   string                                                                                  `json:"webhookUrl"`
+	Headers      []AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair `json:"headers"`
+	BodyTemplate string                                                                                  `json:"bodyTemplate"`
 }
 
 // GetTypename returns AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification.Typename, and is useful for accessing the field via an interface.
 func (v *AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification) GetTypename() string {
 	return v.Typename
+}
+
+// GetWebhookUrl returns AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification.WebhookUrl, and is useful for accessing the field via an interface.
+func (v *AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification) GetWebhookUrl() string {
+	return v.WebhookUrl
+}
+
+// GetHeaders returns AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification.Headers, and is useful for accessing the field via an interface.
+func (v *AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification) GetHeaders() []AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair {
+	return v.Headers
+}
+
+// GetBodyTemplate returns AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification.BodyTemplate, and is useful for accessing the field via an interface.
+func (v *AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotification) GetBodyTemplate() string {
+	return v.BodyTemplate
+}
+
+// AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair includes the requested fields of the GraphQL type KeyValuePair.
+// The GraphQL type's documentation follows.
+//
+// A key-value pair for webhook headers.
+type AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// GetKey returns AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair.Key, and is useful for accessing the field via an interface.
+func (v *AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair.Value, and is useful for accessing the field via an interface.
+func (v *AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeadersKeyValuePair) GetValue() string {
+	return v.Value
 }
 
 // AlertPolicyFieldsPolicyOptionsAlertPolicyOptions includes the requested fields of the GraphQL type AlertPolicyOptions.
@@ -21721,6 +21758,14 @@ fragment AlertPolicyFields on AlertPolicy {
 		}
 		... on PagerdutyAlertPolicyNotification {
 			integrationKey
+		}
+		... on WebhookAlertPolicyNotification {
+			webhookUrl
+			headers {
+				key
+				value
+			}
+			bodyTemplate
 		}
 	}
 }

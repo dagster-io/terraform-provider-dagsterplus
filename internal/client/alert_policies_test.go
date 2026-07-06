@@ -459,6 +459,119 @@ func TestListAlertPolicies_ParseInsightMetricPolicy(t *testing.T) {
 	}
 }
 
+func TestListAlertPolicies_ParseWebhookNotification(t *testing.T) {
+	raw := mockAssetPolicyRaw("webhook-policy")
+	raw["notificationService"] = map[string]any{
+		"__typename": "WebhookAlertPolicyNotification",
+		"webhookUrl": "https://api.incident.io/v2/alert_events/http/abc",
+		"headers": []any{
+			map[string]any{"key": "Authorization", "value": "Bearer secret"},
+			map[string]any{"key": "Content-Type", "value": "application/json"},
+		},
+		"bodyTemplate": `{"message": "{{ alert.name }}"}`,
+	}
+	srv := newListSrv([]any{raw})
+	defer srv.Close()
+
+	policies, err := newClient(srv).ListAlertPolicies(context.Background(), "prod")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	ns := policies[0].NotificationService
+	if ns.Type != "webhook" {
+		t.Errorf("Type = %q, want webhook", ns.Type)
+	}
+	if ns.WebhookURL != "https://api.incident.io/v2/alert_events/http/abc" {
+		t.Errorf("WebhookURL = %q, want the incident.io URL", ns.WebhookURL)
+	}
+	if ns.WebhookBodyTemplate != `{"message": "{{ alert.name }}"}` {
+		t.Errorf("WebhookBodyTemplate = %q, unexpected", ns.WebhookBodyTemplate)
+	}
+	if len(ns.WebhookHeaders) != 2 {
+		t.Fatalf("len(WebhookHeaders) = %d, want 2", len(ns.WebhookHeaders))
+	}
+	if ns.WebhookHeaders["Authorization"] != "Bearer secret" {
+		t.Errorf("Authorization header = %q, want Bearer secret", ns.WebhookHeaders["Authorization"])
+	}
+	if ns.WebhookHeaders["Content-Type"] != "application/json" {
+		t.Errorf("Content-Type header = %q, want application/json", ns.WebhookHeaders["Content-Type"])
+	}
+}
+
+func TestCreateOrUpdateAlertPolicy_WebhookDocument(t *testing.T) {
+	var callCount int
+	var mutationVars map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		if callCount == 1 {
+			b := parseBody(t, r)
+			mutationVars = b.Variables
+			gqlOK(w, map[string]any{
+				"createOrUpdateAlertPolicyFromDocument": map[string]any{
+					"__typename": "AlertPolicy", "id": "policy-id", "name": "webhook-policy",
+				},
+			})
+		} else {
+			raw := mockAssetPolicyRaw("webhook-policy")
+			raw["notificationService"] = map[string]any{
+				"__typename":   "WebhookAlertPolicyNotification",
+				"webhookUrl":   "https://example.com/hook",
+				"headers":      []any{map[string]any{"key": "X-Token", "value": "abc"}},
+				"bodyTemplate": "{}",
+			}
+			gqlOK(w, map[string]any{"alertPolicies": []any{raw}})
+		}
+	}))
+	defer srv.Close()
+
+	policy := client.AlertPolicy{
+		Name:       "webhook-policy",
+		PolicyType: "asset",
+		Enabled:    true,
+		EventTypes: []string{"ASSET_HEALTH_DEGRADED"},
+		NotificationService: client.AlertPolicyNotification{
+			Type:                "webhook",
+			WebhookURL:          "https://example.com/hook",
+			WebhookHeaders:      map[string]string{"X-Token": "abc"},
+			WebhookBodyTemplate: "{}",
+		},
+	}
+
+	if _, err := newClient(srv).CreateOrUpdateAlertPolicy(context.Background(), "prod", policy); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Inspect the document sent to the API.
+	doc, ok := mutationVars["document"].(map[string]any)
+	if !ok {
+		t.Fatalf("document var is not a map: %T", mutationVars["document"])
+	}
+	ns, ok := doc["notification_service"].(map[string]any)
+	if !ok {
+		t.Fatalf("notification_service missing or wrong type: %T", doc["notification_service"])
+	}
+	webhook, ok := ns["webhook"].(map[string]any)
+	if !ok {
+		t.Fatalf("webhook key missing or wrong type: %T", ns["webhook"])
+	}
+	if webhook["webhook_url"] != "https://example.com/hook" {
+		t.Errorf("webhook_url = %v, want https://example.com/hook", webhook["webhook_url"])
+	}
+	if webhook["body_template"] != "{}" {
+		t.Errorf("body_template = %v, want {}", webhook["body_template"])
+	}
+	headers, ok := webhook["headers"].(map[string]any)
+	if !ok {
+		t.Fatalf("headers missing or wrong type: %T", webhook["headers"])
+	}
+	if len(headers) != 1 {
+		t.Fatalf("len(headers) = %d, want 1", len(headers))
+	}
+	if headers["X-Token"] != "abc" {
+		t.Errorf("headers[X-Token] = %v, want abc", headers["X-Token"])
+	}
+}
+
 func TestListAlertPolicies_ParseSlackNotification(t *testing.T) {
 	raw := mockAssetPolicyRaw("slack-policy")
 	raw["notificationService"] = map[string]any{

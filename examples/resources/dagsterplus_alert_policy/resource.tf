@@ -127,6 +127,32 @@ resource "dagsterplus_alert_policy" "credit_budget" {
   }
 }
 
+# Code location policy — generic webhook notification (e.g. IncidentIO)
+resource "dagsterplus_alert_policy" "code_location_webhook" {
+  deployment  = "prod"
+  name        = "code-location-errors-webhook"
+  policy_type = "code_location"
+  enabled     = true
+
+  code_location {
+    all_locations = true
+  }
+
+  notification_service {
+    type = "webhook"
+    # The webhook URL's domain must be allowlisted for your organization
+    # (a support-gated setting). body_template tokens must be lowercase
+    # identifiers, e.g. {{alert_summary}}, or environment variables, e.g.
+    # {{env.MY_SECRET}}.
+    webhook_url   = "https://api.incident.io/v2/alert_events/http/00000000"
+    body_template = "{\"message\": \"{{alert_summary}}\"}"
+    headers = {
+      Authorization  = "Bearer my-secret-token"
+      "Content-Type" = "application/json"
+    }
+  }
+}
+
 # Insight metric policy — deployment-wide metric threshold
 resource "dagsterplus_alert_policy" "weekly_credits" {
   deployment  = "prod"
