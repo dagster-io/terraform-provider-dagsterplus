@@ -45,11 +45,6 @@ fragment AgentTokenGrantsFields on DagsterCloudScopedPermissionGrants {
     deploymentScope
     deploymentId
   }
-  perBaseBranchDeploymentsPermissionGrants {
-    grant
-    deploymentScope
-    deploymentId
-  }
   deploymentPermissionGrants {
     grant
     deploymentScope

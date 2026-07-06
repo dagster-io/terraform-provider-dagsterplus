@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Breaking Changes
+- `dagsterplus_agent_token`: removed the `branch_deployments_grants` attribute. Setting it always failed at apply with an `Internal Server Error` (`PythonError`) — the Dagster+ API does not support scoping an agent token to the branch deployments of a single parent deployment. Agent tokens support only three grant scopes: the organization (`organization`), specific full deployments (`deployment_grants`), and all branch deployments (`all_branch_deployments`). **Migration:** remove any `branch_deployments_grants = [...]` lines from your `dagsterplus_agent_token` blocks; to grant an agent across branch deployments, set `all_branch_deployments = true`. ([#42](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/42))
+
 ### Added
 - `dagsterplus_alert_policy`: the `notification_service` block now supports a generic `webhook` notification type, mirroring the webhook channel available in the Dagster+ UI (e.g. for IncidentIO). Set `type = "webhook"` and configure `webhook_url` (the endpoint), `headers` (a `map(string)` of arbitrary request headers such as authentication tokens — marked sensitive), and `body_template` (a templated request body). This is distinct from the Teams-specific `microsoft_teams` type. Note that the webhook URL's domain must be allowlisted for your organization (a support-gated setting), and `body_template` tokens must be lowercase identifiers (e.g. `{{alert_summary}}`) or environment variables (e.g. `{{env.MY_SECRET}}`). Existing configs are unaffected; `webhook` is a new value added to the notification `type` enum. ([#40](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/40))
 

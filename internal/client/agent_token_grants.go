@@ -14,7 +14,7 @@ import (
 // grants) there is no grant level, custom role, or location grant to track here.
 type AgentTokenGrant struct {
 	AgentTokenID    string
-	DeploymentScope string // "organization" | "deployment" | "all_branch_deployments" | "branch_deployments"
+	DeploymentScope string // "organization" | "deployment" | "all_branch_deployments"
 	DeploymentID    int64  // 0 for organization / all_branch_deployments scopes
 }
 
@@ -40,12 +40,6 @@ func findAgentTokenGrantInFields(f schema.AgentTokenGrantsFields, agentTokenID, 
 			return nil
 		}
 		return agentTokenGrantFromFields(agentTokenID, g.DeploymentScope, g.DeploymentId)
-	case "branch_deployments":
-		for _, g := range f.PerBaseBranchDeploymentsPermissionGrants {
-			if int64(g.DeploymentId) == deploymentID {
-				return agentTokenGrantFromFields(agentTokenID, g.DeploymentScope, g.DeploymentId)
-			}
-		}
 	default:
 		for _, g := range f.DeploymentPermissionGrants {
 			if int64(g.DeploymentId) == deploymentID {
@@ -127,28 +121,6 @@ func (c *Client) ListAgentTokenDeploymentGrants(ctx context.Context, agentTokenI
 		return grants, nil
 	default:
 		return nil, fmt.Errorf("ListAgentTokenDeploymentGrants: agent token %q not found", agentTokenID)
-	}
-}
-
-// ListAgentTokenBranchDeploymentsGrants returns all per-base-branch grants for an agent token.
-func (c *Client) ListAgentTokenBranchDeploymentsGrants(ctx context.Context, agentTokenID string) ([]AgentTokenGrant, error) {
-	intID, err := strconv.Atoi(agentTokenID)
-	if err != nil {
-		return nil, fmt.Errorf("ListAgentTokenBranchDeploymentsGrants: invalid agent token id %q: %w", agentTokenID, err)
-	}
-	resp, err := schema.GetAgentTokenGrants(ctx, c.gqlClient(""), intID)
-	if err != nil {
-		return nil, fmt.Errorf("ListAgentTokenBranchDeploymentsGrants: %w", err)
-	}
-	switch r := resp.AgentTokenOrError.(type) {
-	case *schema.GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken:
-		var grants []AgentTokenGrant
-		for _, g := range r.Permissions.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants {
-			grants = append(grants, *agentTokenGrantFromFields(agentTokenID, g.DeploymentScope, g.DeploymentId))
-		}
-		return grants, nil
-	default:
-		return nil, fmt.Errorf("ListAgentTokenBranchDeploymentsGrants: agent token %q not found", agentTokenID)
 	}
 }
 

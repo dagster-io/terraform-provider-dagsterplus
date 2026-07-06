@@ -120,7 +120,7 @@ func TestAccAgentTokenResource_grants(t *testing.T) {
 				ResourceName:            "dagsterplus_agent_token.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"token", "name", "deployment_grants", "branch_deployments_grants"},
+				ImportStateVerifyIgnore: []string{"token", "name", "deployment_grants"},
 			},
 		},
 	})

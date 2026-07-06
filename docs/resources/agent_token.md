@@ -3,12 +3,12 @@
 page_title: "dagsterplus_agent_token Resource - dagsterplus"
 subcategory: ""
 description: |-
-  Manages a Dagster+ agent token and its permission grants. The token value is only available at creation time; it cannot be recovered after import. Changing the name forces a new resource. Agent tokens only ever carry the AGENT permission, so the grant attributes only control which scopes the token is granted on.
+  Manages a Dagster+ agent token and its permission grants. The token value is only available at creation time; it cannot be recovered after import. Changing the name forces a new resource. Agent tokens only ever carry the AGENT permission, so the grant attributes only control which scopes the token is granted on. Dagster+ supports three agent-token grant scopes: the organization, specific full deployments, and all branch deployments. Unlike user/team grants, agent tokens cannot be scoped to the branch deployments of a single parent deployment.
 ---
 
 # dagsterplus_agent_token (Resource)
 
-Manages a Dagster+ agent token and its permission grants. The token value is only available at creation time; it cannot be recovered after import. Changing the name forces a new resource. Agent tokens only ever carry the AGENT permission, so the grant attributes only control which scopes the token is granted on.
+Manages a Dagster+ agent token and its permission grants. The token value is only available at creation time; it cannot be recovered after import. Changing the name forces a new resource. Agent tokens only ever carry the AGENT permission, so the grant attributes only control which scopes the token is granted on. Dagster+ supports three agent-token grant scopes: the organization, specific full deployments, and all branch deployments. Unlike user/team grants, agent tokens cannot be scoped to the branch deployments of a single parent deployment.
 
 ## Example Usage
 
@@ -46,7 +46,6 @@ resource "dagsterplus_agent_token" "ecs_agent" {
 ### Optional
 
 - `all_branch_deployments` (Boolean) Whether the token holds the AGENT grant across all branch deployments. Defaults to false.
-- `branch_deployments_grants` (Set of String) Names of full (parent) deployments whose branch deployments the token is granted the AGENT permission on.
 - `deployment_grants` (Set of String) Names of full deployments the token is granted the AGENT permission on.
 - `organization` (Boolean) Whether the token holds the organization-scoped AGENT grant. Dagster+ creates this grant automatically with every new token; set to false to remove it. Defaults to true.
 
