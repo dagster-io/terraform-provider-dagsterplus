@@ -30,6 +30,12 @@ resource "dagsterplus_user" "dennis" {
   email = var.test_user_email
 }
 
+resource "dagsterplus_concurrency_pool" "test" {
+  deployment = dagsterplus_deployment.test.name
+  name       = "acc-tf-pool"
+  limit      = 1
+}
+
 resource "dagsterplus_role" "observability" {
   name        = "acc-tf-observability"
   role_type   = "deployment"
