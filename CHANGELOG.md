@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-07-09
+
 ### Added
 - `dagsterplus_concurrency_pool` resource for managing per-pool concurrency limits (0-1000) within a deployment. A pool is a named concurrency key shared by the assets/ops assigned to it via `pool=` in Dagster code. Supports import via `{deployment}/{name}`; on destroy the explicit limit is removed and the pool reverts to the deployment's default pool limit.
 - `dagsterplus_alert_policy`: the `notification_service` block now supports a generic `webhook` notification type, mirroring the webhook channel available in the Dagster+ UI (e.g. for IncidentIO). Set `type = "webhook"` and configure `webhook_url` (the endpoint), `headers` (a `map(string)` of arbitrary request headers such as authentication tokens — marked sensitive), and `body_template` (a templated request body). This is distinct from the Teams-specific `microsoft_teams` type. Note that the webhook URL's domain must be allowlisted for your organization (a support-gated setting), and `body_template` tokens must be lowercase identifiers (e.g. `{{alert_summary}}`) or environment variables (e.g. `{{env.MY_SECRET}}`). Existing configs are unaffected; `webhook` is a new value added to the notification `type` enum. ([#40](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/40))
@@ -78,7 +80,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full CI pipeline (build, vet, format, unit tests, module tidy, generated code check).
 - GoReleaser-based release pipeline with GPG-signed checksums.
 
-[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.4...v0.1.5
