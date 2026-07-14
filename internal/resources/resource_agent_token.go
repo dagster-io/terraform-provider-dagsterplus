@@ -36,13 +36,12 @@ type agentTokenResource struct {
 // only express which scopes/deployments the token is granted on — there is no
 // grant level, custom role, or location grant to configure.
 type agentTokenResourceModel struct {
-	ID                      types.String `tfsdk:"id"`
-	Name                    types.String `tfsdk:"name"`
-	Token                   types.String `tfsdk:"token"`
-	Organization            types.Bool   `tfsdk:"organization"`
-	AllBranchDeployments    types.Bool   `tfsdk:"all_branch_deployments"`
-	DeploymentGrants        types.Set    `tfsdk:"deployment_grants"`
-	BranchDeploymentsGrants types.Set    `tfsdk:"branch_deployments_grants"`
+	ID                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
+	Token                types.String `tfsdk:"token"`
+	Organization         types.Bool   `tfsdk:"organization"`
+	AllBranchDeployments types.Bool   `tfsdk:"all_branch_deployments"`
+	DeploymentGrants     types.Set    `tfsdk:"deployment_grants"`
 }
 
 func (r *agentTokenResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -54,7 +53,10 @@ func (r *agentTokenResource) Schema(_ context.Context, _ resource.SchemaRequest,
 		Description: "Manages a Dagster+ agent token and its permission grants. " +
 			"The token value is only available at creation time; it cannot be recovered after import. " +
 			"Changing the name forces a new resource. Agent tokens only ever carry the AGENT permission, " +
-			"so the grant attributes only control which scopes the token is granted on.",
+			"so the grant attributes only control which scopes the token is granted on. " +
+			"Dagster+ supports three agent-token grant scopes: the organization, specific full deployments, " +
+			"and all branch deployments. Unlike user/team grants, agent tokens cannot be scoped to the branch " +
+			"deployments of a single parent deployment.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description: "The token ID assigned by Dagster+.",
@@ -94,11 +96,6 @@ func (r *agentTokenResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			},
 			"deployment_grants": schema.SetAttribute{
 				Description: "Names of full deployments the token is granted the AGENT permission on.",
-				Optional:    true,
-				ElementType: types.StringType,
-			},
-			"branch_deployments_grants": schema.SetAttribute{
-				Description: "Names of full (parent) deployments whose branch deployments the token is granted the AGENT permission on.",
 				Optional:    true,
 				ElementType: types.StringType,
 			},
@@ -161,27 +158,6 @@ func (r *agentTokenResource) applyGrants(ctx context.Context, tokenID string, pl
 			DeploymentID:    intID,
 		}); err != nil {
 			diags.AddError("Error setting deployment grant", err.Error())
-			return
-		}
-	}
-
-	var branchNames []string
-	diags.Append(plan.BranchDeploymentsGrants.ElementsAs(ctx, &branchNames, false)...)
-	if diags.HasError() {
-		return
-	}
-	for _, name := range branchNames {
-		intID, err := r.client.GetDeploymentIntID(ctx, name)
-		if err != nil {
-			diags.AddError("Error resolving parent deployment", err.Error())
-			return
-		}
-		if _, err := r.client.SetAgentTokenGrant(ctx, client.AgentTokenGrant{
-			AgentTokenID:    tokenID,
-			DeploymentScope: "branch_deployments",
-			DeploymentID:    intID,
-		}); err != nil {
-			diags.AddError("Error setting branch deployments grant", err.Error())
 			return
 		}
 	}
@@ -250,7 +226,6 @@ func (r *agentTokenResource) Read(ctx context.Context, req resource.ReadRequest,
 	state.AllBranchDeployments = types.BoolValue(allBranchErr == nil)
 
 	state.DeploymentGrants = r.refreshDeploymentNames(ctx, tok.ID, state.DeploymentGrants, "deployment", &resp.Diagnostics)
-	state.BranchDeploymentsGrants = r.refreshDeploymentNames(ctx, tok.ID, state.BranchDeploymentsGrants, "branch_deployments", &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -314,9 +289,8 @@ func (r *agentTokenResource) Update(ctx context.Context, req resource.UpdateRequ
 		}
 	}
 
-	// Remove deployment / branch grants no longer in plan.
+	// Remove deployment grants no longer in plan.
 	r.deleteRemovedDeploymentGrants(ctx, tokenID, plan.DeploymentGrants, state.DeploymentGrants, "deployment", &resp.Diagnostics)
-	r.deleteRemovedDeploymentGrants(ctx, tokenID, plan.BranchDeploymentsGrants, state.BranchDeploymentsGrants, "branch_deployments", &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -374,13 +348,12 @@ func (r *agentTokenResource) Delete(ctx context.Context, req resource.DeleteRequ
 func (r *agentTokenResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Token value is irrecoverable after creation.
 	state := agentTokenResourceModel{
-		ID:                      types.StringValue(req.ID),
-		Name:                    types.StringValue(""),
-		Token:                   types.StringValue(""),
-		Organization:            types.BoolValue(true),
-		AllBranchDeployments:    types.BoolValue(false),
-		DeploymentGrants:        types.SetNull(types.StringType),
-		BranchDeploymentsGrants: types.SetNull(types.StringType),
+		ID:                   types.StringValue(req.ID),
+		Name:                 types.StringValue(""),
+		Token:                types.StringValue(""),
+		Organization:         types.BoolValue(true),
+		AllBranchDeployments: types.BoolValue(false),
+		DeploymentGrants:     types.SetNull(types.StringType),
 	}
 
 	if tok, err := r.client.GetAgentToken(ctx, req.ID); err == nil {

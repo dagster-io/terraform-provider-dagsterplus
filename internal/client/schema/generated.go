@@ -833,10 +833,9 @@ func (v *AgentTokenFields) GetRevoked() bool { return v.Revoked }
 // so the grant value is hardcoded in the mutations below and never surfaced to
 // the provider.
 type AgentTokenGrantsFields struct {
-	OrganizationPermissionGrant              AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant                `json:"organizationPermissionGrant"`
-	AllBranchDeploymentsPermissionGrant      AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant        `json:"allBranchDeploymentsPermissionGrant"`
-	PerBaseBranchDeploymentsPermissionGrants []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-	DeploymentPermissionGrants               []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant               `json:"deploymentPermissionGrants"`
+	OrganizationPermissionGrant         AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant         `json:"organizationPermissionGrant"`
+	AllBranchDeploymentsPermissionGrant AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
+	DeploymentPermissionGrants          []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant        `json:"deploymentPermissionGrants"`
 }
 
 // GetOrganizationPermissionGrant returns AgentTokenGrantsFields.OrganizationPermissionGrant, and is useful for accessing the field via an interface.
@@ -847,11 +846,6 @@ func (v *AgentTokenGrantsFields) GetOrganizationPermissionGrant() AgentTokenGran
 // GetAllBranchDeploymentsPermissionGrant returns AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant, and is useful for accessing the field via an interface.
 func (v *AgentTokenGrantsFields) GetAllBranchDeploymentsPermissionGrant() AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant {
 	return v.AllBranchDeploymentsPermissionGrant
-}
-
-// GetPerBaseBranchDeploymentsPermissionGrants returns AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *AgentTokenGrantsFields) GetPerBaseBranchDeploymentsPermissionGrants() []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.PerBaseBranchDeploymentsPermissionGrants
 }
 
 // GetDeploymentPermissionGrants returns AgentTokenGrantsFields.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
@@ -931,31 +925,6 @@ func (v *AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPerm
 
 // GetDeploymentId returns AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
 func (v *AgentTokenGrantsFieldsOrganizationPermissionGrantDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
-	return v.DeploymentId
-}
-
-// AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant includes the requested fields of the GraphQL type DagsterCloudScopedPermissionGrant.
-// The GraphQL type's documentation follows.
-//
-// If the deploymentId is null, then this represents an organization grant.
-type AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant struct {
-	Grant           PermissionGrant           `json:"grant"`
-	DeploymentScope PermissionDeploymentScope `json:"deploymentScope"`
-	DeploymentId    int                       `json:"deploymentId"`
-}
-
-// GetGrant returns AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.Grant, and is useful for accessing the field via an interface.
-func (v *AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetGrant() PermissionGrant {
-	return v.Grant
-}
-
-// GetDeploymentScope returns AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentScope, and is useful for accessing the field via an interface.
-func (v *AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentScope() PermissionDeploymentScope {
-	return v.DeploymentScope
-}
-
-// GetDeploymentId returns AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant.DeploymentId, and is useful for accessing the field via an interface.
-func (v *AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant) GetDeploymentId() int {
 	return v.DeploymentId
 }
 
@@ -8856,11 +8825,6 @@ func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDa
 	return v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
 }
 
-// GetPerBaseBranchDeploymentsPermissionGrants returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
 // GetDeploymentPermissionGrants returns GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
 func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetDeploymentPermissionGrants() []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
 	return v.AgentTokenGrantsFields.DeploymentPermissionGrants
@@ -8896,8 +8860,6 @@ type __premarshalGetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermi
 
 	AllBranchDeploymentsPermissionGrant AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
 
-	PerBaseBranchDeploymentsPermissionGrants []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
 	DeploymentPermissionGrants []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
@@ -8914,7 +8876,6 @@ func (v *GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentTokenPermissionsDa
 
 	retval.OrganizationPermissionGrant = v.AgentTokenGrantsFields.OrganizationPermissionGrant
 	retval.AllBranchDeploymentsPermissionGrant = v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
 	retval.DeploymentPermissionGrants = v.AgentTokenGrantsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
@@ -14778,11 +14739,6 @@ func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermis
 	return v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
 }
 
-// GetPerBaseBranchDeploymentsPermissionGrants returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.PerBaseBranchDeploymentsPermissionGrants, and is useful for accessing the field via an interface.
-func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetPerBaseBranchDeploymentsPermissionGrants() []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant {
-	return v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
-}
-
 // GetDeploymentPermissionGrants returns SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants.DeploymentPermissionGrants, and is useful for accessing the field via an interface.
 func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermissionsDagsterCloudScopedPermissionGrants) GetDeploymentPermissionGrants() []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant {
 	return v.AgentTokenGrantsFields.DeploymentPermissionGrants
@@ -14818,8 +14774,6 @@ type __premarshalSetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTok
 
 	AllBranchDeploymentsPermissionGrant AgentTokenGrantsFieldsAllBranchDeploymentsPermissionGrantDagsterCloudScopedPermissionGrant `json:"allBranchDeploymentsPermissionGrant"`
 
-	PerBaseBranchDeploymentsPermissionGrants []AgentTokenGrantsFieldsPerBaseBranchDeploymentsPermissionGrantsDagsterCloudScopedPermissionGrant `json:"perBaseBranchDeploymentsPermissionGrants"`
-
 	DeploymentPermissionGrants []AgentTokenGrantsFieldsDeploymentPermissionGrantsDagsterCloudScopedPermissionGrant `json:"deploymentPermissionGrants"`
 }
 
@@ -14836,7 +14790,6 @@ func (v *SetAgentGrantCreateOrUpdateAgentPermissionsDagsterCloudAgentTokenPermis
 
 	retval.OrganizationPermissionGrant = v.AgentTokenGrantsFields.OrganizationPermissionGrant
 	retval.AllBranchDeploymentsPermissionGrant = v.AgentTokenGrantsFields.AllBranchDeploymentsPermissionGrant
-	retval.PerBaseBranchDeploymentsPermissionGrants = v.AgentTokenGrantsFields.PerBaseBranchDeploymentsPermissionGrants
 	retval.DeploymentPermissionGrants = v.AgentTokenGrantsFields.DeploymentPermissionGrants
 	return &retval, nil
 }
@@ -21335,11 +21288,6 @@ fragment AgentTokenGrantsFields on DagsterCloudScopedPermissionGrants {
 		deploymentScope
 		deploymentId
 	}
-	perBaseBranchDeploymentsPermissionGrants {
-		grant
-		deploymentScope
-		deploymentId
-	}
 	deploymentPermissionGrants {
 		grant
 		deploymentScope
@@ -22843,11 +22791,6 @@ fragment AgentTokenGrantsFields on DagsterCloudScopedPermissionGrants {
 		deploymentId
 	}
 	allBranchDeploymentsPermissionGrant {
-		grant
-		deploymentScope
-		deploymentId
-	}
-	perBaseBranchDeploymentsPermissionGrants {
 		grant
 		deploymentScope
 		deploymentId

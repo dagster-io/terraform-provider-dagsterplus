@@ -6,6 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Breaking Changes
+- `dagsterplus_agent_token`: removed the `branch_deployments_grants` attribute. Setting it always failed at apply with an `Internal Server Error` (`PythonError`) — the Dagster+ API does not support scoping an agent token to the branch deployments of a single parent deployment. Agent tokens support only three grant scopes: the organization (`organization`), specific full deployments (`deployment_grants`), and all branch deployments (`all_branch_deployments`). **Migration:** remove any `branch_deployments_grants = [...]` lines from your `dagsterplus_agent_token` blocks; to grant an agent across branch deployments, set `all_branch_deployments = true`. ([#42](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/42))
+
 ## [0.1.8] - 2026-07-09
 
 ### Added

@@ -194,11 +194,10 @@ resource "dagsterplus_service_user_branch_deployments_grant" "standalone" {
 # ---------------------------------------------------------------------------
 
 resource "dagsterplus_agent_token" "inline" {
-  name                      = "acc-tf-agent-inline"
-  organization              = false
-  all_branch_deployments    = true
-  deployment_grants         = [dagsterplus_deployment.test.name]
-  branch_deployments_grants = [dagsterplus_deployment.test.name]
+  name                   = "acc-tf-agent-inline"
+  organization           = false
+  all_branch_deployments = true
+  deployment_grants      = [dagsterplus_deployment.test.name]
 }
 
 resource "dagsterplus_agent_token" "standalone" {

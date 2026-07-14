@@ -12,7 +12,7 @@ import (
 
 // agentTokenPermissions builds a DagsterCloudScopedPermissionGrants payload.
 // Absent grants are represented with an empty grant string.
-func agentTokenPermissions(org, allBranch map[string]any, deployment, branch []any) map[string]any {
+func agentTokenPermissions(org, allBranch map[string]any, deployment []any) map[string]any {
 	if org == nil {
 		org = map[string]any{"grant": "", "deploymentScope": "ORGANIZATION", "deploymentId": 0}
 	}
@@ -20,10 +20,9 @@ func agentTokenPermissions(org, allBranch map[string]any, deployment, branch []a
 		allBranch = map[string]any{"grant": "", "deploymentScope": "ALL_BRANCH_DEPLOYMENTS", "deploymentId": 0}
 	}
 	return map[string]any{
-		"organizationPermissionGrant":              org,
-		"allBranchDeploymentsPermissionGrant":      allBranch,
-		"perBaseBranchDeploymentsPermissionGrants": branch,
-		"deploymentPermissionGrants":               deployment,
+		"organizationPermissionGrant":         org,
+		"allBranchDeploymentsPermissionGrant": allBranch,
+		"deploymentPermissionGrants":          deployment,
 	}
 }
 
@@ -39,7 +38,7 @@ func TestSetAgentTokenGrant_Success(t *testing.T) {
 				"id":         123,
 				"permissions": agentTokenPermissions(nil, nil, []any{
 					map[string]any{"grant": "AGENT", "deploymentScope": "DEPLOYMENT", "deploymentId": 42},
-				}, []any{}),
+				}),
 			},
 		})
 	}))
@@ -69,7 +68,7 @@ func TestSetAgentTokenGrant_Organization(t *testing.T) {
 				"id":         123,
 				"permissions": agentTokenPermissions(
 					map[string]any{"grant": "AGENT", "deploymentScope": "ORGANIZATION", "deploymentId": 0},
-					nil, []any{}, []any{}),
+					nil, []any{}),
 			},
 		})
 	}))
@@ -133,7 +132,7 @@ func TestGetAgentTokenGrant_Found(t *testing.T) {
 				"id":         99,
 				"permissions": agentTokenPermissions(nil, nil, []any{
 					map[string]any{"grant": "AGENT", "deploymentScope": "DEPLOYMENT", "deploymentId": 7},
-				}, []any{}),
+				}),
 			},
 		})
 	}))
@@ -157,7 +156,7 @@ func TestGetAgentTokenGrant_OrganizationAbsent(t *testing.T) {
 			"agentTokenOrError": map[string]any{
 				"__typename":  "DagsterCloudAgentToken",
 				"id":          99,
-				"permissions": agentTokenPermissions(nil, nil, []any{}, []any{}),
+				"permissions": agentTokenPermissions(nil, nil, []any{}),
 			},
 		})
 	}))
@@ -200,7 +199,7 @@ func TestListAgentTokenDeploymentGrants_Success(t *testing.T) {
 				"permissions": agentTokenPermissions(nil, nil, []any{
 					map[string]any{"grant": "AGENT", "deploymentScope": "DEPLOYMENT", "deploymentId": 1},
 					map[string]any{"grant": "AGENT", "deploymentScope": "DEPLOYMENT", "deploymentId": 2},
-				}, []any{}),
+				}),
 			},
 		})
 	}))
@@ -212,32 +211,6 @@ func TestListAgentTokenDeploymentGrants_Success(t *testing.T) {
 	}
 	if len(grants) != 2 {
 		t.Fatalf("len(grants) = %d, want 2", len(grants))
-	}
-}
-
-func TestListAgentTokenBranchDeploymentsGrants_Success(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gqlOK(w, map[string]any{
-			"agentTokenOrError": map[string]any{
-				"__typename": "DagsterCloudAgentToken",
-				"id":         99,
-				"permissions": agentTokenPermissions(nil, nil, []any{}, []any{
-					map[string]any{"grant": "AGENT", "deploymentScope": "ALL_BRANCH_DEPLOYMENTS", "deploymentId": 5},
-				}),
-			},
-		})
-	}))
-	defer srv.Close()
-
-	grants, err := newClient(srv).ListAgentTokenBranchDeploymentsGrants(context.Background(), "99")
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(grants) != 1 {
-		t.Fatalf("len(grants) = %d, want 1", len(grants))
-	}
-	if grants[0].DeploymentScope != "branch_deployments" {
-		t.Errorf("DeploymentScope = %q, want branch_deployments", grants[0].DeploymentScope)
 	}
 }
 
