@@ -6074,6 +6074,17 @@ func (v *DeleteCodeLocationResponse) __premarshalJSON() (*__premarshalDeleteCode
 	return &retval, nil
 }
 
+// DeleteConcurrencyLimitResponse is returned by DeleteConcurrencyLimit on success.
+type DeleteConcurrencyLimitResponse struct {
+	// Sets the concurrency limit for a given concurrency key.
+	DeleteConcurrencyLimit bool `json:"deleteConcurrencyLimit"`
+}
+
+// GetDeleteConcurrencyLimit returns DeleteConcurrencyLimitResponse.DeleteConcurrencyLimit, and is useful for accessing the field via an interface.
+func (v *DeleteConcurrencyLimitResponse) GetDeleteConcurrencyLimit() bool {
+	return v.DeleteConcurrencyLimit
+}
+
 // DeleteCustomMetricDeleteCustomMetricCustomMetricError includes the requested fields of the GraphQL type CustomMetricError.
 // The GraphQL type's documentation follows.
 //
@@ -9195,6 +9206,47 @@ type GetAtlanIntegrationSettingsResponse struct {
 func (v *GetAtlanIntegrationSettingsResponse) GetAtlanIntegration() GetAtlanIntegrationSettingsAtlanIntegrationAtlanIntegrationQuery {
 	return v.AtlanIntegration
 }
+
+// GetConcurrencyLimitInstance includes the requested fields of the GraphQL type Instance.
+type GetConcurrencyLimitInstance struct {
+	ConcurrencyLimit GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo `json:"concurrencyLimit"`
+}
+
+// GetConcurrencyLimit returns GetConcurrencyLimitInstance.ConcurrencyLimit, and is useful for accessing the field via an interface.
+func (v *GetConcurrencyLimitInstance) GetConcurrencyLimit() GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo {
+	return v.ConcurrencyLimit
+}
+
+// GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo includes the requested fields of the GraphQL type ConcurrencyKeyInfo.
+type GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo struct {
+	ConcurrencyKey    string `json:"concurrencyKey"`
+	Limit             int    `json:"limit"`
+	UsingDefaultLimit bool   `json:"usingDefaultLimit"`
+}
+
+// GetConcurrencyKey returns GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo.ConcurrencyKey, and is useful for accessing the field via an interface.
+func (v *GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo) GetConcurrencyKey() string {
+	return v.ConcurrencyKey
+}
+
+// GetLimit returns GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo.Limit, and is useful for accessing the field via an interface.
+func (v *GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo) GetLimit() int {
+	return v.Limit
+}
+
+// GetUsingDefaultLimit returns GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo.UsingDefaultLimit, and is useful for accessing the field via an interface.
+func (v *GetConcurrencyLimitInstanceConcurrencyLimitConcurrencyKeyInfo) GetUsingDefaultLimit() bool {
+	return v.UsingDefaultLimit
+}
+
+// GetConcurrencyLimitResponse is returned by GetConcurrencyLimit on success.
+type GetConcurrencyLimitResponse struct {
+	// Retrieve the instance configuration for the Dagster deployment.
+	Instance GetConcurrencyLimitInstance `json:"instance"`
+}
+
+// GetInstance returns GetConcurrencyLimitResponse.Instance, and is useful for accessing the field via an interface.
+func (v *GetConcurrencyLimitResponse) GetInstance() GetConcurrencyLimitInstance { return v.Instance }
 
 // GetDeploymentSettingsDeploymentSettings includes the requested fields of the GraphQL type DeploymentSettings.
 type GetDeploymentSettingsDeploymentSettings struct {
@@ -15125,6 +15177,15 @@ func (v *SetAtlanIntegrationSettingsSetAtlanIntegrationSettingsUnauthorizedError
 	return v.Typename
 }
 
+// SetConcurrencyLimitResponse is returned by SetConcurrencyLimit on success.
+type SetConcurrencyLimitResponse struct {
+	// Sets the concurrency limit for a given concurrency key.
+	SetConcurrencyLimit bool `json:"setConcurrencyLimit"`
+}
+
+// GetSetConcurrencyLimit returns SetConcurrencyLimitResponse.SetConcurrencyLimit, and is useful for accessing the field via an interface.
+func (v *SetConcurrencyLimitResponse) GetSetConcurrencyLimit() bool { return v.SetConcurrencyLimit }
+
 // SetDeploymentSettingsResponse is returned by SetDeploymentSettings on success.
 type SetDeploymentSettingsResponse struct {
 	// Replace all existing settings with the new settings.
@@ -19342,6 +19403,14 @@ type __DeleteCodeLocationInput struct {
 // GetName returns __DeleteCodeLocationInput.Name, and is useful for accessing the field via an interface.
 func (v *__DeleteCodeLocationInput) GetName() string { return v.Name }
 
+// __DeleteConcurrencyLimitInput is used internally by genqlient
+type __DeleteConcurrencyLimitInput struct {
+	ConcurrencyKey string `json:"concurrencyKey"`
+}
+
+// GetConcurrencyKey returns __DeleteConcurrencyLimitInput.ConcurrencyKey, and is useful for accessing the field via an interface.
+func (v *__DeleteConcurrencyLimitInput) GetConcurrencyKey() string { return v.ConcurrencyKey }
+
 // __DeleteCustomMetricInput is used internally by genqlient
 type __DeleteCustomMetricInput struct {
 	CustomMetricId string `json:"customMetricId"`
@@ -19453,6 +19522,14 @@ type __GetAgentTokenGrantsInput struct {
 
 // GetTokenId returns __GetAgentTokenGrantsInput.TokenId, and is useful for accessing the field via an interface.
 func (v *__GetAgentTokenGrantsInput) GetTokenId() int { return v.TokenId }
+
+// __GetConcurrencyLimitInput is used internally by genqlient
+type __GetConcurrencyLimitInput struct {
+	ConcurrencyKey string `json:"concurrencyKey"`
+}
+
+// GetConcurrencyKey returns __GetConcurrencyLimitInput.ConcurrencyKey, and is useful for accessing the field via an interface.
+func (v *__GetConcurrencyLimitInput) GetConcurrencyKey() string { return v.ConcurrencyKey }
 
 // __GetExternalAssetConnectionInput is used internally by genqlient
 type __GetExternalAssetConnectionInput struct {
@@ -19597,6 +19674,18 @@ func (v *__SetAtlanIntegrationSettingsInput) GetToken() string { return v.Token 
 
 // GetDomain returns __SetAtlanIntegrationSettingsInput.Domain, and is useful for accessing the field via an interface.
 func (v *__SetAtlanIntegrationSettingsInput) GetDomain() string { return v.Domain }
+
+// __SetConcurrencyLimitInput is used internally by genqlient
+type __SetConcurrencyLimitInput struct {
+	ConcurrencyKey string `json:"concurrencyKey"`
+	Limit          int    `json:"limit"`
+}
+
+// GetConcurrencyKey returns __SetConcurrencyLimitInput.ConcurrencyKey, and is useful for accessing the field via an interface.
+func (v *__SetConcurrencyLimitInput) GetConcurrencyKey() string { return v.ConcurrencyKey }
+
+// GetLimit returns __SetConcurrencyLimitInput.Limit, and is useful for accessing the field via an interface.
+func (v *__SetConcurrencyLimitInput) GetLimit() int { return v.Limit }
 
 // __SetDeploymentSettingsInput is used internally by genqlient
 type __SetDeploymentSettingsInput struct {
@@ -20686,6 +20775,38 @@ func DeleteCodeLocation(
 	return data_, err_
 }
 
+// The mutation executed by DeleteConcurrencyLimit.
+const DeleteConcurrencyLimit_Operation = `
+mutation DeleteConcurrencyLimit ($concurrencyKey: String!) {
+	deleteConcurrencyLimit(concurrencyKey: $concurrencyKey)
+}
+`
+
+func DeleteConcurrencyLimit(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	concurrencyKey string,
+) (data_ *DeleteConcurrencyLimitResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteConcurrencyLimit",
+		Query:  DeleteConcurrencyLimit_Operation,
+		Variables: &__DeleteConcurrencyLimitInput{
+			ConcurrencyKey: concurrencyKey,
+		},
+	}
+
+	data_ = &DeleteConcurrencyLimitResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteCustomMetric.
 const DeleteCustomMetric_Operation = `
 mutation DeleteCustomMetric ($customMetricId: String!) {
@@ -21225,6 +21346,44 @@ func GetAtlanIntegrationSettings(
 	}
 
 	data_ = &GetAtlanIntegrationSettingsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetConcurrencyLimit.
+const GetConcurrencyLimit_Operation = `
+query GetConcurrencyLimit ($concurrencyKey: String!) {
+	instance {
+		concurrencyLimit(concurrencyKey: $concurrencyKey) {
+			concurrencyKey
+			limit
+			usingDefaultLimit
+		}
+	}
+}
+`
+
+func GetConcurrencyLimit(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	concurrencyKey string,
+) (data_ *GetConcurrencyLimitResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetConcurrencyLimit",
+		Query:  GetConcurrencyLimit_Operation,
+		Variables: &__GetConcurrencyLimitInput{
+			ConcurrencyKey: concurrencyKey,
+		},
+	}
+
+	data_ = &GetConcurrencyLimitResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -22702,6 +22861,40 @@ func SetAtlanIntegrationSettings(
 	}
 
 	data_ = &SetAtlanIntegrationSettingsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by SetConcurrencyLimit.
+const SetConcurrencyLimit_Operation = `
+mutation SetConcurrencyLimit ($concurrencyKey: String!, $limit: Int!) {
+	setConcurrencyLimit(concurrencyKey: $concurrencyKey, limit: $limit)
+}
+`
+
+func SetConcurrencyLimit(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	concurrencyKey string,
+	limit int,
+) (data_ *SetConcurrencyLimitResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "SetConcurrencyLimit",
+		Query:  SetConcurrencyLimit_Operation,
+		Variables: &__SetConcurrencyLimitInput{
+			ConcurrencyKey: concurrencyKey,
+			Limit:          limit,
+		},
+	}
+
+	data_ = &SetConcurrencyLimitResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

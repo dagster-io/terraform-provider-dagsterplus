@@ -131,6 +131,7 @@ func (p *dagsterplusProvider) Resources(_ context.Context) []func() resource.Res
 		resources.NewGithubIntegrationResource,
 		resources.NewSecretResource,
 		resources.NewDeploymentSettingsResource,
+		resources.NewConcurrencyPoolResource,
 		resources.NewServiceUserResource,
 		resources.NewServiceTokenResource,
 		resources.NewOrganizationSettingsResource,
