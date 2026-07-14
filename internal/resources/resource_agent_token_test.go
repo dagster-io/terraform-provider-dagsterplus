@@ -118,13 +118,12 @@ func TestAgentTokenResource_Create_GrantFailurePersistsToken(t *testing.T) {
 	sch := schemaResp.Schema
 
 	planRaw := tftypes.NewValue(sch.Type().TerraformType(ctx), map[string]tftypes.Value{
-		"id":                        tftypes.NewValue(tftypes.String, tftypes.UnknownValue),
-		"name":                      tftypes.NewValue(tftypes.String, "acc-tf-issue44"),
-		"token":                     tftypes.NewValue(tftypes.String, tftypes.UnknownValue),
-		"organization":              tftypes.NewValue(tftypes.Bool, true),
-		"all_branch_deployments":    tftypes.NewValue(tftypes.Bool, false),
-		"deployment_grants":         tftypes.NewValue(tftypes.Set{ElementType: tftypes.String}, nil),
-		"branch_deployments_grants": tftypes.NewValue(tftypes.Set{ElementType: tftypes.String}, nil),
+		"id":                     tftypes.NewValue(tftypes.String, tftypes.UnknownValue),
+		"name":                   tftypes.NewValue(tftypes.String, "acc-tf-issue44"),
+		"token":                  tftypes.NewValue(tftypes.String, tftypes.UnknownValue),
+		"organization":           tftypes.NewValue(tftypes.Bool, true),
+		"all_branch_deployments": tftypes.NewValue(tftypes.Bool, false),
+		"deployment_grants":      tftypes.NewValue(tftypes.Set{ElementType: tftypes.String}, nil),
 	})
 
 	req := resource.CreateRequest{Plan: tfsdk.Plan{Schema: sch, Raw: planRaw}}

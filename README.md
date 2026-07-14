@@ -91,6 +91,7 @@ More examples are available in the [`examples`](./examples/) directory and in th
 | GitHub Integration | `dagsterplus_github_integration` | — | Yes | Experimental |
 | Secret | `dagsterplus_secret` | `dagsterplus_secret` | Yes | Experimental |
 | Deployment Settings | `dagsterplus_deployment_settings` | — | Yes | Experimental |
+| Concurrency Pool | `dagsterplus_concurrency_pool` | — | Yes | Experimental |
 | Service User | `dagsterplus_service_user` | `dagsterplus_service_user` | Yes | Experimental |
 | Service User Deployment Grant | `dagsterplus_service_user_deployment_grant` | — | Yes | Experimental |
 | Service Token | `dagsterplus_service_token` | — | Yes | Experimental |

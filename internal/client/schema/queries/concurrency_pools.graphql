@@ -1,0 +1,17 @@
+query GetConcurrencyLimit($concurrencyKey: String!) {
+  instance {
+    concurrencyLimit(concurrencyKey: $concurrencyKey) {
+      concurrencyKey
+      limit
+      usingDefaultLimit
+    }
+  }
+}
+
+mutation SetConcurrencyLimit($concurrencyKey: String!, $limit: Int!) {
+  setConcurrencyLimit(concurrencyKey: $concurrencyKey, limit: $limit)
+}
+
+mutation DeleteConcurrencyLimit($concurrencyKey: String!) {
+  deleteConcurrencyLimit(concurrencyKey: $concurrencyKey)
+}
