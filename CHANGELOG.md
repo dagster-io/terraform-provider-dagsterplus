@@ -9,6 +9,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 ### Fixed
 - `dagsterplus_agent_token`: a grant failure during `Create` no longer leaks an untracked token. The token was created in Dagster+ before its grants were applied, but Terraform state was only written after all grants succeeded — so any grant failure (a transient API error, an unauthorized token, a deleted deployment referenced in `deployment_grants`) left a real token with no state entry, and the next `apply` created another token. Create now persists state as soon as the token exists remotely, before applying grants, so a subsequent apply reconciles the existing token instead of leaking a new one. ([#44](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/44))
 
+## [0.1.9] - 2026-07-16
+
+### Breaking Changes
+- `dagsterplus_agent_token`: removed the `branch_deployments_grants` attribute. Setting it always failed at apply with an `Internal Server Error` (`PythonError`) — the Dagster+ API does not support scoping an agent token to the branch deployments of a single parent deployment. Agent tokens support only three grant scopes: the organization (`organization`), specific full deployments (`deployment_grants`), and all branch deployments (`all_branch_deployments`). **Migration:** remove any `branch_deployments_grants = [...]` lines from your `dagsterplus_agent_token` blocks; to grant an agent across branch deployments, set `all_branch_deployments = true`. ([#42](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/42))
+
 ## [0.1.8] - 2026-07-09
 
 ### Breaking Changes
@@ -86,7 +91,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full CI pipeline (build, vet, format, unit tests, module tidy, generated code check).
 - GoReleaser-based release pipeline with GPG-signed checksums.
 
-[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.5...v0.1.6
