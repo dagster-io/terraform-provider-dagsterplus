@@ -6,12 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Fixed
+- `dagsterplus_agent_token`: a grant failure during `Create` no longer leaks an untracked token. The token was created in Dagster+ before its grants were applied, but Terraform state was only written after all grants succeeded — so any grant failure (a transient API error, an unauthorized token, a deleted deployment referenced in `deployment_grants`) left a real token with no state entry, and the next `apply` created another token. Create now persists state as soon as the token exists remotely, before applying grants, so a subsequent apply reconciles the existing token instead of leaking a new one. ([#44](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/44))
+
 ## [0.1.9] - 2026-07-16
 
 ### Breaking Changes
 - `dagsterplus_agent_token`: removed the `branch_deployments_grants` attribute. Setting it always failed at apply with an `Internal Server Error` (`PythonError`) — the Dagster+ API does not support scoping an agent token to the branch deployments of a single parent deployment. Agent tokens support only three grant scopes: the organization (`organization`), specific full deployments (`deployment_grants`), and all branch deployments (`all_branch_deployments`). **Migration:** remove any `branch_deployments_grants = [...]` lines from your `dagsterplus_agent_token` blocks; to grant an agent across branch deployments, set `all_branch_deployments = true`. ([#42](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/42))
 
 ## [0.1.8] - 2026-07-09
+
+### Breaking Changes
+- `dagsterplus_agent_token`: removed the `branch_deployments_grants` attribute. Setting it always failed at apply with an `Internal Server Error` (`PythonError`) — the Dagster+ API does not support scoping an agent token to the branch deployments of a single parent deployment. Agent tokens support only three grant scopes: the organization (`organization`), specific full deployments (`deployment_grants`), and all branch deployments (`all_branch_deployments`). **Migration:** remove any `branch_deployments_grants = [...]` lines from your `dagsterplus_agent_token` blocks; to grant an agent across branch deployments, set `all_branch_deployments = true`. ([#42](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/42))
 
 ### Added
 - `dagsterplus_concurrency_pool` resource for managing per-pool concurrency limits (0-1000) within a deployment. A pool is a named concurrency key shared by the assets/ops assigned to it via `pool=` in Dagster code. Supports import via `{deployment}/{name}`; on destroy the explicit limit is removed and the pool reverts to the deployment's default pool limit.

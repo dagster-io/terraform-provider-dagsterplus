@@ -180,6 +180,15 @@ func (r *agentTokenResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.Name = types.StringValue(tok.Name)
 	plan.Token = types.StringValue(tok.Token)
 
+	// Persist state as soon as the token exists remotely, before applying any
+	// grants. If a grant step below fails, Terraform still records the token so
+	// a subsequent apply reconciles the existing token instead of leaking a new
+	// one (see issue #44).
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Dagster+ auto-creates an organization-scoped AGENT grant with every new
 	// token. If the user opted out, remove it before applying the rest.
 	if !plan.Organization.ValueBool() {
