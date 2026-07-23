@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-07-23
+
 ### Fixed
 - `dagsterplus_agent_token`: a grant failure during `Create` no longer leaks an untracked token. The token was created in Dagster+ before its grants were applied, but Terraform state was only written after all grants succeeded — so any grant failure (a transient API error, an unauthorized token, a deleted deployment referenced in `deployment_grants`) left a real token with no state entry, and the next `apply` created another token. Create now persists state as soon as the token exists remotely, before applying grants, so a subsequent apply reconciles the existing token instead of leaking a new one. ([#44](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/44))
 
@@ -91,7 +93,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full CI pipeline (build, vet, format, unit tests, module tidy, generated code check).
 - GoReleaser-based release pipeline with GPG-signed checksums.
 
-[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.6...v0.1.7
