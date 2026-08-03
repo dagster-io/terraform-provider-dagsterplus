@@ -13,8 +13,17 @@ Manages a Dagster+ deployment.
 ## Example Usage
 
 ```terraform
+# Uses the organization's default agent type.
 resource "dagsterplus_deployment" "prod" {
   name = "prod"
+}
+
+# Pin the agent type so the deployment is served by your own hybrid agents,
+# regardless of the organization default. Changing agent_type switches the
+# existing deployment in place.
+resource "dagsterplus_deployment" "staging" {
+  name       = "staging"
+  agent_type = "HYBRID"
 }
 
 output "prod_deployment_id" {
@@ -28,6 +37,10 @@ output "prod_deployment_id" {
 ### Required
 
 - `name` (String) The name of the deployment. Changing this forces a new resource.
+
+### Optional
+
+- `agent_type` (String) The type of agent that serves the deployment. Omit to use the organization's default agent type. Changing this switches the existing deployment in place (the equivalent of "Switch to hybrid" in the UI). Valid values: `HYBRID`, `SERVERLESS`.
 
 ### Read-Only
 

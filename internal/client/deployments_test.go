@@ -13,6 +13,7 @@ func mockDeployment() map[string]any {
 		"deploymentId":   42,
 		"deploymentName": "prod",
 		"deploymentType": "PROD",
+		"agentType":      "HYBRID",
 	}
 }
 
@@ -25,8 +26,8 @@ func TestCreateDeployment_Success(t *testing.T) {
 		if b.Variables["name"] != "prod" {
 			t.Errorf("name = %v, want prod", b.Variables["name"])
 		}
-		if b.Variables["agentType"] != "SERVERLESS" {
-			t.Errorf("agentType = %v, want SERVERLESS", b.Variables["agentType"])
+		if b.Variables["agentType"] != "HYBRID" {
+			t.Errorf("agentType = %v, want HYBRID", b.Variables["agentType"])
 		}
 		gqlOK(w, map[string]any{
 			"createDeployment": map[string]any{
@@ -34,12 +35,13 @@ func TestCreateDeployment_Success(t *testing.T) {
 				"deploymentId":   99,
 				"deploymentName": "prod",
 				"deploymentType": "PROD",
+				"agentType":      "HYBRID",
 			},
 		})
 	}))
 	defer srv.Close()
 
-	dep, err := newClient(srv).CreateDeployment(context.Background(), "prod")
+	dep, err := newClient(srv).CreateDeployment(context.Background(), "prod", "HYBRID")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -52,6 +54,58 @@ func TestCreateDeployment_Success(t *testing.T) {
 	if dep.IntID != 99 {
 		t.Errorf("IntID = %d, want 99", dep.IntID)
 	}
+	if dep.AgentType != "HYBRID" {
+		t.Errorf("AgentType = %q, want HYBRID", dep.AgentType)
+	}
+}
+
+// An empty agent type must be sent as null so the organization default applies,
+// rather than being coerced into an invalid empty enum value.
+func TestCreateDeployment_OmittedAgentType(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b := parseBody(t, r)
+		if got, ok := b.Variables["agentType"]; !ok || got != nil {
+			t.Errorf("agentType = %#v, want null", got)
+		}
+		gqlOK(w, map[string]any{
+			"createDeployment": map[string]any{
+				"__typename":     "DagsterCloudDeployment",
+				"deploymentId":   99,
+				"deploymentName": "prod",
+				"deploymentType": "PROD",
+				"agentType":      "SERVERLESS",
+			},
+		})
+	}))
+	defer srv.Close()
+
+	dep, err := newClient(srv).CreateDeployment(context.Background(), "prod", "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if dep.AgentType != "SERVERLESS" {
+		t.Errorf("AgentType = %q, want SERVERLESS", dep.AgentType)
+	}
+}
+
+func TestCreateDeployment_DuplicateDeploymentError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gqlOK(w, map[string]any{
+			"createDeployment": map[string]any{
+				"__typename": "DuplicateDeploymentError",
+				"message":    "deployment prod already exists",
+			},
+		})
+	}))
+	defer srv.Close()
+
+	_, err := newClient(srv).CreateDeployment(context.Background(), "prod", "HYBRID")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "deployment prod already exists") {
+		t.Errorf("error should include API message, got: %v", err)
+	}
 }
 
 func TestCreateDeployment_GraphQLError(t *testing.T) {
@@ -60,7 +114,7 @@ func TestCreateDeployment_GraphQLError(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	_, err := newClient(srv).CreateDeployment(context.Background(), "prod")
+	_, err := newClient(srv).CreateDeployment(context.Background(), "prod", "SERVERLESS")
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -77,7 +131,7 @@ func TestCreateDeployment_NilDeployment(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	_, err := newClient(srv).CreateDeployment(context.Background(), "prod")
+	_, err := newClient(srv).CreateDeployment(context.Background(), "prod", "SERVERLESS")
 	if err == nil {
 		t.Fatal("expected error for nil deployment, got nil")
 	}
@@ -107,6 +161,9 @@ func TestListDeployments_Success(t *testing.T) {
 	}
 	if deps[0].IntID != 42 {
 		t.Errorf("IntID = %d, want 42", deps[0].IntID)
+	}
+	if deps[0].AgentType != "HYBRID" {
+		t.Errorf("AgentType = %q, want HYBRID", deps[0].AgentType)
 	}
 }
 
@@ -207,5 +264,92 @@ func TestDeleteDeployment_Error(t *testing.T) {
 	err := newClient(srv).DeleteDeployment(context.Background(), "prod")
 	if err == nil {
 		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestUpdateDeploymentAgentType_Success(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b := parseBody(t, r)
+		calls++
+		if calls == 1 {
+			// First: ListDeployments to resolve the integer ID.
+			if !strings.Contains(b.Query, "ListDeployments") {
+				t.Errorf("expected ListDeployments query, got: %s", b.Query)
+			}
+			gqlOK(w, map[string]any{"deployments": []any{mockDeployment()}})
+			return
+		}
+		if !strings.Contains(b.Query, "UpdateDeploymentAgentType") {
+			t.Errorf("expected UpdateDeploymentAgentType mutation, got: %s", b.Query)
+		}
+		if b.Variables["id"] != float64(42) {
+			t.Errorf("id = %v, want 42", b.Variables["id"])
+		}
+		if b.Variables["agentType"] != "SERVERLESS" {
+			t.Errorf("agentType = %v, want SERVERLESS", b.Variables["agentType"])
+		}
+		gqlOK(w, map[string]any{
+			"updateDeploymentAgentType": map[string]any{
+				"__typename":     "DagsterCloudDeployment",
+				"deploymentId":   42,
+				"deploymentName": "prod",
+				"deploymentType": "PROD",
+				"agentType":      "SERVERLESS",
+			},
+		})
+	}))
+	defer srv.Close()
+
+	dep, err := newClient(srv).UpdateDeploymentAgentType(context.Background(), "prod", "SERVERLESS")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if dep.AgentType != "SERVERLESS" {
+		t.Errorf("AgentType = %q, want SERVERLESS", dep.AgentType)
+	}
+	if dep.IntID != 42 {
+		t.Errorf("IntID = %d, want 42", dep.IntID)
+	}
+}
+
+func TestUpdateDeploymentAgentType_NotFoundError(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if calls == 1 {
+			gqlOK(w, map[string]any{"deployments": []any{mockDeployment()}})
+			return
+		}
+		gqlOK(w, map[string]any{
+			"updateDeploymentAgentType": map[string]any{
+				"__typename": "DeploymentNotFoundError",
+				"message":    "deployment 42 not found",
+			},
+		})
+	}))
+	defer srv.Close()
+
+	_, err := newClient(srv).UpdateDeploymentAgentType(context.Background(), "prod", "SERVERLESS")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "deployment 42 not found") {
+		t.Errorf("error should include API message, got: %v", err)
+	}
+}
+
+func TestUpdateDeploymentAgentType_UnknownDeployment(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gqlOK(w, map[string]any{"deployments": []any{}})
+	}))
+	defer srv.Close()
+
+	_, err := newClient(srv).UpdateDeploymentAgentType(context.Background(), "missing", "HYBRID")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "not found") {
+		t.Errorf("error should mention not found, got: %v", err)
 	}
 }

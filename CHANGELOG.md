@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Breaking Changes
+- `dagsterplus_deployment`: when `agent_type` is omitted, the provider no longer forces `SERVERLESS` — it omits the agent type from `createDeployment` so the organization's default applies. In organizations whose default is `SERVERLESS` (any org with Serverless enabled) behavior is unchanged; in an organization whose default is `HYBRID`, deployments created without `agent_type` now come up `HYBRID` instead of `SERVERLESS`. Existing deployments already in state are unaffected — only newly created deployments follow the org default. **Migration:** if you rely on new deployments being Serverless, set `agent_type = "SERVERLESS"` explicitly on your `dagsterplus_deployment` blocks. ([#47](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/47))
+
+### Added
+- `dagsterplus_deployment`: new optional `agent_type` attribute (`HYBRID` or `SERVERLESS`) that selects which kind of agent serves the deployment, so hybrid-only organizations no longer have to click **Switch to hybrid** in the UI after every apply that creates a deployment. Changing `agent_type` on an existing deployment switches it **in place** via the `updateDeploymentAgentType` mutation (the same action as the UI button) — the deployment is not destroyed and recreated. ([#47](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/47))
+- `dagsterplus_deployment`, `dagsterplus_deployment` / `dagsterplus_deployments` data sources: new computed `agent_type` attribute reporting the deployment's current agent type.
+- `dagsterplus_deployment`: create failures now surface the API's error message (e.g. duplicate deployment name, deployment limit reached, unauthorized) instead of an opaque `unexpected result type` message.
+
+### Changed
+- `dagsterplus_deployment` / `dagsterplus_deployments` data sources: corrected the `type` attribute description, which claimed the values were `SERVERLESS`/`HYBRID`/`BRANCH`. The API returns the deployment type (`PRODUCTION` or `BRANCH`); the agent type is reported by the new `agent_type` attribute. Description only — no schema or value change.
+
 ## [0.1.10] - 2026-07-23
 
 ### Fixed

@@ -33,8 +33,9 @@ output "deployment_names" {
 
 Read-Only:
 
+- `agent_type` (String) The type of agent that serves the deployment: `HYBRID` or `SERVERLESS`.
 - `deployment_id` (String) The numeric deployment ID as a decimal string.
 - `id` (String) Deployment identifier (same as name).
 - `name` (String) The deployment name.
 - `status` (String) The deployment status.
-- `type` (String) The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.
+- `type` (String) The deployment type: `PRODUCTION` or `BRANCH`.

@@ -19,6 +19,7 @@ func TestAccDeploymentDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.dagsterplus_deployment.test", "id"),
 					resource.TestCheckResourceAttrSet("data.dagsterplus_deployment.test", "status"),
 					resource.TestCheckResourceAttrSet("data.dagsterplus_deployment.test", "deployment_id"),
+					resource.TestCheckResourceAttrSet("data.dagsterplus_deployment.test", "agent_type"),
 				),
 			},
 		},
