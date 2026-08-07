@@ -39,6 +39,7 @@ output "policy_names" {
 
 Read-Only:
 
+- `agent_downtime` (Attributes List) Agent downtime configuration (populated when policy_type = agent_downtime and a renotify interval is set). (see [below for nested schema](#nestedatt--alert_policies--agent_downtime))
 - `asset` (Attributes List) Asset-specific configuration (populated when policy_type = asset). (see [below for nested schema](#nestedatt--alert_policies--asset))
 - `automation` (Attributes List) Automation-specific configuration (populated when policy_type = automation). (see [below for nested schema](#nestedatt--alert_policies--automation))
 - `budget` (Attributes List) Budget-specific configuration (populated when policy_type = budget). (see [below for nested schema](#nestedatt--alert_policies--budget))
@@ -51,8 +52,16 @@ Read-Only:
 - `insight_metric` (Attributes List) Insight metric-specific configuration (populated when policy_type = insight_metric). (see [below for nested schema](#nestedatt--alert_policies--insight_metric))
 - `name` (String) The alert policy name.
 - `notification_service` (Attributes) The notification channel configured for this alert policy. (see [below for nested schema](#nestedatt--alert_policies--notification_service))
-- `policy_type` (String) The category of alert policy: asset, run, code_location, automation, budget, or insight_metric.
+- `policy_type` (String) The category of alert policy: asset, run, code_location, automation, agent_downtime, budget, or insight_metric.
 - `run` (Attributes List) Run-specific configuration (populated when policy_type = run). (see [below for nested schema](#nestedatt--alert_policies--run))
+
+<a id="nestedatt--alert_policies--agent_downtime"></a>
+### Nested Schema for `alert_policies.agent_downtime`
+
+Read-Only:
+
+- `renotify_interval_minutes` (Number) Minutes between repeat notifications while the agent remains unavailable.
+
 
 <a id="nestedatt--alert_policies--asset"></a>
 ### Nested Schema for `alert_policies.asset`

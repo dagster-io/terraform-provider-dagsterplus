@@ -298,6 +298,37 @@ resource "dagsterplus_alert_policy" "code_location" {
   }
 }
 
+# Two agent downtime policies so the integration cycle covers both shapes: without the
+# optional block, and with a renotify interval. The no-block variant is the one that would
+# expose a drift bug, since the API returns no renotify value for it.
+resource "dagsterplus_alert_policy" "agent_downtime" {
+  deployment  = dagsterplus_deployment.test.name
+  name        = "acc-tf-agent-downtime-alerts"
+  policy_type = "agent_downtime"
+  enabled     = true
+
+  notification_service {
+    type            = "email"
+    email_addresses = ["dennis@dagsterlabs.com"]
+  }
+}
+
+resource "dagsterplus_alert_policy" "agent_downtime_renotify" {
+  deployment  = dagsterplus_deployment.test.name
+  name        = "acc-tf-agent-downtime-renotify-alerts"
+  policy_type = "agent_downtime"
+  enabled     = true
+
+  agent_downtime {
+    renotify_interval_minutes = 30
+  }
+
+  notification_service {
+    type            = "email"
+    email_addresses = ["dennis@dagsterlabs.com"]
+  }
+}
+
 resource "dagsterplus_alert_policy" "asset_health" {
   deployment  = "prod"
   name        = "asset-health-alerts"

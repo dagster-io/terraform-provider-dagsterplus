@@ -543,3 +543,200 @@ func containsString(slice []string, s string) bool {
 	}
 	return false
 }
+
+// --- agent_downtime ---
+
+func makeAgentDowntimeModel(block []AgentDowntimeConfigModel) AlertPolicyResourceModel {
+	return AlertPolicyResourceModel{
+		Name:          strPtr("test-agent-policy"),
+		Description:   strPtr(""),
+		PolicyType:    strPtr("agent_downtime"),
+		Enabled:       types.BoolValue(true),
+		AgentDowntime: block,
+		NotificationService: NotificationServiceModel{
+			Type:                  strPtr("email"),
+			EmailAddresses:        types.ListValueMust(types.StringType, []attr.Value{strPtr("ops@example.com")}),
+			DefaultEmailAddresses: types.ListNull(types.StringType),
+			SlackWorkspaceName:    types.StringNull(),
+			SlackChannelName:      types.StringNull(),
+			WebhookURL:            types.StringNull(),
+			IntegrationKey:        types.StringNull(),
+		},
+	}
+}
+
+func TestModelToPolicy_AgentDowntimeWithRenotify(t *testing.T) {
+	model := makeAgentDowntimeModel([]AgentDowntimeConfigModel{
+		{RenotifyIntervalMinutes: types.Int64Value(30)},
+	})
+
+	policy, diags := modelToPolicy(context.Background(), model)
+	if diags.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", diags)
+	}
+	if policy.AgentDowntime == nil {
+		t.Fatal("AgentDowntime is nil, want non-nil")
+	}
+	if policy.AgentDowntime.RenotifyIntervalMinutes != 30 {
+		t.Errorf("RenotifyIntervalMinutes = %d, want 30", policy.AgentDowntime.RenotifyIntervalMinutes)
+	}
+	if len(policy.EventTypes) != 1 || policy.EventTypes[0] != "AGENT_UNAVAILABLE" {
+		t.Errorf("EventTypes = %v, want [AGENT_UNAVAILABLE]", policy.EventTypes)
+	}
+}
+
+func TestModelToPolicy_AgentDowntimeWithoutBlock(t *testing.T) {
+	model := makeAgentDowntimeModel(nil)
+
+	policy, diags := modelToPolicy(context.Background(), model)
+	if diags.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", diags)
+	}
+	if policy.AgentDowntime != nil {
+		t.Errorf("AgentDowntime = %+v, want nil when the block is omitted", policy.AgentDowntime)
+	}
+	if policy.PolicyType != "agent_downtime" {
+		t.Errorf("PolicyType = %q, want agent_downtime", policy.PolicyType)
+	}
+}
+
+func TestPolicyToModel_AgentDowntimeWithRenotify(t *testing.T) {
+	policy := &client.AlertPolicy{
+		Name:          "agent-policy",
+		Enabled:       true,
+		EventTypes:    []string{"AGENT_UNAVAILABLE"},
+		AgentDowntime: &client.AgentDowntimeAlertConfig{RenotifyIntervalMinutes: 45},
+		NotificationService: client.AlertPolicyNotification{
+			Type: "email", EmailAddresses: []string{"ops@example.com"},
+		},
+	}
+	model := &AlertPolicyResourceModel{
+		Deployment: strPtr("prod"),
+		PolicyType: strPtr("agent_downtime"),
+	}
+
+	PolicyToModel(policy, model)
+
+	if len(model.AgentDowntime) != 1 {
+		t.Fatalf("len(AgentDowntime) = %d, want 1", len(model.AgentDowntime))
+	}
+	if got := model.AgentDowntime[0].RenotifyIntervalMinutes.ValueInt64(); got != 45 {
+		t.Errorf("RenotifyIntervalMinutes = %d, want 45", got)
+	}
+}
+
+// A policy with no renotify interval must render as zero blocks. Emitting an empty block
+// here would diff forever against a config that legitimately omits it.
+func TestPolicyToModel_AgentDowntimeWithoutRenotifyEmitsNoBlock(t *testing.T) {
+	policy := &client.AlertPolicy{
+		Name:       "agent-policy",
+		Enabled:    true,
+		EventTypes: []string{"AGENT_UNAVAILABLE"},
+		NotificationService: client.AlertPolicyNotification{
+			Type: "email", EmailAddresses: []string{"ops@example.com"},
+		},
+	}
+	model := &AlertPolicyResourceModel{
+		Deployment: strPtr("prod"),
+		PolicyType: strPtr("agent_downtime"),
+	}
+
+	PolicyToModel(policy, model)
+
+	if len(model.AgentDowntime) != 0 {
+		t.Errorf("len(AgentDowntime) = %d, want 0", len(model.AgentDowntime))
+	}
+}
+
+// On import policy_type is empty and must be inferred. Agent downtime policies carry no
+// alert target and, without a renotify interval, no config struct either — so they can only
+// be recognised by event type. Getting this wrong imports them as "asset".
+func TestPolicyToModel_AgentDowntimeInferredOnImport(t *testing.T) {
+	for _, tt := range []struct {
+		name   string
+		config *client.AgentDowntimeAlertConfig
+	}{
+		{"with renotify", &client.AgentDowntimeAlertConfig{RenotifyIntervalMinutes: 10}},
+		{"without renotify", nil},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			policy := &client.AlertPolicy{
+				Name:          "agent-policy",
+				Enabled:       true,
+				EventTypes:    []string{"AGENT_UNAVAILABLE"},
+				AgentDowntime: tt.config,
+				// The client defaults this for every policy; it must not pull the
+				// inference toward "asset".
+				AlertTargetType: "all_assets",
+				NotificationService: client.AlertPolicyNotification{
+					Type: "email", EmailAddresses: []string{"ops@example.com"},
+				},
+			}
+			model := &AlertPolicyResourceModel{Deployment: strPtr("prod")}
+
+			PolicyToModel(policy, model)
+
+			if model.PolicyType.ValueString() != "agent_downtime" {
+				t.Errorf("PolicyType = %q, want agent_downtime", model.PolicyType.ValueString())
+			}
+			if len(model.Asset) != 0 {
+				t.Errorf("len(Asset) = %d, want 0 — asset block leaked into an agent policy", len(model.Asset))
+			}
+		})
+	}
+}
+
+// Switching a resource's policy_type must not leave the previous type's block in state.
+func TestPolicyToModel_AgentDowntimeClearsOtherBlocks(t *testing.T) {
+	policy := &client.AlertPolicy{
+		Name:          "agent-policy",
+		Enabled:       true,
+		EventTypes:    []string{"AGENT_UNAVAILABLE"},
+		AgentDowntime: &client.AgentDowntimeAlertConfig{RenotifyIntervalMinutes: 5},
+		NotificationService: client.AlertPolicyNotification{
+			Type: "email", EmailAddresses: []string{"ops@example.com"},
+		},
+	}
+	model := &AlertPolicyResourceModel{
+		Deployment:   strPtr("prod"),
+		PolicyType:   strPtr("agent_downtime"),
+		CodeLocation: []CodeLocationConfigModel{{AllLocations: types.BoolValue(true)}},
+		Budget:       []BudgetConfigModel{{Threshold: types.Float64Value(1)}},
+	}
+
+	PolicyToModel(policy, model)
+
+	if len(model.CodeLocation) != 0 {
+		t.Errorf("len(CodeLocation) = %d, want 0", len(model.CodeLocation))
+	}
+	if len(model.Budget) != 0 {
+		t.Errorf("len(Budget) = %d, want 0", len(model.Budget))
+	}
+	if len(model.AgentDowntime) != 1 {
+		t.Errorf("len(AgentDowntime) = %d, want 1", len(model.AgentDowntime))
+	}
+}
+
+// The reverse of the above: a non-agent policy must not retain a stale agent_downtime block.
+func TestPolicyToModel_NonAgentClearsAgentDowntimeBlock(t *testing.T) {
+	policy := &client.AlertPolicy{
+		Name:         "cl-policy",
+		Enabled:      true,
+		EventTypes:   []string{"CODE_LOCATION_ERROR"},
+		CodeLocation: &client.CodeLocationAlertConfig{AllLocations: true},
+		NotificationService: client.AlertPolicyNotification{
+			Type: "email", EmailAddresses: []string{"ops@example.com"},
+		},
+	}
+	model := &AlertPolicyResourceModel{
+		Deployment:    strPtr("prod"),
+		PolicyType:    strPtr("code_location"),
+		AgentDowntime: []AgentDowntimeConfigModel{{RenotifyIntervalMinutes: types.Int64Value(30)}},
+	}
+
+	PolicyToModel(policy, model)
+
+	if len(model.AgentDowntime) != 0 {
+		t.Errorf("len(AgentDowntime) = %d, want 0", len(model.AgentDowntime))
+	}
+}

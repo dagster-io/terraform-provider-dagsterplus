@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
@@ -44,6 +45,7 @@ type AlertPolicyResourceModel struct {
 	Run                 []RunConfigModel           `tfsdk:"run"`
 	CodeLocation        []CodeLocationConfigModel  `tfsdk:"code_location"`
 	Automation          []AutomationConfigModel    `tfsdk:"automation"`
+	AgentDowntime       []AgentDowntimeConfigModel `tfsdk:"agent_downtime"`
 	Budget              []BudgetConfigModel        `tfsdk:"budget"`
 	InsightMetric       []InsightMetricConfigModel `tfsdk:"insight_metric"`
 	NotificationService NotificationServiceModel   `tfsdk:"notification_service"`
@@ -79,6 +81,10 @@ type AutomationConfigModel struct {
 	IncludeSchedules       types.Bool  `tfsdk:"include_schedules"`
 	IncludeSensors         types.Bool  `tfsdk:"include_sensors"`
 	MinConsecutiveFailures types.Int64 `tfsdk:"min_consecutive_failures"`
+}
+
+type AgentDowntimeConfigModel struct {
+	RenotifyIntervalMinutes types.Int64 `tfsdk:"renotify_interval_minutes"`
 }
 
 type BudgetConfigModel struct {
@@ -383,6 +389,25 @@ func (r *alertPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest
 							Optional:    true,
 							Validators: []validator.Int64{
 								int64validator.Between(1, 100),
+							},
+						},
+					},
+				},
+			},
+			"agent_downtime": schema.ListNestedBlock{
+				Description: "Agent downtime configuration. Use when policy_type = agent_downtime. At most one block is allowed. " +
+					"Agent downtime policies always apply to every agent in the deployment and take no target, so this block " +
+					"exists solely to set a renotify interval — omit it entirely if you do not want one. " +
+					"Note that only Hybrid deployments run agents; the API accepts this policy type on a Serverless deployment, " +
+					"but it will never fire there.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"renotify_interval_minutes": schema.Int64Attribute{
+							Description: "Re-send the notification every N minutes while the agent remains unavailable. " +
+								"Required when this block is present.",
+							Required: true,
+							Validators: []validator.Int64{
+								int64validator.AtLeast(1),
 							},
 						},
 					},
@@ -729,6 +754,13 @@ func modelToPolicy(ctx context.Context, model AlertPolicyResourceModel) (client.
 		}
 		policy.EventTypes = []string{"TICK_FAILURE"}
 
+	} else if len(model.AgentDowntime) > 0 {
+		a := model.AgentDowntime[0]
+		policy.AgentDowntime = &client.AgentDowntimeAlertConfig{
+			RenotifyIntervalMinutes: int(a.RenotifyIntervalMinutes.ValueInt64()),
+		}
+		policy.EventTypes = []string{"AGENT_UNAVAILABLE"}
+
 	} else if len(model.Budget) > 0 {
 		b := model.Budget[0]
 		policy.Budget = &client.BudgetAlertConfig{
@@ -801,6 +833,11 @@ func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) 
 	policyType := model.PolicyType.ValueString()
 	if policyType == "" {
 		switch {
+		// Agent downtime policies have no alert target and, unless a renotify interval
+		// is set, no config struct either. They must be identified by event type or they
+		// would fall through to the "asset" default below and import as the wrong type.
+		case slices.Contains(policy.EventTypes, "AGENT_UNAVAILABLE"):
+			policyType = "agent_downtime"
 		case policy.Run != nil:
 			policyType = "run"
 		case policy.CodeLocation != nil:
@@ -816,6 +853,18 @@ func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) 
 		}
 		model.PolicyType = types.StringValue(policyType)
 	}
+
+	// Policy-type blocks are mutually exclusive, so clear all of them up front and let
+	// each case populate only its own. Clearing per-case instead would mean every new
+	// policy type has to be added to every other case to avoid leaving a stale block
+	// behind, which surfaces as a spurious diff.
+	model.Asset = []AssetConfigModel{}
+	model.Run = []RunConfigModel{}
+	model.CodeLocation = []CodeLocationConfigModel{}
+	model.Automation = []AutomationConfigModel{}
+	model.AgentDowntime = []AgentDowntimeConfigModel{}
+	model.Budget = []BudgetConfigModel{}
+	model.InsightMetric = []InsightMetricConfigModel{}
 
 	switch policyType {
 	case "asset":
@@ -854,79 +903,39 @@ func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) 
 		}
 
 		model.Asset = []AssetConfigModel{a}
-		model.Run = []RunConfigModel{}
-		model.CodeLocation = []CodeLocationConfigModel{}
-		model.Automation = []AutomationConfigModel{}
-		model.Budget = []BudgetConfigModel{}
-		model.InsightMetric = []InsightMetricConfigModel{}
 
 	case "run":
-		model.Asset = []AssetConfigModel{}
 		if policy.Run != nil {
 			model.Run = []RunConfigModel{runToModel(policy.Run)}
-		} else {
-			model.Run = []RunConfigModel{}
 		}
-		model.CodeLocation = []CodeLocationConfigModel{}
-		model.Automation = []AutomationConfigModel{}
-		model.Budget = []BudgetConfigModel{}
-		model.InsightMetric = []InsightMetricConfigModel{}
 
 	case "code_location":
-		model.Asset = []AssetConfigModel{}
-		model.Run = []RunConfigModel{}
 		if policy.CodeLocation != nil {
 			model.CodeLocation = []CodeLocationConfigModel{codeLocationToModel(policy.CodeLocation)}
-		} else {
-			model.CodeLocation = []CodeLocationConfigModel{}
 		}
-		model.Automation = []AutomationConfigModel{}
-		model.Budget = []BudgetConfigModel{}
-		model.InsightMetric = []InsightMetricConfigModel{}
 
 	case "automation":
-		model.Asset = []AssetConfigModel{}
-		model.Run = []RunConfigModel{}
-		model.CodeLocation = []CodeLocationConfigModel{}
 		if policy.Automation != nil {
 			model.Automation = []AutomationConfigModel{automationToModel(policy.Automation)}
-		} else {
-			model.Automation = []AutomationConfigModel{}
 		}
-		model.Budget = []BudgetConfigModel{}
-		model.InsightMetric = []InsightMetricConfigModel{}
+
+	case "agent_downtime":
+		// The client only populates AgentDowntime when the API returned a renotify
+		// interval, so a policy created without one round-trips as an absent block
+		// rather than an empty one that would diff against the user's config forever.
+		if policy.AgentDowntime != nil {
+			model.AgentDowntime = []AgentDowntimeConfigModel{agentDowntimeToModel(policy.AgentDowntime)}
+		}
 
 	case "budget":
-		model.Asset = []AssetConfigModel{}
-		model.Run = []RunConfigModel{}
-		model.CodeLocation = []CodeLocationConfigModel{}
-		model.Automation = []AutomationConfigModel{}
 		if policy.Budget != nil {
 			model.Budget = []BudgetConfigModel{budgetToModel(policy.Budget)}
-		} else {
-			model.Budget = []BudgetConfigModel{}
 		}
-		model.InsightMetric = []InsightMetricConfigModel{}
 
 	case "insight_metric":
-		model.Asset = []AssetConfigModel{}
-		model.Run = []RunConfigModel{}
-		model.CodeLocation = []CodeLocationConfigModel{}
-		model.Automation = []AutomationConfigModel{}
-		model.Budget = []BudgetConfigModel{}
 		if policy.InsightMetric != nil {
 			model.InsightMetric = []InsightMetricConfigModel{insightMetricToModel(policy.InsightMetric)}
-		} else {
-			model.InsightMetric = []InsightMetricConfigModel{}
 		}
-
-	default:
-		model.Asset = []AssetConfigModel{}
-		model.Run = []RunConfigModel{}
-		model.CodeLocation = []CodeLocationConfigModel{}
-		model.Automation = []AutomationConfigModel{}
-		model.Budget = []BudgetConfigModel{}
-		model.InsightMetric = []InsightMetricConfigModel{}
 	}
 
 	// Notification service.
@@ -1048,6 +1057,12 @@ func automationToModel(a *client.AutomationAlertConfig) AutomationConfigModel {
 		m.SchedulesAndSensors = types.ListValueMust(types.StringType, elems)
 	}
 	return m
+}
+
+func agentDowntimeToModel(a *client.AgentDowntimeAlertConfig) AgentDowntimeConfigModel {
+	return AgentDowntimeConfigModel{
+		RenotifyIntervalMinutes: types.Int64Value(int64(a.RenotifyIntervalMinutes)),
+	}
 }
 
 func budgetToModel(b *client.BudgetAlertConfig) BudgetConfigModel {

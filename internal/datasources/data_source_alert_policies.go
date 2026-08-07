@@ -65,7 +65,7 @@ func (d *alertPoliciesDataSource) Schema(_ context.Context, _ datasource.SchemaR
 							Computed:    true,
 						},
 						"policy_type": schema.StringAttribute{
-							Description: "The category of alert policy: asset, run, code_location, automation, budget, or insight_metric.",
+							Description: "The category of alert policy: asset, run, code_location, automation, agent_downtime, budget, or insight_metric.",
 							Computed:    true,
 						},
 						"enabled": schema.BoolAttribute{
@@ -189,6 +189,18 @@ func (d *alertPoliciesDataSource) Schema(_ context.Context, _ datasource.SchemaR
 									},
 									"min_consecutive_failures": schema.Int64Attribute{
 										Description: "Minimum consecutive failures before alerting.",
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"agent_downtime": schema.ListNestedAttribute{
+							Description: "Agent downtime configuration (populated when policy_type = agent_downtime and a renotify interval is set).",
+							Computed:    true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"renotify_interval_minutes": schema.Int64Attribute{
+										Description: "Minutes between repeat notifications while the agent remains unavailable.",
 										Computed:    true,
 									},
 								},
