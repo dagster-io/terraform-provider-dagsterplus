@@ -6,6 +6,7 @@ fragment AlertPolicyFields on AlertPolicy {
   eventTypes
   policyOptions {
     consecutiveFailureThreshold
+    renotifyIntervalMinutes
   }
   alertTargets {
     __typename

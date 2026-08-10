@@ -173,3 +173,40 @@ resource "dagsterplus_alert_policy" "weekly_credits" {
     slack_channel_name   = "#platform-costs"
   }
 }
+
+# Agent downtime policy — triggers when a Hybrid agent stops heartbeating.
+#
+# Only Hybrid deployments run agents. The API accepts this policy type on a
+# Serverless deployment, but it will never fire there.
+resource "dagsterplus_alert_policy" "agent_downtime" {
+  deployment  = "prod"
+  name        = "agent-downtime"
+  policy_type = "agent_downtime"
+  enabled     = true
+
+  # Agent downtime policies always cover every agent in the deployment, so
+  # there is no target to configure and no `agent_downtime` block is required.
+
+  notification_service {
+    type            = "email"
+    email_addresses = ["oncall@example.com"]
+  }
+}
+
+# Agent downtime policy with repeat notifications while the agent stays down.
+resource "dagsterplus_alert_policy" "agent_downtime_renotify" {
+  deployment  = "prod"
+  name        = "agent-downtime-paging"
+  policy_type = "agent_downtime"
+  enabled     = true
+
+  # Add this block only to set a renotify interval — omit it entirely otherwise.
+  agent_downtime {
+    renotify_interval_minutes = 30
+  }
+
+  notification_service {
+    type            = "pagerduty"
+    integration_key = "0123456789abcdef0123456789abcdef"
+  }
+}

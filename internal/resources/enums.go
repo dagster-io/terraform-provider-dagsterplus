@@ -24,7 +24,7 @@ var (
 	externalAssetConnectionTypes = []string{"SNOWFLAKE", "BIGQUERY", "POSTGRES", "DATABRICKS"}
 
 	// alertPolicyTypes are the categories of alert policy.
-	alertPolicyTypes = []string{"asset", "run", "code_location", "automation", "budget", "insight_metric"}
+	alertPolicyTypes = []string{"asset", "run", "code_location", "automation", "agent_downtime", "budget", "insight_metric"}
 
 	// alertComparisonOperators are the threshold comparison operators.
 	alertComparisonOperators = []string{"greater_than", "less_than"}

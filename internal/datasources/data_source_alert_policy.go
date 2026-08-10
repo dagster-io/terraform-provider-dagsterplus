@@ -28,6 +28,7 @@ type alertPolicyDataSourceModel struct {
 	Run                 []resources.RunConfigModel           `tfsdk:"run"`
 	CodeLocation        []resources.CodeLocationConfigModel  `tfsdk:"code_location"`
 	Automation          []resources.AutomationConfigModel    `tfsdk:"automation"`
+	AgentDowntime       []resources.AgentDowntimeConfigModel `tfsdk:"agent_downtime"`
 	Budget              []resources.BudgetConfigModel        `tfsdk:"budget"`
 	InsightMetric       []resources.InsightMetricConfigModel `tfsdk:"insight_metric"`
 	NotificationService *resources.NotificationServiceModel  `tfsdk:"notification_service"`
@@ -62,7 +63,7 @@ func (d *alertPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Required:    true,
 			},
 			"policy_type": schema.StringAttribute{
-				Description: "The category of alert policy: asset, run, code_location, automation, budget, or insight_metric.",
+				Description: "The category of alert policy: asset, run, code_location, automation, agent_downtime, budget, or insight_metric.",
 				Required:    true,
 			},
 			"description": schema.StringAttribute{
@@ -188,6 +189,17 @@ func (d *alertPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 						},
 						"min_consecutive_failures": schema.Int64Attribute{
 							Description: "Minimum consecutive failures before alerting.",
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"agent_downtime": schema.ListNestedBlock{
+				Description: "Agent downtime configuration (populated when policy_type = agent_downtime and a renotify interval is set).",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"renotify_interval_minutes": schema.Int64Attribute{
+							Description: "Minutes between repeat notifications while the agent remains unavailable.",
 							Computed:    true,
 						},
 					},
@@ -345,6 +357,7 @@ func (d *alertPolicyDataSource) Read(ctx context.Context, req datasource.ReadReq
 	config.Run = rm.Run
 	config.CodeLocation = rm.CodeLocation
 	config.Automation = rm.Automation
+	config.AgentDowntime = rm.AgentDowntime
 	config.Budget = rm.Budget
 	config.InsightMetric = rm.InsightMetric
 	config.NotificationService = &rm.NotificationService

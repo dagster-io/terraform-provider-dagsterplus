@@ -40,7 +40,7 @@ output "prod_deployment_id" {
 
 ### Optional
 
-- `agent_type` (String) The type of agent that serves the deployment. Omit to use the organization's default agent type. Changing this switches the existing deployment in place (the equivalent of "Switch to hybrid" in the UI). Valid values: `HYBRID`, `SERVERLESS`.
+- `agent_type` (String) The type of agent that serves the deployment. Omit to use the organization's default agent type. **Setting or changing this on a deployment that already exists switches its agent type in place** — the equivalent of "Switch to hybrid" in the UI — which changes where the deployment's code runs. Terraform shows this as an ordinary in-place attribute update, not a replacement, so review plans on production deployments carefully. Once set, this attribute cannot be cleared back to "use the organization default": removing it from your configuration leaves the last applied value in state. Valid values: `HYBRID`, `SERVERLESS`.
 
 ### Read-Only
 

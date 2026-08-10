@@ -73,6 +73,23 @@ func mockAutomationPolicyRaw(name string) map[string]any {
 	}
 }
 
+// mockAgentDowntimePolicyRaw builds an AGENT_UNAVAILABLE policy. renotify is the value the
+// API returns for renotifyIntervalMinutes; pass 0 to model the null the API sends when no
+// interval is configured (genqlient decodes a null Int to 0).
+func mockAgentDowntimePolicyRaw(name string, renotify int) map[string]any {
+	return map[string]any{
+		"id": "policy-id-" + name, "name": name, "description": "",
+		"enabled": true, "eventTypes": []any{"AGENT_UNAVAILABLE"},
+		"policyOptions": map[string]any{
+			"consecutiveFailureThreshold": 0,
+			"renotifyIntervalMinutes":     renotify,
+		},
+		// Agent downtime policies never carry a target.
+		"alertTargets":        []any{},
+		"notificationService": mockEmailNotification(),
+	}
+}
+
 func mockBudgetPolicyRaw(name string) map[string]any {
 	return map[string]any{
 		"id": "policy-id-" + name, "name": name, "description": "",
@@ -404,6 +421,147 @@ func TestListAlertPolicies_ParseAutomationPolicy(t *testing.T) {
 	}
 	if p.Automation.MinConsecutiveFailures != 3 {
 		t.Errorf("MinConsecutiveFailures = %d, want 3", p.Automation.MinConsecutiveFailures)
+	}
+}
+
+func TestListAlertPolicies_ParseAgentDowntimePolicy(t *testing.T) {
+	srv := newListSrv([]any{mockAgentDowntimePolicyRaw("agent-policy", 30)})
+	defer srv.Close()
+
+	policies, err := newClient(srv).ListAlertPolicies(context.Background(), "prod")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	p := policies[0]
+	if p.AgentDowntime == nil {
+		t.Fatal("AgentDowntime is nil, want non-nil")
+	}
+	if p.AgentDowntime.RenotifyIntervalMinutes != 30 {
+		t.Errorf("RenotifyIntervalMinutes = %d, want 30", p.AgentDowntime.RenotifyIntervalMinutes)
+	}
+	if len(p.EventTypes) != 1 || p.EventTypes[0] != "AGENT_UNAVAILABLE" {
+		t.Errorf("EventTypes = %v, want [AGENT_UNAVAILABLE]", p.EventTypes)
+	}
+}
+
+// A policy with no renotify interval must leave AgentDowntime nil, so the provider renders
+// an absent block rather than an empty one that would diff against the user's config forever.
+func TestListAlertPolicies_ParseAgentDowntimePolicyWithoutRenotify(t *testing.T) {
+	srv := newListSrv([]any{mockAgentDowntimePolicyRaw("agent-policy", 0)})
+	defer srv.Close()
+
+	policies, err := newClient(srv).ListAlertPolicies(context.Background(), "prod")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if policies[0].AgentDowntime != nil {
+		t.Errorf("AgentDowntime = %+v, want nil when the API returns no renotify interval", policies[0].AgentDowntime)
+	}
+}
+
+// Only AGENT_UNAVAILABLE policies should pick up renotifyIntervalMinutes. The field is read
+// from the shared fragment for every policy type, so a non-agent policy that happens to have
+// one set must not be misread as an agent downtime policy.
+func TestListAlertPolicies_RenotifyIgnoredOnNonAgentPolicy(t *testing.T) {
+	raw := mockCodeLocationPolicyRaw("cl-policy")
+	raw["policyOptions"] = map[string]any{
+		"consecutiveFailureThreshold": 0,
+		"renotifyIntervalMinutes":     15,
+	}
+	srv := newListSrv([]any{raw})
+	defer srv.Close()
+
+	policies, err := newClient(srv).ListAlertPolicies(context.Background(), "prod")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if policies[0].AgentDowntime != nil {
+		t.Errorf("AgentDowntime = %+v, want nil for a code_location policy", policies[0].AgentDowntime)
+	}
+	if policies[0].CodeLocation == nil {
+		t.Error("CodeLocation is nil, want non-nil")
+	}
+}
+
+func TestCreateOrUpdateAlertPolicy_AgentDowntimeDocument(t *testing.T) {
+	tests := []struct {
+		name         string
+		config       *client.AgentDowntimeAlertConfig
+		wantRenotify any // nil means policy_options must be absent entirely
+	}{
+		{"with renotify", &client.AgentDowntimeAlertConfig{RenotifyIntervalMinutes: 30}, float64(30)},
+		{"without block", nil, nil},
+		// A zero interval is rejected at the schema layer, but guard the client too: the
+		// API accepts 0 and then reports it back as null, which would never round-trip.
+		{"zero renotify", &client.AgentDowntimeAlertConfig{RenotifyIntervalMinutes: 0}, nil},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var callCount int
+			var mutationVars map[string]any
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				callCount++
+				if callCount == 1 {
+					mutationVars = parseBody(t, r).Variables
+					gqlOK(w, map[string]any{
+						"createOrUpdateAlertPolicyFromDocument": map[string]any{
+							"__typename": "AlertPolicy", "id": "policy-id", "name": "agent-policy",
+						},
+					})
+					return
+				}
+				gqlOK(w, map[string]any{"alertPolicies": []any{mockAgentDowntimePolicyRaw("agent-policy", 30)}})
+			}))
+			defer srv.Close()
+
+			policy := client.AlertPolicy{
+				Name:          "agent-policy",
+				PolicyType:    "agent_downtime",
+				Enabled:       true,
+				AgentDowntime: tt.config,
+				NotificationService: client.AlertPolicyNotification{
+					Type:           "email",
+					EmailAddresses: []string{"ops@example.com"},
+				},
+			}
+
+			if _, err := newClient(srv).CreateOrUpdateAlertPolicy(context.Background(), "prod", policy); err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			doc, ok := mutationVars["document"].(map[string]any)
+			if !ok {
+				t.Fatalf("document var is not a map: %T", mutationVars["document"])
+			}
+
+			events, ok := doc["event_types"].([]any)
+			if !ok || len(events) != 1 || events[0] != "AGENT_UNAVAILABLE" {
+				t.Errorf("event_types = %v, want [AGENT_UNAVAILABLE]", doc["event_types"])
+			}
+
+			// The API treats an absent alert_targets key as "all agents"; sending an
+			// explicit empty list is unnecessary and sending a target is invalid.
+			if _, present := doc["alert_targets"]; present {
+				t.Errorf("alert_targets = %v, want the key to be absent", doc["alert_targets"])
+			}
+
+			opts, present := doc["policy_options"]
+			if tt.wantRenotify == nil {
+				if present {
+					t.Errorf("policy_options = %v, want the key to be absent", opts)
+				}
+				return
+			}
+			optsMap, ok := opts.(map[string]any)
+			if !ok {
+				t.Fatalf("policy_options missing or wrong type: %T", opts)
+			}
+			if optsMap["renotify_interval_minutes"] != tt.wantRenotify {
+				t.Errorf("renotify_interval_minutes = %v, want %v",
+					optsMap["renotify_interval_minutes"], tt.wantRenotify)
+			}
+		})
 	}
 }
 
