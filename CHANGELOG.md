@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Added
+- `dagsterplus_alert_policy`: new `agent_downtime` policy type, covering the last alert policy type available in the Dagster+ UI that the provider could not manage. Set `policy_type = "agent_downtime"` to alert when a Hybrid agent stops heartbeating. These policies always apply to every agent in the deployment and take no target, so no configuration block is required. An optional `agent_downtime` block with a required `renotify_interval_minutes` (>= 1) re-sends the notification while the agent remains unavailable; omit the block entirely if you do not want one. Note that only Hybrid deployments run agents — the API accepts this policy type on a Serverless deployment, but it will never fire there. `agent_downtime` is a new value added to the `policy_type` enum, so existing configs are unaffected. ([#49](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/49))
+- `dagsterplus_alert_policy` / `dagsterplus_alert_policies` data sources: both now expose the `agent_downtime` block.
+
 ## [0.1.10] - 2026-07-23
 
 ### Fixed

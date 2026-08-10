@@ -14,7 +14,7 @@ type AlertPolicy struct {
 	ID                  string
 	Name                string
 	Description         string
-	PolicyType          string // "asset" | "run" | "code_location" | "automation" | "budget" | "insight_metric"
+	PolicyType          string // "asset" | "run" | "code_location" | "automation" | "agent_downtime" | "budget" | "insight_metric"
 	Enabled             bool
 	EventTypes          []string
 	AlertTargetType     string // "all_assets" | "asset_selection" | "asset_key"
@@ -23,6 +23,7 @@ type AlertPolicy struct {
 	Run                 *RunAlertConfig
 	CodeLocation        *CodeLocationAlertConfig
 	Automation          *AutomationAlertConfig
+	AgentDowntime       *AgentDowntimeAlertConfig
 	Budget              *BudgetAlertConfig
 	InsightMetric       *InsightMetricAlertConfig
 }
@@ -71,6 +72,15 @@ type AutomationAlertConfig struct {
 	IncludeSchedules       bool
 	IncludeSensors         bool
 	MinConsecutiveFailures int
+}
+
+// AgentDowntimeAlertConfig holds the configuration for an agent_downtime-type alert policy.
+//
+// Agent downtime policies have no alert target — they always apply to the deployment's
+// agents — so the renotify interval is the only tunable. The config is nil unless the
+// interval is set.
+type AgentDowntimeAlertConfig struct {
+	RenotifyIntervalMinutes int
 }
 
 // BudgetAlertConfig holds the configuration for a budget-type alert policy.
@@ -262,6 +272,20 @@ func alertFieldsToPolicy(f schema.AlertPolicyFields) AlertPolicy {
 		}
 	}
 
+	// Agent downtime policies carry no alert target, so they are detected from the
+	// event type rather than the target loop above. The config is only populated when
+	// a renotify interval is set; a zero interval means the API returned null, which
+	// must round-trip as an absent block.
+	var agentCfg *AgentDowntimeAlertConfig
+	for _, et := range eventTypes {
+		if et == "AGENT_UNAVAILABLE" && f.PolicyOptions.RenotifyIntervalMinutes > 0 {
+			agentCfg = &AgentDowntimeAlertConfig{
+				RenotifyIntervalMinutes: f.PolicyOptions.RenotifyIntervalMinutes,
+			}
+			break
+		}
+	}
+
 	// Set OnSuccess/OnFailure on run config from event types.
 	if runCfg != nil {
 		for _, et := range eventTypes {
@@ -286,6 +310,7 @@ func alertFieldsToPolicy(f schema.AlertPolicyFields) AlertPolicy {
 		Run:                 runCfg,
 		CodeLocation:        codeCfg,
 		Automation:          autoCfg,
+		AgentDowntime:       agentCfg,
 		Budget:              budgetCfg,
 		InsightMetric:       insightCfg,
 	}
@@ -473,6 +498,17 @@ func buildPolicyDoc(policy AlertPolicy) map[string]any {
 				doc["policy_options"] = map[string]any{
 					"consecutive_failure_threshold": policy.Automation.MinConsecutiveFailures,
 				}
+			}
+		}
+
+	case "agent_downtime":
+		// No alert_targets key: the API treats an absent key as "all agents" and
+		// returns an empty target list. Only Hybrid deployments run agents, so this
+		// policy is accepted but inert on Serverless.
+		doc["event_types"] = []string{"AGENT_UNAVAILABLE"}
+		if policy.AgentDowntime != nil && policy.AgentDowntime.RenotifyIntervalMinutes > 0 {
+			doc["policy_options"] = map[string]any{
+				"renotify_interval_minutes": policy.AgentDowntime.RenotifyIntervalMinutes,
 			}
 		}
 

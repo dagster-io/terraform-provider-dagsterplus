@@ -775,3 +775,109 @@ resource "dagsterplus_alert_policy" "test" {
 }
 `, name, deployment, enabled, metric, operator, threshold, periodDays)
 }
+
+// TestAccAlertPolicyResource_agentDowntime tests create, update, and destroy for an agent
+// downtime alert policy.
+//
+// The transitions between "no agent_downtime block" and "block with a renotify interval"
+// are the point of this test: the API returns no renotify value when none is set, so the
+// provider must render zero blocks in that case. Emitting an empty block instead would show
+// up here as a non-empty plan after apply.
+//
+// Note that agent downtime alerts only fire on Hybrid deployments. The API accepts the
+// policy on Serverless, so this exercises the full CRUD and import path, but it does not
+// and cannot verify that an alert is ever delivered.
+func TestAccAlertPolicyResource_agentDowntime(t *testing.T) {
+	rName := "acc-tf-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlpha)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckAlertPolicyDestroyed(testAccAlertDeployment, rName),
+		Steps: []resource.TestStep{
+			// Create without the optional block.
+			{
+				Config: providerConfig() + testAccAlertPolicyAgentDowntimeConfig(
+					rName, testAccAlertDeployment, true, 0,
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "name", rName),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "deployment", testAccAlertDeployment),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "policy_type", "agent_downtime"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "enabled", "true"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "event_types.#", "1"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "event_types.0", "AGENT_UNAVAILABLE"),
+					// No renotify interval was set, so no block should come back.
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "agent_downtime.#", "0"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "notification_service.type", "email"),
+					resource.TestCheckResourceAttrSet("dagsterplus_alert_policy.test", "id"),
+				),
+			},
+			// Add a renotify interval.
+			{
+				Config: providerConfig() + testAccAlertPolicyAgentDowntimeConfig(
+					rName, testAccAlertDeployment, true, 30,
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "agent_downtime.#", "1"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "agent_downtime.0.renotify_interval_minutes", "30"),
+				),
+			},
+			// Change it.
+			{
+				Config: providerConfig() + testAccAlertPolicyAgentDowntimeConfig(
+					rName, testAccAlertDeployment, true, 60,
+				),
+				Check: resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "agent_downtime.0.renotify_interval_minutes", "60"),
+			},
+			// Remove it again. The mutation is a full replace, so dropping policy_options
+			// must clear the interval server-side rather than leave the old value behind.
+			{
+				Config: providerConfig() + testAccAlertPolicyAgentDowntimeConfig(
+					rName, testAccAlertDeployment, false, 0,
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "enabled", "false"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "agent_downtime.#", "0"),
+				),
+			},
+			// Import by {deployment}/{name}. This also covers the inference path: with no
+			// alert target and no renotify interval, policy_type can only be recovered
+			// from the event type.
+			{
+				ResourceName:      "dagsterplus_alert_policy.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// policy_type is not returned by the API so it cannot be verified after import.
+				ImportStateVerifyIgnore: []string{"policy_type"},
+			},
+		},
+	})
+}
+
+// testAccAlertPolicyAgentDowntimeConfig returns HCL for an agent downtime alert policy.
+// A renotifyMinutes of 0 omits the agent_downtime block entirely.
+func testAccAlertPolicyAgentDowntimeConfig(name, deployment string, enabled bool, renotifyMinutes int) string {
+	block := ""
+	if renotifyMinutes > 0 {
+		block = fmt.Sprintf(`
+  agent_downtime {
+    renotify_interval_minutes = %d
+  }
+`, renotifyMinutes)
+	}
+
+	return fmt.Sprintf(`
+resource "dagsterplus_alert_policy" "test" {
+  name        = %q
+  deployment  = %q
+  policy_type = "agent_downtime"
+  enabled     = %t
+%s
+  notification_service {
+    type            = "email"
+    email_addresses = ["acc-test@example.com"]
+  }
+}
+`, name, deployment, enabled, block)
+}

@@ -2120,11 +2120,17 @@ func (v *AlertPolicyFieldsNotificationServiceWebhookAlertPolicyNotificationHeade
 // AlertPolicyFieldsPolicyOptionsAlertPolicyOptions includes the requested fields of the GraphQL type AlertPolicyOptions.
 type AlertPolicyFieldsPolicyOptionsAlertPolicyOptions struct {
 	ConsecutiveFailureThreshold int `json:"consecutiveFailureThreshold"`
+	RenotifyIntervalMinutes     int `json:"renotifyIntervalMinutes"`
 }
 
 // GetConsecutiveFailureThreshold returns AlertPolicyFieldsPolicyOptionsAlertPolicyOptions.ConsecutiveFailureThreshold, and is useful for accessing the field via an interface.
 func (v *AlertPolicyFieldsPolicyOptionsAlertPolicyOptions) GetConsecutiveFailureThreshold() int {
 	return v.ConsecutiveFailureThreshold
+}
+
+// GetRenotifyIntervalMinutes returns AlertPolicyFieldsPolicyOptionsAlertPolicyOptions.RenotifyIntervalMinutes, and is useful for accessing the field via an interface.
+func (v *AlertPolicyFieldsPolicyOptionsAlertPolicyOptions) GetRenotifyIntervalMinutes() int {
+	return v.RenotifyIntervalMinutes
 }
 
 // CreateAgentTokenCreateAgentTokenCreateAgentTokenResult includes the requested fields of the GraphQL interface CreateAgentTokenResult.
@@ -21776,6 +21782,7 @@ fragment AlertPolicyFields on AlertPolicy {
 	eventTypes
 	policyOptions {
 		consecutiveFailureThreshold
+		renotifyIntervalMinutes
 	}
 	alertTargets {
 		__typename

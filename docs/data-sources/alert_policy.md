@@ -36,10 +36,11 @@ output "event_types" {
 
 - `deployment` (String) The name of the deployment the alert policy belongs to.
 - `name` (String) The name of the alert policy to look up.
-- `policy_type` (String) The category of alert policy: asset, run, code_location, automation, budget, or insight_metric.
+- `policy_type` (String) The category of alert policy: asset, run, code_location, automation, agent_downtime, budget, or insight_metric.
 
 ### Read-Only
 
+- `agent_downtime` (Block List) Agent downtime configuration (populated when policy_type = agent_downtime and a renotify interval is set). (see [below for nested schema](#nestedblock--agent_downtime))
 - `asset` (Block List) Asset-specific configuration (populated when policy_type = asset). (see [below for nested schema](#nestedblock--asset))
 - `automation` (Block List) Automation-specific configuration (populated when policy_type = automation). (see [below for nested schema](#nestedblock--automation))
 - `budget` (Block List) Budget-specific configuration (populated when policy_type = budget). (see [below for nested schema](#nestedblock--budget))
@@ -51,6 +52,14 @@ output "event_types" {
 - `insight_metric` (Block List) Insight metric-specific configuration (populated when policy_type = insight_metric). (see [below for nested schema](#nestedblock--insight_metric))
 - `notification_service` (Block, Read-only) The notification channel configured for this alert policy. (see [below for nested schema](#nestedblock--notification_service))
 - `run` (Block List) Run-specific configuration (populated when policy_type = run). (see [below for nested schema](#nestedblock--run))
+
+<a id="nestedblock--agent_downtime"></a>
+### Nested Schema for `agent_downtime`
+
+Read-Only:
+
+- `renotify_interval_minutes` (Number) Minutes between repeat notifications while the agent remains unavailable.
+
 
 <a id="nestedblock--asset"></a>
 ### Nested Schema for `asset`
