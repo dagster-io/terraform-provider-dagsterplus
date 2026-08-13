@@ -2819,6 +2819,11 @@ func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) GetDeploymentSt
 	return v.DeploymentFields.DeploymentStatus
 }
 
+// GetAgentType returns CreateDeploymentCreateDeploymentDagsterCloudDeployment.AgentType, and is useful for accessing the field via an interface.
+func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) GetAgentType() DeploymentAgentType {
+	return v.DeploymentFields.AgentType
+}
+
 func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2854,6 +2859,8 @@ type __premarshalCreateDeploymentCreateDeploymentDagsterCloudDeployment struct {
 	DeploymentType DagsterCloudDeploymentType `json:"deploymentType"`
 
 	DeploymentStatus DeploymentStatus `json:"deploymentStatus"`
+
+	AgentType DeploymentAgentType `json:"agentType"`
 }
 
 func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) MarshalJSON() ([]byte, error) {
@@ -2872,12 +2879,14 @@ func (v *CreateDeploymentCreateDeploymentDagsterCloudDeployment) __premarshalJSO
 	retval.DeploymentName = v.DeploymentFields.DeploymentName
 	retval.DeploymentType = v.DeploymentFields.DeploymentType
 	retval.DeploymentStatus = v.DeploymentFields.DeploymentStatus
+	retval.AgentType = v.DeploymentFields.AgentType
 	return &retval, nil
 }
 
 // CreateDeploymentCreateDeploymentDeploymentLimitError includes the requested fields of the GraphQL type DeploymentLimitError.
 type CreateDeploymentCreateDeploymentDeploymentLimitError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns CreateDeploymentCreateDeploymentDeploymentLimitError.Typename, and is useful for accessing the field via an interface.
@@ -2885,9 +2894,13 @@ func (v *CreateDeploymentCreateDeploymentDeploymentLimitError) GetTypename() str
 	return v.Typename
 }
 
+// GetMessage returns CreateDeploymentCreateDeploymentDeploymentLimitError.Message, and is useful for accessing the field via an interface.
+func (v *CreateDeploymentCreateDeploymentDeploymentLimitError) GetMessage() string { return v.Message }
+
 // CreateDeploymentCreateDeploymentDeploymentNotFoundError includes the requested fields of the GraphQL type DeploymentNotFoundError.
 type CreateDeploymentCreateDeploymentDeploymentNotFoundError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns CreateDeploymentCreateDeploymentDeploymentNotFoundError.Typename, and is useful for accessing the field via an interface.
@@ -2895,9 +2908,15 @@ func (v *CreateDeploymentCreateDeploymentDeploymentNotFoundError) GetTypename() 
 	return v.Typename
 }
 
+// GetMessage returns CreateDeploymentCreateDeploymentDeploymentNotFoundError.Message, and is useful for accessing the field via an interface.
+func (v *CreateDeploymentCreateDeploymentDeploymentNotFoundError) GetMessage() string {
+	return v.Message
+}
+
 // CreateDeploymentCreateDeploymentDuplicateDeploymentError includes the requested fields of the GraphQL type DuplicateDeploymentError.
 type CreateDeploymentCreateDeploymentDuplicateDeploymentError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns CreateDeploymentCreateDeploymentDuplicateDeploymentError.Typename, and is useful for accessing the field via an interface.
@@ -2905,21 +2924,34 @@ func (v *CreateDeploymentCreateDeploymentDuplicateDeploymentError) GetTypename()
 	return v.Typename
 }
 
+// GetMessage returns CreateDeploymentCreateDeploymentDuplicateDeploymentError.Message, and is useful for accessing the field via an interface.
+func (v *CreateDeploymentCreateDeploymentDuplicateDeploymentError) GetMessage() string {
+	return v.Message
+}
+
 // CreateDeploymentCreateDeploymentPythonError includes the requested fields of the GraphQL type PythonError.
 type CreateDeploymentCreateDeploymentPythonError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns CreateDeploymentCreateDeploymentPythonError.Typename, and is useful for accessing the field via an interface.
 func (v *CreateDeploymentCreateDeploymentPythonError) GetTypename() string { return v.Typename }
 
+// GetMessage returns CreateDeploymentCreateDeploymentPythonError.Message, and is useful for accessing the field via an interface.
+func (v *CreateDeploymentCreateDeploymentPythonError) GetMessage() string { return v.Message }
+
 // CreateDeploymentCreateDeploymentUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
 type CreateDeploymentCreateDeploymentUnauthorizedError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns CreateDeploymentCreateDeploymentUnauthorizedError.Typename, and is useful for accessing the field via an interface.
 func (v *CreateDeploymentCreateDeploymentUnauthorizedError) GetTypename() string { return v.Typename }
+
+// GetMessage returns CreateDeploymentCreateDeploymentUnauthorizedError.Message, and is useful for accessing the field via an interface.
+func (v *CreateDeploymentCreateDeploymentUnauthorizedError) GetMessage() string { return v.Message }
 
 // CreateDeploymentResponse is returned by CreateDeployment on success.
 type CreateDeploymentResponse struct {
@@ -8392,6 +8424,7 @@ type DeploymentFields struct {
 	DeploymentName   string                     `json:"deploymentName"`
 	DeploymentType   DagsterCloudDeploymentType `json:"deploymentType"`
 	DeploymentStatus DeploymentStatus           `json:"deploymentStatus"`
+	AgentType        DeploymentAgentType        `json:"agentType"`
 }
 
 // GetDeploymentId returns DeploymentFields.DeploymentId, and is useful for accessing the field via an interface.
@@ -8405,6 +8438,9 @@ func (v *DeploymentFields) GetDeploymentType() DagsterCloudDeploymentType { retu
 
 // GetDeploymentStatus returns DeploymentFields.DeploymentStatus, and is useful for accessing the field via an interface.
 func (v *DeploymentFields) GetDeploymentStatus() DeploymentStatus { return v.DeploymentStatus }
+
+// GetAgentType returns DeploymentFields.AgentType, and is useful for accessing the field via an interface.
+func (v *DeploymentFields) GetAgentType() DeploymentAgentType { return v.AgentType }
 
 // An enumeration.
 type DeploymentStatus string
@@ -11008,6 +11044,11 @@ func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) GetDeploymentStatus()
 	return v.DeploymentFields.DeploymentStatus
 }
 
+// GetAgentType returns ListDeploymentsDeploymentsDagsterCloudDeployment.AgentType, and is useful for accessing the field via an interface.
+func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) GetAgentType() DeploymentAgentType {
+	return v.DeploymentFields.AgentType
+}
+
 func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -11041,6 +11082,8 @@ type __premarshalListDeploymentsDeploymentsDagsterCloudDeployment struct {
 	DeploymentType DagsterCloudDeploymentType `json:"deploymentType"`
 
 	DeploymentStatus DeploymentStatus `json:"deploymentStatus"`
+
+	AgentType DeploymentAgentType `json:"agentType"`
 }
 
 func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) MarshalJSON() ([]byte, error) {
@@ -11058,6 +11101,7 @@ func (v *ListDeploymentsDeploymentsDagsterCloudDeployment) __premarshalJSON() (*
 	retval.DeploymentName = v.DeploymentFields.DeploymentName
 	retval.DeploymentType = v.DeploymentFields.DeploymentType
 	retval.DeploymentStatus = v.DeploymentFields.DeploymentStatus
+	retval.AgentType = v.DeploymentFields.AgentType
 	return &retval, nil
 }
 
@@ -17295,6 +17339,328 @@ func (v *UpdateCustomMetricUpdateCustomMetricUpdateCustomMetricSuccessCustomMetr
 	return v.UpdateTimestamp
 }
 
+// UpdateDeploymentAgentTypeResponse is returned by UpdateDeploymentAgentType on success.
+type UpdateDeploymentAgentTypeResponse struct {
+	// Change a deployment from HYBRID to SERVERLESS or vice versa.
+	UpdateDeploymentAgentType UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult `json:"-"`
+}
+
+// GetUpdateDeploymentAgentType returns UpdateDeploymentAgentTypeResponse.UpdateDeploymentAgentType, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeResponse) GetUpdateDeploymentAgentType() UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult {
+	return v.UpdateDeploymentAgentType
+}
+
+func (v *UpdateDeploymentAgentTypeResponse) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateDeploymentAgentTypeResponse
+		UpdateDeploymentAgentType json.RawMessage `json:"updateDeploymentAgentType"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateDeploymentAgentTypeResponse = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.UpdateDeploymentAgentType
+		src := firstPass.UpdateDeploymentAgentType
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal UpdateDeploymentAgentTypeResponse.UpdateDeploymentAgentType: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalUpdateDeploymentAgentTypeResponse struct {
+	UpdateDeploymentAgentType json.RawMessage `json:"updateDeploymentAgentType"`
+}
+
+func (v *UpdateDeploymentAgentTypeResponse) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateDeploymentAgentTypeResponse) __premarshalJSON() (*__premarshalUpdateDeploymentAgentTypeResponse, error) {
+	var retval __premarshalUpdateDeploymentAgentTypeResponse
+
+	{
+
+		dst := &retval.UpdateDeploymentAgentType
+		src := v.UpdateDeploymentAgentType
+		var err error
+		*dst, err = __marshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal UpdateDeploymentAgentTypeResponse.UpdateDeploymentAgentType: %w", err)
+		}
+	}
+	return &retval, nil
+}
+
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment includes the requested fields of the GraphQL type DagsterCloudDeployment.
+type UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment struct {
+	Typename         string `json:"__typename"`
+	DeploymentFields `json:"-"`
+}
+
+// GetTypename returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) GetTypename() string {
+	return v.Typename
+}
+
+// GetDeploymentId returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment.DeploymentId, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) GetDeploymentId() int {
+	return v.DeploymentFields.DeploymentId
+}
+
+// GetDeploymentName returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment.DeploymentName, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) GetDeploymentName() string {
+	return v.DeploymentFields.DeploymentName
+}
+
+// GetDeploymentType returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment.DeploymentType, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) GetDeploymentType() DagsterCloudDeploymentType {
+	return v.DeploymentFields.DeploymentType
+}
+
+// GetDeploymentStatus returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment.DeploymentStatus, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) GetDeploymentStatus() DeploymentStatus {
+	return v.DeploymentFields.DeploymentStatus
+}
+
+// GetAgentType returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment.AgentType, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) GetAgentType() DeploymentAgentType {
+	return v.DeploymentFields.AgentType
+}
+
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.DeploymentFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment struct {
+	Typename string `json:"__typename"`
+
+	DeploymentId int `json:"deploymentId"`
+
+	DeploymentName string `json:"deploymentName"`
+
+	DeploymentType DagsterCloudDeploymentType `json:"deploymentType"`
+
+	DeploymentStatus DeploymentStatus `json:"deploymentStatus"`
+
+	AgentType DeploymentAgentType `json:"agentType"`
+}
+
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) __premarshalJSON() (*__premarshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment, error) {
+	var retval __premarshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment
+
+	retval.Typename = v.Typename
+	retval.DeploymentId = v.DeploymentFields.DeploymentId
+	retval.DeploymentName = v.DeploymentFields.DeploymentName
+	retval.DeploymentType = v.DeploymentFields.DeploymentType
+	retval.DeploymentStatus = v.DeploymentFields.DeploymentStatus
+	retval.AgentType = v.DeploymentFields.AgentType
+	return &retval, nil
+}
+
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError includes the requested fields of the GraphQL type DeploymentNotFoundError.
+type UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError struct {
+	Typename string `json:"__typename"`
+	Message  string `json:"message"`
+}
+
+// GetTypename returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError) GetTypename() string {
+	return v.Typename
+}
+
+// GetMessage returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError.Message, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError) GetMessage() string {
+	return v.Message
+}
+
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError includes the requested fields of the GraphQL type PythonError.
+type UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError struct {
+	Typename string `json:"__typename"`
+	Message  string `json:"message"`
+}
+
+// GetTypename returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError) GetTypename() string {
+	return v.Typename
+}
+
+// GetMessage returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError.Message, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError) GetMessage() string {
+	return v.Message
+}
+
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
+type UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError struct {
+	Typename string `json:"__typename"`
+	Message  string `json:"message"`
+}
+
+// GetTypename returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError.Typename, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError) GetTypename() string {
+	return v.Typename
+}
+
+// GetMessage returns UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError.Message, and is useful for accessing the field via an interface.
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError) GetMessage() string {
+	return v.Message
+}
+
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult includes the requested fields of the GraphQL interface UpdateDeploymentAgentTypeResult.
+//
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult is implemented by the following types:
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError
+// UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError
+type UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult interface {
+	implementsGraphQLInterfaceUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+}
+
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment) implementsGraphQLInterfaceUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult() {
+}
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError) implementsGraphQLInterfaceUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult() {
+}
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError) implementsGraphQLInterfaceUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult() {
+}
+func (v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError) implementsGraphQLInterfaceUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult() {
+}
+
+func __unmarshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult(b []byte, v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "DagsterCloudDeployment":
+		*v = new(UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment)
+		return json.Unmarshal(b, *v)
+	case "DeploymentNotFoundError":
+		*v = new(UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError)
+		return json.Unmarshal(b, *v)
+	case "PythonError":
+		*v = new(UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError)
+		return json.Unmarshal(b, *v)
+	case "UnauthorizedError":
+		*v = new(UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing UpdateDeploymentAgentTypeResult.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult(v *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment:
+		typename = "DagsterCloudDeployment"
+
+		premarshaled, err := v.__premarshalJSON()
+		if err != nil {
+			return nil, err
+		}
+		result := struct {
+			TypeName string `json:"__typename"`
+			*__premarshalUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment
+		}{typename, premarshaled}
+		return json.Marshal(result)
+	case *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError:
+		typename = "DeploymentNotFoundError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError
+		}{typename, v}
+		return json.Marshal(result)
+	case *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError:
+		typename = "PythonError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError
+		}{typename, v}
+		return json.Marshal(result)
+	case *UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError:
+		typename = "UnauthorizedError"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUpdateDeploymentAgentTypeResult: "%T"`, v)
+	}
+}
+
 // UpdateExternalAssetConnectionResponse is returned by UpdateExternalAssetConnection on success.
 type UpdateExternalAssetConnectionResponse struct {
 	UpdateExternalAssetConnection UpdateExternalAssetConnectionUpdateExternalAssetConnectionUpdateExternalAssetConnectionMutationResult `json:"-"`
@@ -19229,15 +19595,15 @@ func (v *__CreateCustomMetricInput) GetDescription() string { return v.Descripti
 
 // __CreateDeploymentInput is used internally by genqlient
 type __CreateDeploymentInput struct {
-	Name      string              `json:"name"`
-	AgentType DeploymentAgentType `json:"agentType"`
+	Name      string               `json:"name"`
+	AgentType *DeploymentAgentType `json:"agentType"`
 }
 
 // GetName returns __CreateDeploymentInput.Name, and is useful for accessing the field via an interface.
 func (v *__CreateDeploymentInput) GetName() string { return v.Name }
 
 // GetAgentType returns __CreateDeploymentInput.AgentType, and is useful for accessing the field via an interface.
-func (v *__CreateDeploymentInput) GetAgentType() DeploymentAgentType { return v.AgentType }
+func (v *__CreateDeploymentInput) GetAgentType() *DeploymentAgentType { return v.AgentType }
 
 // __CreateExternalAssetConnectionInput is used internally by genqlient
 type __CreateExternalAssetConnectionInput struct {
@@ -19819,6 +20185,18 @@ func (v *__UpdateCustomMetricInput) GetDisplayName() string { return v.DisplayNa
 // GetDescription returns __UpdateCustomMetricInput.Description, and is useful for accessing the field via an interface.
 func (v *__UpdateCustomMetricInput) GetDescription() string { return v.Description }
 
+// __UpdateDeploymentAgentTypeInput is used internally by genqlient
+type __UpdateDeploymentAgentTypeInput struct {
+	Id        int                 `json:"id"`
+	AgentType DeploymentAgentType `json:"agentType"`
+}
+
+// GetId returns __UpdateDeploymentAgentTypeInput.Id, and is useful for accessing the field via an interface.
+func (v *__UpdateDeploymentAgentTypeInput) GetId() int { return v.Id }
+
+// GetAgentType returns __UpdateDeploymentAgentTypeInput.AgentType, and is useful for accessing the field via an interface.
+func (v *__UpdateDeploymentAgentTypeInput) GetAgentType() DeploymentAgentType { return v.AgentType }
+
 // __UpdateExternalAssetConnectionInput is used internally by genqlient
 type __UpdateExternalAssetConnectionInput struct {
 	Id               string `json:"id"`
@@ -20194,11 +20572,26 @@ func CreateCustomMetric(
 
 // The mutation executed by CreateDeployment.
 const CreateDeployment_Operation = `
-mutation CreateDeployment ($name: String!, $agentType: DeploymentAgentType!) {
+mutation CreateDeployment ($name: String!, $agentType: DeploymentAgentType) {
 	createDeployment(deploymentName: $name, deploymentAgentType: $agentType) {
 		__typename
 		... on DagsterCloudDeployment {
 			... DeploymentFields
+		}
+		... on DeploymentNotFoundError {
+			message
+		}
+		... on UnauthorizedError {
+			message
+		}
+		... on DuplicateDeploymentError {
+			message
+		}
+		... on DeploymentLimitError {
+			message
+		}
+		... on PythonError {
+			message
 		}
 	}
 }
@@ -20207,6 +20600,7 @@ fragment DeploymentFields on DagsterCloudDeployment {
 	deploymentName
 	deploymentType
 	deploymentStatus
+	agentType
 }
 `
 
@@ -20214,7 +20608,7 @@ func CreateDeployment(
 	ctx_ context.Context,
 	client_ graphql.Client,
 	name string,
-	agentType DeploymentAgentType,
+	agentType *DeploymentAgentType,
 ) (data_ *CreateDeploymentResponse, err_ error) {
 	req_ := &graphql.Request{
 		OpName: "CreateDeployment",
@@ -22032,6 +22426,7 @@ fragment DeploymentFields on DagsterCloudDeployment {
 	deploymentName
 	deploymentType
 	deploymentStatus
+	agentType
 }
 `
 
@@ -23317,6 +23712,61 @@ func UpdateCustomMetric(
 	}
 
 	data_ = &UpdateCustomMetricResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateDeploymentAgentType.
+const UpdateDeploymentAgentType_Operation = `
+mutation UpdateDeploymentAgentType ($id: Int!, $agentType: DeploymentAgentType!) {
+	updateDeploymentAgentType(deploymentId: $id, deploymentAgentType: $agentType) {
+		__typename
+		... on DagsterCloudDeployment {
+			... DeploymentFields
+		}
+		... on DeploymentNotFoundError {
+			message
+		}
+		... on UnauthorizedError {
+			message
+		}
+		... on PythonError {
+			message
+		}
+	}
+}
+fragment DeploymentFields on DagsterCloudDeployment {
+	deploymentId
+	deploymentName
+	deploymentType
+	deploymentStatus
+	agentType
+}
+`
+
+func UpdateDeploymentAgentType(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	id int,
+	agentType DeploymentAgentType,
+) (data_ *UpdateDeploymentAgentTypeResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateDeploymentAgentType",
+		Query:  UpdateDeploymentAgentType_Operation,
+		Variables: &__UpdateDeploymentAgentTypeInput{
+			Id:        id,
+			AgentType: agentType,
+		},
+	}
+
+	data_ = &UpdateDeploymentAgentTypeResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

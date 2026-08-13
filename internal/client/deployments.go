@@ -9,29 +9,81 @@ import (
 
 // Deployment represents a Dagster+ deployment.
 type Deployment struct {
-	IntID  int64
-	Name   string
-	Type   string
-	Status string
+	IntID     int64
+	Name      string
+	Type      string
+	Status    string
+	AgentType string
 }
 
-// CreateDeployment creates a new serverless deployment in the organization.
-func (c *Client) CreateDeployment(ctx context.Context, name string) (*Deployment, error) {
-	resp, err := schema.CreateDeployment(ctx, c.gqlClient(""), name, schema.DeploymentAgentTypeServerless)
+// CreateDeployment creates a new deployment in the organization. An empty
+// agentType omits the agent type from the mutation, letting the organization's
+// default apply.
+func (c *Client) CreateDeployment(ctx context.Context, name, agentType string) (*Deployment, error) {
+	var agentTypeArg *schema.DeploymentAgentType
+	if agentType != "" {
+		at := schema.DeploymentAgentType(agentType)
+		agentTypeArg = &at
+	}
+
+	resp, err := schema.CreateDeployment(ctx, c.gqlClient(""), name, agentTypeArg)
 	if err != nil {
 		return nil, fmt.Errorf("CreateDeployment: %w", err)
 	}
 
 	switch r := resp.CreateDeployment.(type) {
 	case *schema.CreateDeploymentCreateDeploymentDagsterCloudDeployment:
-		return &Deployment{
-			IntID:  int64(r.DeploymentFields.DeploymentId),
-			Name:   r.DeploymentFields.DeploymentName,
-			Type:   string(r.DeploymentFields.DeploymentType),
-			Status: string(r.DeploymentFields.DeploymentStatus),
-		}, nil
+		return deploymentFromFields(&r.DeploymentFields), nil
+	case *schema.CreateDeploymentCreateDeploymentDeploymentNotFoundError:
+		return nil, fmt.Errorf("CreateDeployment: %s", r.Message)
+	case *schema.CreateDeploymentCreateDeploymentUnauthorizedError:
+		return nil, fmt.Errorf("CreateDeployment: %s", r.Message)
+	case *schema.CreateDeploymentCreateDeploymentDuplicateDeploymentError:
+		return nil, fmt.Errorf("CreateDeployment: %s", r.Message)
+	case *schema.CreateDeploymentCreateDeploymentDeploymentLimitError:
+		return nil, fmt.Errorf("CreateDeployment: %s", r.Message)
+	case *schema.CreateDeploymentCreateDeploymentPythonError:
+		return nil, fmt.Errorf("CreateDeployment: %s", r.Message)
 	default:
 		return nil, fmt.Errorf("CreateDeployment: unexpected result type %T", resp.CreateDeployment)
+	}
+}
+
+// UpdateDeploymentAgentType switches an existing deployment between HYBRID and
+// SERVERLESS, the equivalent of the "Switch to hybrid" action in the UI.
+func (c *Client) UpdateDeploymentAgentType(ctx context.Context, name, agentType string) (*Deployment, error) {
+	d, err := c.GetDeployment(ctx, name)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateDeploymentAgentType: %w", err)
+	}
+
+	resp, err := schema.UpdateDeploymentAgentType(ctx, c.gqlClient(""), int(d.IntID), schema.DeploymentAgentType(agentType))
+	if err != nil {
+		return nil, fmt.Errorf("UpdateDeploymentAgentType: %w", err)
+	}
+
+	switch r := resp.UpdateDeploymentAgentType.(type) {
+	case *schema.UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDagsterCloudDeployment:
+		return deploymentFromFields(&r.DeploymentFields), nil
+	case *schema.UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeDeploymentNotFoundError:
+		return nil, fmt.Errorf("UpdateDeploymentAgentType: %s", r.Message)
+	case *schema.UpdateDeploymentAgentTypeUpdateDeploymentAgentTypeUnauthorizedError:
+		return nil, fmt.Errorf("UpdateDeploymentAgentType: %s", r.Message)
+	case *schema.UpdateDeploymentAgentTypeUpdateDeploymentAgentTypePythonError:
+		return nil, fmt.Errorf("UpdateDeploymentAgentType: %s", r.Message)
+	default:
+		return nil, fmt.Errorf("UpdateDeploymentAgentType: unexpected result type %T", resp.UpdateDeploymentAgentType)
+	}
+}
+
+// deploymentFromFields converts the shared GraphQL fragment into the domain type.
+func deploymentFromFields(f *schema.DeploymentFields) *Deployment {
+	return &Deployment{
+		IntID:     int64(f.DeploymentId),
+		Name:      f.DeploymentName,
+		Type:      string(f.DeploymentType),
+		Status:    string(f.DeploymentStatus),
+		AgentType: string(f.AgentType),
 	}
 }
 
@@ -58,12 +110,7 @@ func (c *Client) ListDeployments(ctx context.Context) ([]Deployment, error) {
 
 	result := make([]Deployment, len(resp.Deployments))
 	for i, d := range resp.Deployments {
-		result[i] = Deployment{
-			IntID:  int64(d.DeploymentFields.DeploymentId),
-			Name:   d.DeploymentFields.DeploymentName,
-			Type:   string(d.DeploymentFields.DeploymentType),
-			Status: string(d.DeploymentFields.DeploymentStatus),
-		}
+		result[i] = *deploymentFromFields(&d.DeploymentFields)
 	}
 	return result, nil
 }

@@ -6,9 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Breaking Changes
+- `dagsterplus_deployment`: when `agent_type` is omitted, the provider no longer forces `SERVERLESS` — it omits the agent type from `createDeployment` so the organization's default applies. In organizations whose default is `SERVERLESS` (any org with Serverless enabled) behavior is unchanged; in an organization whose default is `HYBRID`, deployments created without `agent_type` now come up `HYBRID` instead of `SERVERLESS`. Existing deployments already in state are unaffected — only newly created deployments follow the org default. **Migration:** if you rely on *newly created* deployments being Serverless, set `agent_type = "SERVERLESS"` explicitly on the `dagsterplus_deployment` blocks that create them. **Do not blanket-add `agent_type` to every existing block** — on a deployment that already exists, setting `agent_type` to anything other than its current value switches its agent type in place on the next apply, changing where that deployment's code runs. Run `terraform plan` and check for `~ agent_type` lines before applying; any deployment you want left alone should keep `agent_type` omitted. ([#47](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/47))
+
 ### Added
+- `dagsterplus_deployment`: new optional `agent_type` attribute (`HYBRID` or `SERVERLESS`) that selects which kind of agent serves the deployment, so hybrid-only organizations no longer have to click **Switch to hybrid** in the UI after every apply that creates a deployment. Changing `agent_type` on an existing deployment switches it **in place** via the `updateDeploymentAgentType` mutation (the same action as the UI button) — the deployment is not destroyed and recreated. ([#47](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/47))
+- `dagsterplus_deployment`, `dagsterplus_deployment` / `dagsterplus_deployments` data sources: new computed `agent_type` attribute reporting the deployment's current agent type.
+- `dagsterplus_deployment`: create failures now surface the API's error message (e.g. duplicate deployment name, deployment limit reached, unauthorized) instead of an opaque `unexpected result type` message.
 - `dagsterplus_alert_policy`: new `agent_downtime` policy type, covering the last alert policy type available in the Dagster+ UI that the provider could not manage. Set `policy_type = "agent_downtime"` to alert when a Hybrid agent stops heartbeating. These policies always apply to every agent in the deployment and take no target, so no configuration block is required. An optional `agent_downtime` block with a required `renotify_interval_minutes` (>= 1) re-sends the notification while the agent remains unavailable; omit the block entirely if you do not want one. Note that only Hybrid deployments run agents — the API accepts this policy type on a Serverless deployment, but it will never fire there. `agent_downtime` is a new value added to the `policy_type` enum, so existing configs are unaffected. ([#49](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/49))
 - `dagsterplus_alert_policy` / `dagsterplus_alert_policies` data sources: both now expose the `agent_downtime` block.
+
+### Changed
+- `dagsterplus_deployment` / `dagsterplus_deployments` data sources: corrected the `type` attribute description, which claimed the values were `SERVERLESS`/`HYBRID`/`BRANCH`. The API returns the deployment type (`PRODUCTION` or `BRANCH`); the agent type is reported by the new `agent_type` attribute. Description only — no schema or value change.
 
 ## [0.1.10] - 2026-07-23
 

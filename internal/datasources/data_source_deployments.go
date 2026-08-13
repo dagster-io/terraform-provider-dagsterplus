@@ -52,7 +52,11 @@ func (d *deploymentsDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 							Computed:    true,
 						},
 						"type": schema.StringAttribute{
-							Description: "The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.",
+							Description: "The deployment type: `PRODUCTION` or `BRANCH`.",
+							Computed:    true,
+						},
+						"agent_type": schema.StringAttribute{
+							Description: "The type of agent that serves the deployment: `HYBRID` or `SERVERLESS`.",
 							Computed:    true,
 						},
 						"status": schema.StringAttribute{
@@ -101,6 +105,7 @@ func (d *deploymentsDataSource) Read(ctx context.Context, _ datasource.ReadReque
 			ID:           types.StringValue(dep.Name),
 			Name:         types.StringValue(dep.Name),
 			Type:         types.StringValue(dep.Type),
+			AgentType:    types.StringValue(dep.AgentType),
 			Status:       types.StringValue(dep.Status),
 			DeploymentID: types.StringValue(strconv.FormatInt(dep.IntID, 10)),
 		}

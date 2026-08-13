@@ -3,6 +3,7 @@ fragment DeploymentFields on DagsterCloudDeployment {
   deploymentName
   deploymentType
   deploymentStatus
+  agentType
 }
 
 query ListDeployments {
@@ -11,11 +12,50 @@ query ListDeployments {
   }
 }
 
-mutation CreateDeployment($name: String!, $agentType: DeploymentAgentType!) {
+mutation CreateDeployment(
+  $name: String!
+  # agentType is a pointer so the caller can pass nil to omit it entirely and
+  # let the organization's default agent type apply.
+  # @genqlient(pointer: true)
+  $agentType: DeploymentAgentType
+) {
   createDeployment(deploymentName: $name, deploymentAgentType: $agentType) {
     __typename
     ... on DagsterCloudDeployment {
       ...DeploymentFields
+    }
+    ... on DeploymentNotFoundError {
+      message
+    }
+    ... on UnauthorizedError {
+      message
+    }
+    ... on DuplicateDeploymentError {
+      message
+    }
+    ... on DeploymentLimitError {
+      message
+    }
+    ... on PythonError {
+      message
+    }
+  }
+}
+
+mutation UpdateDeploymentAgentType($id: Int!, $agentType: DeploymentAgentType!) {
+  updateDeploymentAgentType(deploymentId: $id, deploymentAgentType: $agentType) {
+    __typename
+    ... on DagsterCloudDeployment {
+      ...DeploymentFields
+    }
+    ... on DeploymentNotFoundError {
+      message
+    }
+    ... on UnauthorizedError {
+      message
+    }
+    ... on PythonError {
+      message
     }
   }
 }
