@@ -43,6 +43,12 @@ func (c *Client) AddUser(ctx context.Context, email string) (*User, error) {
 	case *schema.AddUserAddUserToOrganizationAddUserToOrganizationSuccess:
 		u := userFromFields(r.UserWithGrants.UserWithGrantsFields)
 		return &u, nil
+	case *schema.AddUserAddUserToOrganizationPythonError:
+		return nil, fmt.Errorf("AddUser: %s", r.Message)
+	case *schema.AddUserAddUserToOrganizationUnauthorizedError:
+		return nil, fmt.Errorf("AddUser: %s", r.Message)
+	case *schema.AddUserAddUserToOrganizationUserLimitError:
+		return nil, fmt.Errorf("AddUser: %s", r.Message)
 	default:
 		return nil, fmt.Errorf("AddUser: unexpected result type %T", resp.AddUserToOrganization)
 	}
