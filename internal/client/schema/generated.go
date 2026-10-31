@@ -715,26 +715,38 @@ func (v *AddUserAddUserToOrganizationAddUserToOrganizationSuccessUserWithGrantsD
 // AddUserAddUserToOrganizationPythonError includes the requested fields of the GraphQL type PythonError.
 type AddUserAddUserToOrganizationPythonError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns AddUserAddUserToOrganizationPythonError.Typename, and is useful for accessing the field via an interface.
 func (v *AddUserAddUserToOrganizationPythonError) GetTypename() string { return v.Typename }
 
+// GetMessage returns AddUserAddUserToOrganizationPythonError.Message, and is useful for accessing the field via an interface.
+func (v *AddUserAddUserToOrganizationPythonError) GetMessage() string { return v.Message }
+
 // AddUserAddUserToOrganizationUnauthorizedError includes the requested fields of the GraphQL type UnauthorizedError.
 type AddUserAddUserToOrganizationUnauthorizedError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns AddUserAddUserToOrganizationUnauthorizedError.Typename, and is useful for accessing the field via an interface.
 func (v *AddUserAddUserToOrganizationUnauthorizedError) GetTypename() string { return v.Typename }
 
+// GetMessage returns AddUserAddUserToOrganizationUnauthorizedError.Message, and is useful for accessing the field via an interface.
+func (v *AddUserAddUserToOrganizationUnauthorizedError) GetMessage() string { return v.Message }
+
 // AddUserAddUserToOrganizationUserLimitError includes the requested fields of the GraphQL type UserLimitError.
 type AddUserAddUserToOrganizationUserLimitError struct {
 	Typename string `json:"__typename"`
+	Message  string `json:"message"`
 }
 
 // GetTypename returns AddUserAddUserToOrganizationUserLimitError.Typename, and is useful for accessing the field via an interface.
 func (v *AddUserAddUserToOrganizationUserLimitError) GetTypename() string { return v.Typename }
+
+// GetMessage returns AddUserAddUserToOrganizationUserLimitError.Message, and is useful for accessing the field via an interface.
+func (v *AddUserAddUserToOrganizationUserLimitError) GetMessage() string { return v.Message }
 
 // AddUserResponse is returned by AddUser on success.
 type AddUserResponse struct {
@@ -20033,6 +20045,15 @@ mutation AddUser ($email: String!) {
 			userWithGrants {
 				... UserWithGrantsFields
 			}
+		}
+		... on PythonError {
+			message
+		}
+		... on UnauthorizedError {
+			message
+		}
+		... on UserLimitError {
+			message
 		}
 	}
 }

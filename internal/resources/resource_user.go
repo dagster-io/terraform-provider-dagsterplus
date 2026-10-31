@@ -299,8 +299,19 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	user, err := r.client.AddUser(ctx, email)
 	if err != nil {
-		resp.Diagnostics.AddError("Error inviting user", err.Error())
-		return
+		// Dagster+ can create the user and still answer with an error. Adopt the
+		// user when it now exists: otherwise it is left out of state, and every
+		// later apply fails the "already registered" check above.
+		existing, lookupErr := r.client.GetUserByEmail(ctx, email)
+		if lookupErr != nil {
+			resp.Diagnostics.AddError("Error inviting user", err.Error())
+			return
+		}
+		resp.Diagnostics.AddWarning(
+			"User created despite invite error",
+			fmt.Sprintf("Dagster+ reported an error while inviting %s, but the user exists and is now managed by Terraform: %s", email, err),
+		)
+		user = existing
 	}
 
 	plan.ID = types.StringValue(user.ID)

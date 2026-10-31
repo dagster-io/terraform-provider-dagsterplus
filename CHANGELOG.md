@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Fixed
+- `dagsterplus_user`: an invite that Dagster+ answers with an error no longer leaves the user untracked. `addUserToOrganization` can create the user and still return a `PythonError`; `Create` then failed without writing state or applying grants, and every later apply failed with "user with email … is already registered", so the user could only be recovered with `terraform import`. When the invite errors, `Create` now looks the user up by email and, if it exists, adopts it, applies the configured grants, and reports the API error as a warning. If the user does not exist, the error is reported as before.
+- `dagsterplus_user`: invite errors now include the message returned by Dagster+ (`PythonError`, `UnauthorizedError`, `UserLimitError`) instead of only the Go type name, e.g. `AddUser: unexpected result type *schema.AddUserAddUserToOrganizationPythonError`.
+
 ## [0.1.11] - 2026-08-13
 
 ### Added
