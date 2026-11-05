@@ -44,7 +44,7 @@ type tokenDoer struct {
 
 func (t *tokenDoer) Do(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Dagster-Cloud-Api-Token", t.token)
-	resp, err := t.inner.Do(req)
+	resp, err := t.inner.Do(req) //nolint:gosec // G704: requests go to the Dagster+ API URL the provider is configured with.
 	if err != nil || resp.StatusCode != http.StatusInternalServerError {
 		return resp, err
 	}

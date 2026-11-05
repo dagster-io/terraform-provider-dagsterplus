@@ -25,14 +25,14 @@ func (c *Client) CreateUserToken(ctx context.Context, name string) (*UserToken, 
 
 	switch r := resp.CreateUserToken.(type) {
 	case *schema.CreateUserTokenCreateUserTokenDagsterCloudUserToken:
-		if r.UserTokenFields.Token == "" {
+		if r.Token == "" {
 			return nil, fmt.Errorf("CreateUserToken: no token in response")
 		}
 		return &UserToken{
-			ID:     strconv.Itoa(r.UserTokenFields.Id),
-			UserID: strconv.Itoa(r.UserTokenFields.User.UserId),
+			ID:     strconv.Itoa(r.Id),
+			UserID: strconv.Itoa(r.User.UserId),
 			Name:   name,
-			Token:  r.UserTokenFields.Token,
+			Token:  r.Token,
 		}, nil
 	default:
 		return nil, fmt.Errorf("CreateUserToken: unexpected result type %T", resp.CreateUserToken)
@@ -56,9 +56,9 @@ func (c *Client) ListUserTokens(ctx context.Context, userID string) ([]UserToken
 		tokens := make([]UserToken, len(r.Tokens))
 		for i, t := range r.Tokens {
 			tokens[i] = UserToken{
-				ID:     strconv.Itoa(t.UserTokenFields.Id),
+				ID:     strconv.Itoa(t.Id),
 				UserID: userID,
-				Name:   t.UserTokenFields.Description,
+				Name:   t.Description,
 			}
 		}
 		return tokens, nil

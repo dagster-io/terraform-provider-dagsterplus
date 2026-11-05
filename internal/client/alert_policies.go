@@ -102,7 +102,7 @@ type InsightMetricAlertConfig struct {
 }
 
 // metricNameToAPI maps user-friendly metric names to Dagster+ API metric name strings.
-var metricNameToAPI = map[string]string{
+var metricNameToAPI = map[string]string{ //nolint:gosec // G101 matches "cred" in the credits metric name, not a credential.
 	"dagster_credits": "__dagster_dagster_credits",
 }
 

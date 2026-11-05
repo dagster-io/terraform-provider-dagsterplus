@@ -22,7 +22,7 @@ func (c *Client) CreateTeam(ctx context.Context, name string) (*Team, error) {
 
 	switch r := resp.CreateOrUpdateTeam.(type) {
 	case *schema.CreateOrUpdateTeamCreateOrUpdateTeamCreateOrUpdateTeamSuccess:
-		return &Team{ID: r.Team.TeamFields.Id, Name: r.Team.TeamFields.Name}, nil
+		return &Team{ID: r.Team.Id, Name: r.Team.Name}, nil
 	default:
 		return nil, fmt.Errorf("CreateTeam: unexpected result type %T", resp.CreateOrUpdateTeam)
 	}
@@ -52,8 +52,8 @@ func (c *Client) ListTeams(ctx context.Context) ([]Team, error) {
 	teams := make([]Team, len(resp.TeamPermissions))
 	for i, tp := range resp.TeamPermissions {
 		teams[i] = Team{
-			ID:   tp.Team.TeamFields.Id,
-			Name: tp.Team.TeamFields.Name,
+			ID:   tp.Team.Id,
+			Name: tp.Team.Name,
 		}
 	}
 	return teams, nil
@@ -68,7 +68,7 @@ func (c *Client) RenameTeam(ctx context.Context, id, name string) (*Team, error)
 
 	switch r := resp.RenameTeam.(type) {
 	case *schema.RenameTeamRenameTeamDagsterCloudTeam:
-		return &Team{ID: r.TeamFields.Id, Name: r.TeamFields.Name}, nil
+		return &Team{ID: r.Id, Name: r.Name}, nil
 	default:
 		return nil, fmt.Errorf("RenameTeam: unexpected result type %T", resp.RenameTeam)
 	}
