@@ -133,7 +133,7 @@ func (c *Client) ListServiceUserDeploymentGrants(ctx context.Context, serviceUse
 	switch r := resp.ServiceUser.(type) {
 	case *schema.GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants:
 		var grants []ServiceUserGrant
-		for _, g := range r.ServiceUserGrantsFields.DeploymentPermissionGrants {
+		for _, g := range r.DeploymentPermissionGrants {
 			grants = append(grants, *serviceUserGrantFromFields(serviceUserID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants))
 		}
 		return grants, nil
@@ -151,7 +151,7 @@ func (c *Client) ListServiceUserBranchDeploymentsGrants(ctx context.Context, ser
 	switch r := resp.ServiceUser.(type) {
 	case *schema.GetServiceUserGrantsServiceUserServiceUserWithScopedPermissionGrants:
 		var grants []ServiceUserGrant
-		for _, g := range r.ServiceUserGrantsFields.PerBaseBranchDeploymentsPermissionGrants {
+		for _, g := range r.PerBaseBranchDeploymentsPermissionGrants {
 			grants = append(grants, *serviceUserGrantFromFields(serviceUserID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil))
 		}
 		return grants, nil

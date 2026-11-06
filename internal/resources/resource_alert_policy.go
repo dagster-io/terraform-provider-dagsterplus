@@ -104,7 +104,7 @@ type InsightMetricConfigModel struct {
 }
 
 // specificEventToAPI maps user-friendly event names to Dagster+ API event type strings.
-var specificEventToAPI = map[string]string{
+var specificEventToAPI = map[string]string{ //nolint:gosec // G101 matches "PASS" in ASSET_CHECK_PASSED, not a credential.
 	"materialization_success": "ASSET_MATERIALIZATION_SUCCESS",
 	"materialization_failure": "ASSET_MATERIALIZATION_FAILURE",
 	"check_passed":            "ASSET_CHECK_PASSED",

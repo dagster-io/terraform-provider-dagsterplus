@@ -24,13 +24,13 @@ func (c *Client) CreateAgentToken(ctx context.Context, name string) (*AgentToken
 
 	switch r := resp.CreateAgentToken.(type) {
 	case *schema.CreateAgentTokenCreateAgentTokenDagsterCloudAgentToken:
-		if r.AgentTokenFields.Token == "" {
+		if r.Token == "" {
 			return nil, fmt.Errorf("CreateAgentToken: no token in response")
 		}
 		return &AgentToken{
-			ID:    strconv.Itoa(r.AgentTokenFields.Id),
+			ID:    strconv.Itoa(r.Id),
 			Name:  name,
-			Token: r.AgentTokenFields.Token,
+			Token: r.Token,
 		}, nil
 	case *schema.CreateAgentTokenCreateAgentTokenPythonError:
 		return nil, fmt.Errorf("CreateAgentToken: Dagster Cloud returned an internal error; check your organization configuration or contact Dagster support")
@@ -52,12 +52,12 @@ func (c *Client) ListAgentTokens(ctx context.Context) ([]AgentToken, error) {
 	case *schema.ListAgentTokensAgentTokensOrErrorDagsterCloudAgentTokens:
 		var tokens []AgentToken
 		for _, t := range r.Tokens {
-			if t.AgentTokenFields.Revoked {
+			if t.Revoked {
 				continue
 			}
 			tokens = append(tokens, AgentToken{
-				ID:   strconv.Itoa(t.AgentTokenFields.Id),
-				Name: t.AgentTokenFields.Description,
+				ID:   strconv.Itoa(t.Id),
+				Name: t.Description,
 			})
 		}
 		return tokens, nil

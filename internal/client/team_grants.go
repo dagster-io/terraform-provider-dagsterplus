@@ -110,7 +110,7 @@ func (c *Client) GetTeamGrant(ctx context.Context, teamID, deploymentScope strin
 	}
 
 	for _, tp := range resp.TeamPermissions {
-		if tp.TeamPermissionsFields.Team.Id == teamID {
+		if tp.Team.Id == teamID {
 			g := findGrantInFields(tp.TeamPermissionsFields, deploymentScope, deploymentID)
 			if g != nil {
 				return g, nil
@@ -128,11 +128,11 @@ func (c *Client) ListTeamDeploymentGrants(ctx context.Context, teamID string) ([
 	}
 
 	for _, tp := range resp.TeamPermissions {
-		if tp.TeamPermissionsFields.Team.Id != teamID {
+		if tp.Team.Id != teamID {
 			continue
 		}
 		var grants []TeamGrant
-		for _, g := range tp.TeamPermissionsFields.DeploymentPermissionGrants {
+		for _, g := range tp.DeploymentPermissionGrants {
 			grants = append(grants, *teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants))
 		}
 		return grants, nil
@@ -148,11 +148,11 @@ func (c *Client) ListTeamBranchDeploymentsGrants(ctx context.Context, teamID str
 	}
 
 	for _, tp := range resp.TeamPermissions {
-		if tp.TeamPermissionsFields.Team.Id != teamID {
+		if tp.Team.Id != teamID {
 			continue
 		}
 		var grants []TeamGrant
-		for _, g := range tp.TeamPermissionsFields.PerBaseBranchDeploymentsPermissionGrants {
+		for _, g := range tp.PerBaseBranchDeploymentsPermissionGrants {
 			grants = append(grants, *teamGrantFromFields(teamID, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil))
 		}
 		return grants, nil

@@ -121,7 +121,7 @@ func (c *Client) GetUserGrant(ctx context.Context, userID, deploymentScope strin
 	switch r := resp.UsersOrError.(type) {
 	case *schema.ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrants:
 		for _, u := range r.Users {
-			if fmt.Sprintf("%d", u.UserWithGrantsFields.User.UserId) != userID {
+			if fmt.Sprintf("%d", u.User.UserId) != userID {
 				continue
 			}
 			g := findUserGrantInFields(u.UserWithGrantsFields, deploymentScope, deploymentID)
@@ -145,12 +145,12 @@ func (c *Client) ListUserDeploymentGrants(ctx context.Context, userID string) ([
 	switch r := resp.UsersOrError.(type) {
 	case *schema.ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrants:
 		for _, u := range r.Users {
-			if fmt.Sprintf("%d", u.UserWithGrantsFields.User.UserId) != userID {
+			if fmt.Sprintf("%d", u.User.UserId) != userID {
 				continue
 			}
 			var grants []UserGrant
-			for _, g := range u.UserWithGrantsFields.DeploymentPermissionGrants {
-				grants = append(grants, *userGrantFromFields(userID, u.UserWithGrantsFields.User.Email, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants))
+			for _, g := range u.DeploymentPermissionGrants {
+				grants = append(grants, *userGrantFromFields(userID, u.User.Email, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, g.LocationGrants))
 			}
 			return grants, nil
 		}
@@ -169,12 +169,12 @@ func (c *Client) ListUserBranchDeploymentsGrants(ctx context.Context, userID str
 	switch r := resp.UsersOrError.(type) {
 	case *schema.ListUsersUsersOrErrorDagsterCloudUsersWithScopedPermissionGrants:
 		for _, u := range r.Users {
-			if fmt.Sprintf("%d", u.UserWithGrantsFields.User.UserId) != userID {
+			if fmt.Sprintf("%d", u.User.UserId) != userID {
 				continue
 			}
 			var grants []UserGrant
-			for _, g := range u.UserWithGrantsFields.PerBaseBranchDeploymentsPermissionGrants {
-				grants = append(grants, *userGrantFromFields(userID, u.UserWithGrantsFields.User.Email, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil))
+			for _, g := range u.PerBaseBranchDeploymentsPermissionGrants {
+				grants = append(grants, *userGrantFromFields(userID, u.User.Email, g.Grant, g.CustomRoleId, g.DeploymentScope, g.DeploymentId, nil))
 			}
 			return grants, nil
 		}

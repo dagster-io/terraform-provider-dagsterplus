@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Changed
+- Build with Go 1.26.10 and update golang.org/x/crypto to v0.58.0 and google.golang.org/grpc to v1.85.0, which fix security vulnerabilities in the Go standard library and those modules (including GHSA-hrxh-6v49-42gf in grpc).
+- Lint with golangci-lint v2, since golangci-lint v1 cannot lint modules that target Go 1.25 or newer.
+
 ## [0.1.11] - 2026-08-13
 
 ### Added

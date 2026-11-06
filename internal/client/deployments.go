@@ -25,10 +25,10 @@ func (c *Client) CreateDeployment(ctx context.Context, name string) (*Deployment
 	switch r := resp.CreateDeployment.(type) {
 	case *schema.CreateDeploymentCreateDeploymentDagsterCloudDeployment:
 		return &Deployment{
-			IntID:  int64(r.DeploymentFields.DeploymentId),
-			Name:   r.DeploymentFields.DeploymentName,
-			Type:   string(r.DeploymentFields.DeploymentType),
-			Status: string(r.DeploymentFields.DeploymentStatus),
+			IntID:  int64(r.DeploymentId),
+			Name:   r.DeploymentName,
+			Type:   string(r.DeploymentType),
+			Status: string(r.DeploymentStatus),
 		}, nil
 	default:
 		return nil, fmt.Errorf("CreateDeployment: unexpected result type %T", resp.CreateDeployment)
@@ -59,10 +59,10 @@ func (c *Client) ListDeployments(ctx context.Context) ([]Deployment, error) {
 	result := make([]Deployment, len(resp.Deployments))
 	for i, d := range resp.Deployments {
 		result[i] = Deployment{
-			IntID:  int64(d.DeploymentFields.DeploymentId),
-			Name:   d.DeploymentFields.DeploymentName,
-			Type:   string(d.DeploymentFields.DeploymentType),
-			Status: string(d.DeploymentFields.DeploymentStatus),
+			IntID:  int64(d.DeploymentId),
+			Name:   d.DeploymentName,
+			Type:   string(d.DeploymentType),
+			Status: string(d.DeploymentStatus),
 		}
 	}
 	return result, nil
