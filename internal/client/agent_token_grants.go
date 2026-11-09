@@ -115,7 +115,7 @@ func (c *Client) ListAgentTokenDeploymentGrants(ctx context.Context, agentTokenI
 	switch r := resp.AgentTokenOrError.(type) {
 	case *schema.GetAgentTokenGrantsAgentTokenOrErrorDagsterCloudAgentToken:
 		var grants []AgentTokenGrant
-		for _, g := range r.Permissions.AgentTokenGrantsFields.DeploymentPermissionGrants {
+		for _, g := range r.Permissions.DeploymentPermissionGrants {
 			grants = append(grants, *agentTokenGrantFromFields(agentTokenID, g.DeploymentScope, g.DeploymentId))
 		}
 		return grants, nil

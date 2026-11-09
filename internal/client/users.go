@@ -19,8 +19,8 @@ type User struct {
 
 func userFromFields(f schema.UserWithGrantsFields) User {
 	role := ""
-	if f.OrganizationPermissionGrant.ScopedGrantFields.Grant != "" {
-		role = string(f.OrganizationPermissionGrant.ScopedGrantFields.Grant)
+	if f.OrganizationPermissionGrant.Grant != "" {
+		role = string(f.OrganizationPermissionGrant.Grant)
 	}
 	return User{
 		ID:                fmt.Sprintf("%d", f.User.UserId),

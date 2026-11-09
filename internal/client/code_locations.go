@@ -293,13 +293,13 @@ func (c *Client) ListCodeLocations(ctx context.Context, deployment string) ([]Co
 	entries := resp.Workspace.WorkspaceEntries
 	locations := make([]CodeLocation, 0, len(entries))
 	for _, e := range entries {
-		loc, err := parseSerializedMetadata(deployment, e.WorkspaceEntryFields.SerializedDeploymentMetadata)
+		loc, err := parseSerializedMetadata(deployment, e.SerializedDeploymentMetadata)
 		if err != nil {
 			// Skip entries with unparseable metadata rather than failing the whole list.
 			continue
 		}
 		// Use the workspace entry's locationName as the authoritative name.
-		loc.Name = e.WorkspaceEntryFields.LocationName
+		loc.Name = e.LocationName
 		loc.ID = fmt.Sprintf("%s/%s", deployment, loc.Name)
 		locations = append(locations, loc)
 	}
