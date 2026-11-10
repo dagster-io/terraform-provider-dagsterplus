@@ -31,7 +31,8 @@ output "prod_deployment_id" {
 
 ### Read-Only
 
+- `agent_type` (String) The type of agent that serves the deployment: `HYBRID` or `SERVERLESS`.
 - `deployment_id` (String) The numeric deployment ID as a decimal string.
 - `id` (String) Deployment identifier (same as name).
 - `status` (String) The current status of the deployment (e.g. `ACTIVE`, `PENDING_DELETION`).
-- `type` (String) The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.
+- `type` (String) The deployment type: `PRODUCTION` or `BRANCH`.

@@ -7,10 +7,12 @@ import (
 	"strings"
 
 	"github.com/dagster-io/terraform-provider-dagsterplus/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -32,6 +34,7 @@ type deploymentResource struct {
 type deploymentResourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
+	AgentType    types.String `tfsdk:"agent_type"`
 	Status       types.String `tfsdk:"status"`
 	DeploymentID types.String `tfsdk:"deployment_id"`
 }
@@ -56,6 +59,14 @@ func (r *deploymentResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"agent_type": schema.StringAttribute{
+				Description: withEnumValues("The type of agent that serves the deployment. Omit to use the organization's default agent type. **Setting or changing this on a deployment that already exists switches its agent type in place** — the equivalent of \"Switch to hybrid\" in the UI — which changes where the deployment's code runs. Terraform shows this as an ordinary in-place attribute update, not a replacement, so review plans on production deployments carefully. Once set, this attribute cannot be cleared back to \"use the organization default\": removing it from your configuration leaves the last applied value in state.", deploymentAgentTypes),
+				Optional:    true,
+				Computed:    true,
+				Validators: []validator.String{
+					stringvalidator.OneOf(deploymentAgentTypes...),
 				},
 			},
 			"status": schema.StringAttribute{
@@ -98,7 +109,9 @@ func (r *deploymentResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	deployment, err := r.client.CreateDeployment(ctx, plan.Name.ValueString())
+	// A null or unknown agent_type is sent as "" so the client omits it and the
+	// organization's default agent type applies.
+	deployment, err := r.client.CreateDeployment(ctx, plan.Name.ValueString(), plan.AgentType.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating deployment", err.Error())
 		return
@@ -106,6 +119,7 @@ func (r *deploymentResource) Create(ctx context.Context, req resource.CreateRequ
 
 	plan.ID = types.StringValue(deployment.Name)
 	plan.Name = types.StringValue(deployment.Name)
+	plan.AgentType = types.StringValue(deployment.AgentType)
 	plan.Status = types.StringValue(deployment.Status)
 	plan.DeploymentID = types.StringValue(strconv.FormatInt(deployment.IntID, 10))
 
@@ -131,14 +145,43 @@ func (r *deploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	state.ID = types.StringValue(deployment.Name)
 	state.Name = types.StringValue(deployment.Name)
+	state.AgentType = types.StringValue(deployment.AgentType)
 	state.Status = types.StringValue(deployment.Status)
 	state.DeploymentID = types.StringValue(strconv.FormatInt(deployment.IntID, 10))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
-func (r *deploymentResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// name is RequiresReplace — Update is never called.
+func (r *deploymentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// name is RequiresReplace, so agent_type is the only attribute that can change.
+	var plan, state deploymentResourceModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Carry the computed attributes forward; only agent_type is mutable, and
+	// only when the plan asks for a value that differs from the current one.
+	newState := state
+	if !plan.AgentType.IsUnknown() && !plan.AgentType.IsNull() &&
+		plan.AgentType.ValueString() != state.AgentType.ValueString() {
+		deployment, err := r.client.UpdateDeploymentAgentType(ctx, state.Name.ValueString(), plan.AgentType.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error updating deployment agent type", err.Error())
+			return
+		}
+
+		newState = deploymentResourceModel{
+			ID:           types.StringValue(deployment.Name),
+			Name:         types.StringValue(deployment.Name),
+			AgentType:    types.StringValue(deployment.AgentType),
+			Status:       types.StringValue(deployment.Status),
+			DeploymentID: types.StringValue(strconv.FormatInt(deployment.IntID, 10)),
+		}
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, newState)...)
 }
 
 func (r *deploymentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -166,6 +209,7 @@ func (r *deploymentResource) ImportState(ctx context.Context, req resource.Impor
 	state := deploymentResourceModel{
 		ID:           types.StringValue(deployment.Name),
 		Name:         types.StringValue(deployment.Name),
+		AgentType:    types.StringValue(deployment.AgentType),
 		Status:       types.StringValue(deployment.Status),
 		DeploymentID: types.StringValue(strconv.FormatInt(deployment.IntID, 10)),
 	}

@@ -29,6 +29,7 @@ type deploymentDataSourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
 	Type         types.String `tfsdk:"type"`
+	AgentType    types.String `tfsdk:"agent_type"`
 	Status       types.String `tfsdk:"status"`
 	DeploymentID types.String `tfsdk:"deployment_id"`
 }
@@ -50,7 +51,11 @@ func (d *deploymentDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 				Required:    true,
 			},
 			"type": schema.StringAttribute{
-				Description: "The deployment type: `SERVERLESS`, `HYBRID`, or `BRANCH`.",
+				Description: "The deployment type: `PRODUCTION` or `BRANCH`.",
+				Computed:    true,
+			},
+			"agent_type": schema.StringAttribute{
+				Description: "The type of agent that serves the deployment: `HYBRID` or `SERVERLESS`.",
 				Computed:    true,
 			},
 			"status": schema.StringAttribute{
@@ -98,6 +103,7 @@ func (d *deploymentDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		ID:           types.StringValue(deployment.Name),
 		Name:         types.StringValue(deployment.Name),
 		Type:         types.StringValue(deployment.Type),
+		AgentType:    types.StringValue(deployment.AgentType),
 		Status:       types.StringValue(deployment.Status),
 		DeploymentID: types.StringValue(strconv.FormatInt(deployment.IntID, 10)),
 	}

@@ -14,6 +14,9 @@ var (
 	// orgGrantLevels are the permission levels accepted for organization-level grants.
 	orgGrantLevels = []string{"ADMIN"}
 
+	// deploymentAgentTypes are the agent types a full deployment can be served by.
+	deploymentAgentTypes = []string{"HYBRID", "SERVERLESS"}
+
 	// roleTypes are the scopes a custom role can target.
 	roleTypes = []string{"deployment", "organization"}
 

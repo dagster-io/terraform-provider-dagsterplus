@@ -6,11 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Breaking Changes
+- `dagsterplus_deployment`: when `agent_type` is omitted, the provider no longer forces `SERVERLESS` — it omits the agent type from `createDeployment` so the organization's default applies. In organizations whose default is `SERVERLESS` (any org with Serverless enabled) behavior is unchanged; in an organization whose default is `HYBRID`, deployments created without `agent_type` now come up `HYBRID` instead of `SERVERLESS`. Existing deployments already in state are unaffected — only newly created deployments follow the org default. **Migration:** if you rely on *newly created* deployments being Serverless, set `agent_type = "SERVERLESS"` explicitly on the `dagsterplus_deployment` blocks that create them. **Do not blanket-add `agent_type` to every existing block** — on a deployment that already exists, setting `agent_type` to anything other than its current value switches its agent type in place on the next apply, changing where that deployment's code runs. Run `terraform plan` and check for `~ agent_type` lines before applying; any deployment you want left alone should keep `agent_type` omitted. ([#47](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/47))
+
+### Added
+- `dagsterplus_deployment`: new optional `agent_type` attribute (`HYBRID` or `SERVERLESS`) that selects which kind of agent serves the deployment, so hybrid-only organizations no longer have to click **Switch to hybrid** in the UI after every apply that creates a deployment. Changing `agent_type` on an existing deployment switches it **in place** via the `updateDeploymentAgentType` mutation (the same action as the UI button) — the deployment is not destroyed and recreated. ([#47](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/47))
+- `dagsterplus_deployment`, `dagsterplus_deployment` / `dagsterplus_deployments` data sources: new computed `agent_type` attribute reporting the deployment's current agent type.
+- `dagsterplus_deployment`: create failures now surface the API's error message (e.g. duplicate deployment name, deployment limit reached, unauthorized) instead of an opaque `unexpected result type` message.
+
 ### Fixed
 - `dagsterplus_alert_policy`: the `check_execution_failed`, `freshness_passing`, `freshness_warning` and `freshness_failure` values of `asset.specific_events` now map to the event types the Dagster+ API accepts (`ASSET_CHECK_EXECUTION_FAILURE`, `ASSET_FRESHNESS_PASS`, `ASSET_FRESHNESS_WARN`, `ASSET_FRESHNESS_FAIL`). Before, the provider sent stale names (`ASSET_CHECK_EXECUTION_FAILED`, `ASSET_NOT_OVERDUE`, `ASSET_OVERDUE_WARN`, `ASSET_OVERDUE`), so creating such a policy failed with `not in enum type AlertPolicyEventType`. Reading or importing an existing policy also dropped these events, so plans never converged. The values you write in config are unchanged, so no migration is needed. ([#52](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/52))
 - `dagsterplus_alert_policy` and the alert policy data sources: when the API returns an asset event type the provider does not recognize, reading the policy now shows a warning instead of silently dropping the event, which used to appear as unexplained drift.
 
 ### Changed
+- `dagsterplus_deployment` / `dagsterplus_deployments` data sources: corrected the `type` attribute description, which claimed the values were `SERVERLESS`/`HYBRID`/`BRANCH`. The API returns the deployment type (`PRODUCTION` or `BRANCH`); the agent type is reported by the new `agent_type` attribute. Description only — no schema or value change.
 - Build with Go 1.26.10 and update golang.org/x/crypto to v0.58.0 and google.golang.org/grpc to v1.85.0, which fix security vulnerabilities in the Go standard library and those modules (including GHSA-hrxh-6v49-42gf in grpc).
 - Lint with golangci-lint v2, since golangci-lint v1 cannot lint modules that target Go 1.25 or newer.
 

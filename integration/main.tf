@@ -23,7 +23,8 @@ variable "test_user_email" {
 # ---------------------------------------------------------------------------
 
 resource "dagsterplus_deployment" "test" {
-  name = "acc-tf-test"
+  name       = "acc-tf-test"
+  agent_type = "HYBRID"
 }
 
 resource "dagsterplus_user" "dennis" {
