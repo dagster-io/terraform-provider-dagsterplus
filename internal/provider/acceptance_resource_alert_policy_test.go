@@ -125,6 +125,28 @@ func TestAccAlertPolicyResource_assetSpecificEvents(t *testing.T) {
 				),
 				Check: resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "enabled", "false"),
 			},
+			// Update: switch to asset check and freshness events. These previously mapped
+			// to stale API enum names that the API rejected (#52). The framework's
+			// post-apply plan also asserts they read back without drift, and the import
+			// step below asserts they survive import.
+			{
+				Config: providerConfig() + testAccAlertPolicySpecificEventsConfig(
+					rName, testAccAlertDeployment, false,
+					[]string{
+						"check_passed", "check_warn", "check_error", "check_execution_failed",
+						"freshness_passing", "freshness_warning", "freshness_failure",
+					},
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "asset.0.specific_events.#", "7"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "asset.0.specific_events.3", "check_execution_failed"),
+					resource.TestCheckResourceAttr("dagsterplus_alert_policy.test", "asset.0.specific_events.6", "freshness_failure"),
+					resource.TestCheckTypeSetElemAttr("dagsterplus_alert_policy.test", "event_types.*", "ASSET_CHECK_EXECUTION_FAILURE"),
+					resource.TestCheckTypeSetElemAttr("dagsterplus_alert_policy.test", "event_types.*", "ASSET_FRESHNESS_PASS"),
+					resource.TestCheckTypeSetElemAttr("dagsterplus_alert_policy.test", "event_types.*", "ASSET_FRESHNESS_WARN"),
+					resource.TestCheckTypeSetElemAttr("dagsterplus_alert_policy.test", "event_types.*", "ASSET_FRESHNESS_FAIL"),
+				),
+			},
 			// Import by {deployment}/{name}
 			{
 				ResourceName:            "dagsterplus_alert_policy.test",
