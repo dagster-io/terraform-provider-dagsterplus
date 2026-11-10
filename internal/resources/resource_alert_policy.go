@@ -110,10 +110,10 @@ var specificEventToAPI = map[string]string{ //nolint:gosec // G101 matches "PASS
 	"check_passed":            "ASSET_CHECK_PASSED",
 	"check_warn":              "ASSET_CHECK_SEVERITY_WARN",
 	"check_error":             "ASSET_CHECK_SEVERITY_ERROR",
-	"check_execution_failed":  "ASSET_CHECK_EXECUTION_FAILED",
-	"freshness_passing":       "ASSET_NOT_OVERDUE",
-	"freshness_warning":       "ASSET_OVERDUE_WARN",
-	"freshness_failure":       "ASSET_OVERDUE",
+	"check_execution_failed":  "ASSET_CHECK_EXECUTION_FAILURE",
+	"freshness_passing":       "ASSET_FRESHNESS_PASS",
+	"freshness_warning":       "ASSET_FRESHNESS_WARN",
+	"freshness_failure":       "ASSET_FRESHNESS_FAIL",
 }
 
 // apiToSpecificEvent is the reverse of specificEventToAPI.
@@ -815,6 +815,7 @@ func modelToPolicy(ctx context.Context, model AlertPolicyResourceModel) (client.
 
 // PolicyToModel populates the Terraform model from the client AlertPolicy.
 func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) diag.Diagnostics {
+	var diags diag.Diagnostics
 	model.ID = types.StringValue(fmt.Sprintf("%s/%s", model.Deployment.ValueString(), policy.Name))
 	model.Name = types.StringValue(policy.Name)
 	model.Description = types.StringValue(policy.Description)
@@ -896,6 +897,15 @@ func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) 
 				a.HealthStatus = types.StringValue(hs)
 			} else if friendly, ok := apiToSpecificEvent[et]; ok {
 				specificElems = append(specificElems, types.StringValue(friendly))
+			} else {
+				// Surface unmapped values rather than dropping them silently: a dropped
+				// event type shows up as permanent, unexplained drift on every plan.
+				diags.AddWarning(
+					"Unrecognized alert policy event type",
+					fmt.Sprintf("Alert policy %q has event type %q, which this provider version does not recognize, "+
+						"so it is omitted from asset.specific_events. Terraform will show drift for this policy until "+
+						"the provider is upgraded to a version that supports this event type.", policy.Name, et),
+				)
 			}
 		}
 		if len(specificElems) > 0 {
@@ -983,7 +993,7 @@ func PolicyToModel(policy *client.AlertPolicy, model *AlertPolicyResourceModel) 
 		}
 	}
 
-	return nil
+	return diags
 }
 
 func runToModel(r *client.RunAlertConfig) RunConfigModel {

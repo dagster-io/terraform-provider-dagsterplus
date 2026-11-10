@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+### Fixed
+- `dagsterplus_alert_policy`: the `check_execution_failed`, `freshness_passing`, `freshness_warning` and `freshness_failure` values of `asset.specific_events` now map to the event types the Dagster+ API accepts (`ASSET_CHECK_EXECUTION_FAILURE`, `ASSET_FRESHNESS_PASS`, `ASSET_FRESHNESS_WARN`, `ASSET_FRESHNESS_FAIL`). Before, the provider sent stale names (`ASSET_CHECK_EXECUTION_FAILED`, `ASSET_NOT_OVERDUE`, `ASSET_OVERDUE_WARN`, `ASSET_OVERDUE`), so creating such a policy failed with `not in enum type AlertPolicyEventType`. Reading or importing an existing policy also dropped these events, so plans never converged. The values you write in config are unchanged, so no migration is needed. ([#52](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/52))
+- `dagsterplus_alert_policy` and the alert policy data sources: when the API returns an asset event type the provider does not recognize, reading the policy now shows a warning instead of silently dropping the event, which used to appear as unexplained drift.
+
 ### Changed
 - Build with Go 1.26.10 and update golang.org/x/crypto to v0.58.0 and google.golang.org/grpc to v1.85.0, which fix security vulnerabilities in the Go standard library and those modules (including GHSA-hrxh-6v49-42gf in grpc).
 - Lint with golangci-lint v2, since golangci-lint v1 cannot lint modules that target Go 1.25 or newer.
