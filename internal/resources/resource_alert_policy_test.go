@@ -740,3 +740,103 @@ func TestPolicyToModel_NonAgentClearsAgentDowntimeBlock(t *testing.T) {
 		t.Errorf("len(AgentDowntime) = %d, want 0", len(model.AgentDowntime))
 	}
 }
+
+// TestSpecificEventToAPI_MatchesSchemaEnum pins every specific_events value to the
+// AlertPolicyEventType enum literal the Dagster+ API accepts. The check and freshness
+// values previously used stale names (ASSET_CHECK_EXECUTION_FAILED, ASSET_OVERDUE*)
+// that the API rejected on create and that were dropped on read/import (#52).
+func TestSpecificEventToAPI_MatchesSchemaEnum(t *testing.T) {
+	want := map[string]string{
+		"materialization_success": "ASSET_MATERIALIZATION_SUCCESS",
+		"materialization_failure": "ASSET_MATERIALIZATION_FAILURE",
+		"check_passed":            "ASSET_CHECK_PASSED",
+		"check_warn":              "ASSET_CHECK_SEVERITY_WARN",
+		"check_error":             "ASSET_CHECK_SEVERITY_ERROR",
+		"check_execution_failed":  "ASSET_CHECK_EXECUTION_FAILURE",
+		"freshness_passing":       "ASSET_FRESHNESS_PASS",
+		"freshness_warning":       "ASSET_FRESHNESS_WARN",
+		"freshness_failure":       "ASSET_FRESHNESS_FAIL",
+	}
+	if len(specificEventToAPI) != len(want) {
+		t.Fatalf("specificEventToAPI has %d entries, want %d", len(specificEventToAPI), len(want))
+	}
+	for friendly, api := range want {
+		if got := specificEventToAPI[friendly]; got != api {
+			t.Errorf("specificEventToAPI[%q] = %q, want %q", friendly, got, api)
+		}
+		if got := apiToSpecificEvent[api]; got != friendly {
+			t.Errorf("apiToSpecificEvent[%q] = %q, want %q", api, got, friendly)
+		}
+	}
+}
+
+func TestPolicyToModel_AssetCheckAndFreshnessEventsRoundTrip(t *testing.T) {
+	policy := &client.AlertPolicy{
+		Name:    "asset-failures",
+		Enabled: true,
+		EventTypes: []string{
+			"ASSET_MATERIALIZATION_FAILURE",
+			"ASSET_CHECK_SEVERITY_WARN",
+			"ASSET_CHECK_SEVERITY_ERROR",
+			"ASSET_CHECK_EXECUTION_FAILURE",
+			"ASSET_FRESHNESS_WARN",
+			"ASSET_FRESHNESS_FAIL",
+		},
+		AlertTargetType: "all_assets",
+		NotificationService: client.AlertPolicyNotification{
+			Type:           "email",
+			EmailAddresses: []string{"a@example.com"},
+		},
+	}
+	// PolicyType empty simulates import.
+	model := &AlertPolicyResourceModel{Deployment: strPtr("prod")}
+
+	diags := PolicyToModel(policy, model)
+	if diags.HasError() || diags.WarningsCount() > 0 {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+	if len(model.Asset) != 1 {
+		t.Fatalf("expected 1 Asset block, got %d", len(model.Asset))
+	}
+	var got []string
+	model.Asset[0].SpecificEvents.ElementsAs(context.Background(), &got, false)
+	want := []string{
+		"materialization_failure", "check_warn", "check_error",
+		"check_execution_failed", "freshness_warning", "freshness_failure",
+	}
+	if len(got) != len(want) {
+		t.Fatalf("specific_events = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("specific_events[%d] = %q, want %q", i, got[i], want[i])
+		}
+	}
+}
+
+func TestPolicyToModel_UnknownAssetEventTypeWarns(t *testing.T) {
+	policy := &client.AlertPolicy{
+		Name:            "future-policy",
+		Enabled:         true,
+		EventTypes:      []string{"ASSET_MATERIALIZATION_FAILURE", "ASSET_SOMETHING_NEW"},
+		AlertTargetType: "all_assets",
+		NotificationService: client.AlertPolicyNotification{
+			Type:           "email",
+			EmailAddresses: []string{"a@example.com"},
+		},
+	}
+	model := &AlertPolicyResourceModel{Deployment: strPtr("prod"), PolicyType: strPtr("asset")}
+
+	diags := PolicyToModel(policy, model)
+	if diags.HasError() {
+		t.Fatalf("unexpected error diags: %v", diags)
+	}
+	if diags.WarningsCount() != 1 {
+		t.Fatalf("expected 1 warning, got %d: %v", diags.WarningsCount(), diags)
+	}
+	var got []string
+	model.Asset[0].SpecificEvents.ElementsAs(context.Background(), &got, false)
+	if len(got) != 1 || got[0] != "materialization_failure" {
+		t.Errorf("specific_events = %v, want [materialization_failure]", got)
+	}
+}
