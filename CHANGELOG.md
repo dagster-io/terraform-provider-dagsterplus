@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-11-11
+
 ### Breaking Changes
 - `dagsterplus_deployment`: when `agent_type` is omitted, the provider no longer forces `SERVERLESS` — it omits the agent type from `createDeployment` so the organization's default applies. In organizations whose default is `SERVERLESS` (any org with Serverless enabled) behavior is unchanged; in an organization whose default is `HYBRID`, deployments created without `agent_type` now come up `HYBRID` instead of `SERVERLESS`. Existing deployments already in state are unaffected — only newly created deployments follow the org default. **Migration:** if you rely on *newly created* deployments being Serverless, set `agent_type = "SERVERLESS"` explicitly on the `dagsterplus_deployment` blocks that create them. **Do not blanket-add `agent_type` to every existing block** — on a deployment that already exists, setting `agent_type` to anything other than its current value switches its agent type in place on the next apply, changing where that deployment's code runs. Run `terraform plan` and check for `~ agent_type` lines before applying; any deployment you want left alone should keep `agent_type` omitted. ([#47](https://github.com/dagster-io/terraform-provider-dagsterplus/issues/47))
 
@@ -116,7 +118,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Thi
 - Full CI pipeline (build, vet, format, unit tests, module tidy, generated code check).
 - GoReleaser-based release pipeline with GPG-signed checksums.
 
-[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/dagster-io/terraform-provider-dagsterplus/compare/v0.1.8...v0.1.9
