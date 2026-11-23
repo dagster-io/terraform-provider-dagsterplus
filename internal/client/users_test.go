@@ -71,6 +71,30 @@ func TestAddUser_UnexpectedTypename(t *testing.T) {
 	}
 }
 
+func TestAddUser_ErrorMessages(t *testing.T) {
+	for _, typename := range []string{"PythonError", "UnauthorizedError", "UserLimitError"} {
+		t.Run(typename, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				gqlOK(w, map[string]any{
+					"addUserToOrganization": map[string]any{
+						"__typename": typename,
+						"message":    "something went wrong",
+					},
+				})
+			}))
+			defer srv.Close()
+
+			_, err := newClient(srv).AddUser(context.Background(), "alice@example.com")
+			if err == nil {
+				t.Fatalf("expected error for %s, got nil", typename)
+			}
+			if !strings.Contains(err.Error(), "something went wrong") {
+				t.Errorf("error = %q, want it to carry the API message", err)
+			}
+		})
+	}
+}
+
 func TestListUsers_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b := parseBody(t, r)

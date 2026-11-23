@@ -70,6 +70,15 @@ mutation AddUser($email: String!) {
         ...UserWithGrantsFields
       }
     }
+    ... on PythonError {
+      message
+    }
+    ... on UnauthorizedError {
+      message
+    }
+    ... on UserLimitError {
+      message
+    }
   }
 }
 
